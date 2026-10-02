@@ -1,0 +1,1645 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>KTHT – Quản lý thiết bị</title>
+  <meta name="description" content="Quản lý phương tiện, trang thiết bị kỹ thuật – Phòng KTHT, CHK Buôn Ma Thuột">
+  <meta name="theme-color" content="#0b4f8a">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" href="icons/favicon.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="KTHT">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0..1,0&icon_names=add,add_a_photo,agriculture,airport_shuttle,ambulance,api,arrow_back,assignment_ind,block,bolt,build,cancel,cell_tower,check,check_circle,chevron_left,chevron_right,cleaning_services,close,cloud_off,construction,conveyor_belt,delete,description,directions_bus,docs,donut_large,draft,edit,electric_bolt,engineering,error,event_busy,files,fire_truck,flight_takeoff,folder_open,forklift,gpp_bad,grass,group,history,home,hourglass_empty,image,info,local_shipping,logout,mode_fan,person,person_add,picture_as_pdf,playlist_add,refresh,remove,report,schedule,search,search_off,send,space_dashboard,stairs,sync,tab,task_alt,tire_repair,title,toast,undo,upload,upload_file,verified,warning&display=block" rel="stylesheet">
+<style>
+:root {
+  --pri: #0b4f8a; --pri-2: #1366b3; --pri-soft: #e6f0fa; --pri-ink: #ffffff;
+  --bg: #f2f4f7; --surface: #ffffff; --line: #e3e8ef; --line-2: #d0d8e2;
+  --ink: #17212f; --ink-2: #4a5a6e; --muted: #7b8a9c;
+  --ok: #2e7d32; --ok-soft: #e8f5e9;
+  --warn: #c25e00; --warn-soft: #fff3e0;
+  --bad: #c62828; --bad-soft: #fdecea;
+  --info: #1565c0; --info-soft: #e3f2fd;
+  --grey-soft: #eef1f5;
+  --r: 14px; --r-sm: 10px;
+  --shadow: 0 1px 2px rgba(16,32,56,.06), 0 4px 14px rgba(16,32,56,.06);
+  --shadow-lg: 0 12px 40px rgba(16,32,56,.22);
+  --side: 256px; --top: 56px; --nav: 64px;
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-t: env(safe-area-inset-top, 0px);
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink);
+  font-family: 'Be Vietnam Pro', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; font-size: 15px; line-height: 1.45; }
+button, input, select, textarea { font: inherit; color: inherit; }
+a { color: var(--pri-2); text-decoration: none; }
+.ms { font-family: 'Material Symbols Rounded'; font-weight: normal; font-style: normal; font-size: 22px; line-height: 1;
+  display: inline-block; vertical-align: middle; letter-spacing: normal; text-transform: none; white-space: nowrap;
+  -webkit-font-smoothing: antialiased; font-variation-settings: 'FILL' 0; }
+.ms.fill { font-variation-settings: 'FILL' 1; }
+.boot-splash { height: 100vh; display: grid; place-items: center; }
+.spinner { width: 34px; height: 34px; border: 3px solid var(--pri-soft); border-top-color: var(--pri); border-radius: 50%; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+[v-cloak] { display: none; }
+
+/* ---------- Khung ---------- */
+.shell { min-height: 100vh; }
+.side { display: none; }
+.topbar { position: sticky; top: 0; z-index: 30; height: calc(var(--top) + var(--safe-t)); display: flex; align-items: center; gap: 6px;
+  padding: var(--safe-t) 8px 0 12px; background: var(--pri); color: var(--pri-ink); box-shadow: 0 2px 8px rgba(11,79,138,.25); }
+.topbar h1 { font-size: 17px; font-weight: 600; margin: 0 4px; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.topbar .ibtn { color: #fff; }
+.brand-dot { width: 32px; height: 32px; border-radius: 9px; background: rgba(255,255,255,.16); display: grid; place-items: center; }
+.main { padding: 14px 14px calc(var(--nav) + 24px + var(--safe-b)); max-width: 1180px; margin: 0 auto; }
+.bnav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; height: calc(var(--nav) + var(--safe-b)); padding-bottom: var(--safe-b);
+  background: var(--surface); border-top: 1px solid var(--line); display: flex; }
+.bnav button { flex: 1; border: 0; background: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  font-size: 11.5px; color: var(--muted); cursor: pointer; position: relative; }
+.bnav button .ms { font-size: 24px; padding: 2px 18px; border-radius: 16px; transition: background .15s; }
+.bnav button.on { color: var(--pri); font-weight: 600; }
+.bnav button.on .ms { background: var(--pri-soft); font-variation-settings: 'FILL' 1; }
+.bnav .dot { position: absolute; top: 6px; left: calc(50% + 8px); min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px;
+  background: var(--bad); color: #fff; font-size: 11px; font-weight: 700; display: grid; place-items: center; }
+
+@media (min-width: 960px) {
+  .side { display: flex; flex-direction: column; position: fixed; top: 0; bottom: 0; left: 0; width: var(--side); z-index: 40;
+    background: #0a2e52; color: #c9d6e6; padding: 16px 12px; }
+  .side .logo { display: flex; align-items: center; gap: 10px; padding: 4px 8px 18px; color: #fff; }
+  .side .logo b { display: block; font-size: 15px; }
+  .side .logo small { display: block; font-size: 11.5px; color: #8fa6c2; }
+  .side .grp { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: #7d93ae; padding: 14px 10px 6px; }
+  .side .mod { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 10px; color: #e5edf7; font-weight: 600; font-size: 14px; }
+  .side .mod.off { color: #6f86a1; font-weight: 500; }
+  .side .mod .soon { margin-left: auto; font-size: 10px; white-space: nowrap; flex: none; background: rgba(255,255,255,.08); padding: 2px 6px; border-radius: 6px; }
+  .side .item { display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 10px 9px 20px; border: 0; background: none; color: inherit;
+    border-radius: 10px; cursor: pointer; text-align: left; font-size: 14px; }
+  .side .item:hover { background: rgba(255,255,255,.06); }
+  .side .item.on { background: rgba(120,180,255,.16); color: #fff; font-weight: 600; }
+  .side .item .cnt { margin-left: auto; font-size: 11.5px; background: var(--bad); color: #fff; border-radius: 9px; padding: 1px 7px; }
+  .side .me { margin-top: auto; display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 12px; background: rgba(255,255,255,.05); }
+  .side .me .who { flex: 1; min-width: 0; }
+  .side .me .who b { display: block; color: #fff; font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .side .me .who small { color: #8fa6c2; font-size: 12px; }
+  .side .ibtn { color: #c9d6e6; }
+  .with-side { padding-left: var(--side); }
+  .topbar { background: var(--bg); color: var(--ink); box-shadow: none; height: 64px; padding: 0 24px; }
+  .topbar .ibtn { color: var(--ink-2); }
+  .topbar .brand-dot, .topbar .m-only { display: none; }
+  .topbar h1 { font-size: 21px; font-weight: 700; }
+  .bnav { display: none; }
+  .main { padding: 4px 24px 40px; }
+}
+
+/* ---------- Thành phần chung ---------- */
+.ibtn { width: 40px; height: 40px; border: 0; background: none; border-radius: 50%; display: grid; place-items: center; cursor: pointer; color: var(--ink-2); flex: none; }
+.ibtn:hover { background: rgba(127,127,127,.12); }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 42px; padding: 0 16px; border-radius: 12px;
+  border: 1px solid var(--line-2); background: var(--surface); color: var(--ink); font-weight: 600; font-size: 14.5px; cursor: pointer; white-space: nowrap; }
+.btn .ms { font-size: 20px; }
+.btn:hover { border-color: var(--pri-2); }
+.btn.pri { background: var(--pri); border-color: var(--pri); color: #fff; }
+.btn.pri:hover { background: var(--pri-2); }
+.btn.danger { color: var(--bad); border-color: #f2c4c1; }
+.btn.warn { background: var(--bad); border-color: var(--bad); color: #fff; }
+.btn.ghost { border-color: transparent; background: none; color: var(--pri-2); }
+.btn.sm { height: 34px; padding: 0 12px; font-size: 13.5px; border-radius: 10px; }
+.btn.block { width: 100%; }
+.btn:disabled { opacity: .55; cursor: default; }
+.row { display: flex; align-items: center; gap: 8px; }
+.wrap { flex-wrap: wrap; }
+.grow { flex: 1; min-width: 0; }
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+.mt { margin-top: 14px; } .mb { margin-bottom: 14px; }
+.card { background: var(--surface); border-radius: var(--r); box-shadow: var(--shadow); border: 1px solid var(--line); }
+.pad { padding: 14px 16px; }
+.sec-title { display: flex; align-items: center; gap: 8px; font-size: 15.5px; font-weight: 700; margin: 22px 2px 10px; }
+.sec-title .ms { color: var(--pri-2); }
+.sec-title .grow + .btn { margin-left: auto; }
+.empty { text-align: center; color: var(--muted); padding: 28px 12px; }
+.empty .ms { font-size: 40px; color: var(--line-2); display: block; margin: 0 auto 6px; }
+
+.chip { display: inline-flex; align-items: center; gap: 4px; height: 24px; padding: 0 9px; border-radius: 12px; font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+.chip .ms { font-size: 15px; }
+.c-ok { background: var(--ok-soft); color: var(--ok); }
+.c-warn { background: var(--warn-soft); color: var(--warn); }
+.c-bad { background: var(--bad-soft); color: var(--bad); }
+.c-info { background: var(--info-soft); color: var(--info); }
+.c-grey { background: var(--grey-soft); color: var(--ink-2); }
+.c-pri { background: var(--pri-soft); color: var(--pri); }
+
+/* Thanh lọc */
+.toolbar { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
+.search { flex: 1; display: flex; align-items: center; gap: 6px; height: 44px; padding: 0 12px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); }
+.search input { border: 0; outline: 0; background: none; flex: 1; min-width: 0; font-size: 15px; }
+.search .ms { color: var(--muted); }
+.chips { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 10px; scrollbar-width: none; }
+.chips::-webkit-scrollbar { display: none; }
+.fchip { flex: none; height: 34px; padding: 0 13px; border-radius: 17px; border: 1px solid var(--line-2); background: var(--surface);
+  font-size: 13.5px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; color: var(--ink-2); }
+.fchip b { font-weight: 600; color: var(--muted); font-size: 12px; }
+.fchip.on { background: var(--pri); color: #fff; border-color: var(--pri); }
+.fchip.on b { color: #cfe2f5; }
+.fchip.alert.on { background: var(--bad); border-color: var(--bad); }
+
+/* Danh sách thiết bị */
+.grp-h { display: flex; align-items: baseline; gap: 8px; font-weight: 700; font-size: 14px; color: var(--ink-2); margin: 16px 4px 8px; text-transform: uppercase; letter-spacing: .03em; }
+.grp-h small { font-weight: 600; color: var(--muted); }
+.eq-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+@media (min-width: 700px) { .eq-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1240px) { .eq-grid { grid-template-columns: 1fr 1fr 1fr; } }
+.eq { display: flex; gap: 12px; padding: 10px; cursor: pointer; align-items: center; transition: transform .1s, box-shadow .15s; text-align: left; width: 100%; font: inherit; }
+.eq:hover { box-shadow: 0 2px 4px rgba(16,32,56,.08), 0 10px 24px rgba(16,32,56,.1); }
+.eq:active { transform: scale(.99); }
+.eq .info { flex: 1; min-width: 0; }
+.eq .t { font-weight: 600; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.eq .s { font-size: 13px; color: var(--muted); margin: 1px 0 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.eq .chips-in { display: flex; gap: 5px; flex-wrap: wrap; min-height: 24px; }
+.plate { display: inline-block; font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: 12.5px; font-weight: 600;
+  padding: 1px 7px; border: 1.5px solid var(--ink-2); border-radius: 5px; color: var(--ink); background: #fff; letter-spacing: .02em; }
+.thumb { flex: none; width: 72px; height: 72px; border-radius: 12px; background: var(--grey-soft) center/cover no-repeat; display: grid; place-items: center; overflow: hidden; }
+.thumb .ms { color: #b2bfcd; font-size: 30px; }
+.thumb.sm { width: 48px; height: 48px; border-radius: 10px; }
+.thumb.sm .ms { font-size: 22px; }
+.thumb.loading { background-image: linear-gradient(90deg, #eef1f5 0, #f7f9fb 50%, #eef1f5 100%); background-size: 200% 100%; animation: shimmer 1.2s infinite; }
+@keyframes shimmer { to { background-position: -200% 0; } }
+
+/* FAB */
+.fab { position: fixed; right: 18px; bottom: calc(var(--nav) + 18px + var(--safe-b)); z-index: 25; height: 56px; min-width: 56px; padding: 0 18px;
+  border-radius: 18px; border: 0; background: var(--pri); color: #fff; display: inline-flex; align-items: center; gap: 8px;
+  font-weight: 600; box-shadow: 0 6px 20px rgba(11,79,138,.4); cursor: pointer; }
+.fab.red { background: var(--bad); box-shadow: 0 6px 20px rgba(198,40,40,.35); }
+@media (min-width: 960px) { .fab { bottom: 28px; right: 32px; } }
+
+/* KPI */
+.kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (min-width: 900px) { .kpis { grid-template-columns: repeat(4, 1fr); } }
+.kpi { padding: 14px; cursor: pointer; text-align: left; border: 1px solid var(--line); font: inherit; }
+.kpi .k-top { display: flex; align-items: center; justify-content: space-between; color: var(--ink-2); font-size: 13px; font-weight: 600; }
+.kpi .k-ic { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; }
+.kpi .k-v { font-size: 30px; font-weight: 700; margin-top: 6px; line-height: 1.1; }
+.kpi .k-s { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+.kpi.bad .k-v { color: var(--bad); } .kpi.warn .k-v { color: var(--warn); }
+.dash-cols { display: grid; grid-template-columns: 1fr; gap: 0 18px; }
+@media (min-width: 1000px) { .dash-cols { grid-template-columns: 1.2fr 1fr; } }
+.statusbar { display: flex; height: 10px; border-radius: 5px; overflow: hidden; background: var(--grey-soft); margin: 10px 0 8px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: var(--ink-2); }
+.legend i { display: inline-block; width: 9px; height: 9px; border-radius: 3px; margin-right: 5px; }
+
+/* Danh sách dòng */
+.list > .li { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-top: 1px solid var(--line); cursor: pointer; }
+.list > .li:first-child { border-top: 0; }
+.list > .li:hover { background: #fafbfd; }
+.li .t { font-weight: 600; font-size: 14.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.li .s { font-size: 12.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Chi tiết thiết bị */
+.hero { position: relative; overflow: hidden; }
+.hero-img { height: 210px; background: #dfe6ee center/cover no-repeat; display: grid; place-items: center; cursor: zoom-in; }
+.hero-img .ms { font-size: 64px; color: #b2bfcd; }
+@media (min-width: 700px) { .hero-img { height: 260px; } }
+.hero-body { padding: 14px 16px 16px; }
+.hero-body h2 { margin: 0 0 6px; font-size: 21px; line-height: 1.25; }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.docsum { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+.ds { border-radius: 12px; padding: 10px 12px; border: 1px solid transparent; }
+.ds .l { font-size: 12.5px; font-weight: 600; opacity: .85; }
+.ds .d { font-size: 16px; font-weight: 700; margin-top: 2px; }
+.ds .n { font-size: 12.5px; font-weight: 600; }
+.tabs { display: flex; gap: 2px; overflow-x: auto; border-bottom: 1px solid var(--line); margin: 16px 0 12px; scrollbar-width: none; position: sticky; top: calc(var(--top) + var(--safe-t)); background: var(--bg); z-index: 5; }
+@media (min-width: 960px) { .tabs { top: 64px; } }
+.tabs::-webkit-scrollbar { display: none; }
+.tabs button { flex: none; border: 0; background: none; padding: 11px 14px; font-weight: 600; color: var(--muted); cursor: pointer; border-bottom: 2.5px solid transparent; font-size: 14px; }
+.tabs button.on { color: var(--pri); border-bottom-color: var(--pri); }
+.tabs button small { font-weight: 600; background: var(--grey-soft); border-radius: 8px; padding: 1px 6px; margin-left: 4px; font-size: 11.5px; }
+.kv { display: grid; grid-template-columns: 1fr; }
+@media (min-width: 640px) { .kv { grid-template-columns: 1fr 1fr; } }
+.kv > div { padding: 10px 16px; border-top: 1px solid var(--line); }
+.kv label { display: block; font-size: 12px; color: var(--muted); font-weight: 500; }
+.kv span { font-weight: 500; word-break: break-word; }
+.kv .full { grid-column: 1 / -1; }
+.gallery { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.gallery .g { width: 84px; height: 84px; border-radius: 10px; background: var(--grey-soft) center/cover; cursor: zoom-in; position: relative; display: grid; place-items: center; border: 0; }
+.gallery .g .ms { color: var(--muted); }
+.gallery .g .x { position: absolute; top: -6px; right: -6px; width: 24px; height: 24px; border-radius: 12px; background: #fff; border: 1px solid var(--line-2);
+  display: grid; place-items: center; cursor: pointer; box-shadow: var(--shadow); }
+.gallery .g .x .ms { font-size: 16px; color: var(--ink); }
+.gallery .add { border: 1.5px dashed var(--line-2); background: #fafbfc; cursor: pointer; color: var(--pri-2); flex-direction: column; font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 2px; }
+.gallery .add .ms { color: var(--pri-2); }
+.item-card { padding: 12px 14px; }
+.item-card + .item-card { margin-top: 10px; }
+.item-head { display: flex; align-items: flex-start; gap: 8px; }
+.ptable { width: 100%; border-collapse: collapse; font-size: 14px; }
+.ptable th { text-align: left; font-size: 12px; color: var(--muted); font-weight: 600; padding: 8px 12px; background: #f8fafc; }
+.ptable td { padding: 10px 12px; border-top: 1px solid var(--line); }
+.ptable tr.click { cursor: pointer; } .ptable tr.click:hover td { background: #fafbfd; }
+
+/* Phiếu sửa chữa */
+.rp { padding: 12px 14px; cursor: pointer; display: block; width: 100%; text-align: left; font: inherit; }
+.rp + .rp { margin-top: 10px; }
+.rp .top { display: flex; align-items: center; gap: 8px; }
+.rp .no { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12.5px; color: var(--muted); font-weight: 600; }
+.rp .eqn { font-weight: 600; margin: 6px 0 2px; }
+.rp .desc { color: var(--ink-2); font-size: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.rp .meta { font-size: 12.5px; color: var(--muted); margin-top: 6px; display: flex; gap: 12px; flex-wrap: wrap; }
+.stepper { display: flex; align-items: flex-start; margin: 6px 0 2px; }
+.stepper .st { flex: 1; min-width: 0; text-align: center; position: relative; font-size: 11px; line-height: 1.25; padding: 0 2px; color: var(--muted); font-weight: 500; }
+.stepper .st::before { content: ''; position: absolute; top: 11px; left: -50%; right: 50%; height: 2px; background: var(--line-2); z-index: 0; }
+.stepper .st:first-child::before { display: none; }
+.stepper .st .b { position: relative; z-index: 1; width: 24px; height: 24px; border-radius: 12px; background: var(--surface); border: 2px solid var(--line-2); margin: 0 auto 4px; display: grid; place-items: center; }
+.stepper .st .b .ms { font-size: 15px; color: #fff; }
+.stepper .st.done { color: var(--ink-2); }
+.stepper .st.done .b { background: var(--pri); border-color: var(--pri); }
+.stepper .st.done::before { background: var(--pri); }
+.stepper .st.cur { color: var(--pri); font-weight: 700; }
+.stepper .st.cur .b { border-color: var(--pri); box-shadow: 0 0 0 4px var(--pri-soft); }
+.stepper .st.cur::before { background: var(--pri); }
+
+/* Form */
+.form { display: grid; grid-template-columns: 1fr; gap: 12px; }
+@media (min-width: 640px) { .form.two { grid-template-columns: 1fr 1fr; } .form .full { grid-column: 1 / -1; } }
+.fld label { display: block; font-size: 13px; font-weight: 600; color: var(--ink-2); margin-bottom: 5px; }
+.fld label .req { color: var(--bad); }
+.fld input, .fld select, .fld textarea { width: 100%; height: 44px; padding: 0 12px; border-radius: 11px; border: 1px solid var(--line-2); background: #fff; outline: 0; font-size: 15px; }
+.fld textarea { height: auto; min-height: 92px; padding: 10px 12px; resize: vertical; }
+.fld input:focus, .fld select:focus, .fld textarea:focus { border-color: var(--pri-2); box-shadow: 0 0 0 3px var(--pri-soft); }
+.fld input[readonly] { background: var(--grey-soft); color: var(--ink-2); }
+.fld .hint { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.form-sec { font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: .05em; color: var(--pri); margin: 8px 0 -2px; }
+.toggle { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line-2); cursor: pointer; background: #fff; user-select: none; }
+.toggle.on { border-color: var(--bad); background: var(--bad-soft); }
+.toggle .sw { width: 42px; height: 24px; border-radius: 12px; background: var(--line-2); position: relative; flex: none; transition: background .15s; }
+.toggle .sw::after { content: ''; position: absolute; width: 20px; height: 20px; top: 2px; left: 2px; border-radius: 10px; background: #fff; transition: left .15s; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+.toggle.on .sw { background: var(--bad); } .toggle.on .sw::after { left: 20px; }
+.toggle.blue.on { border-color: var(--pri-2); background: var(--pri-soft); } .toggle.blue.on .sw { background: var(--pri-2); }
+.checks { max-height: 260px; overflow: auto; border: 1px solid var(--line-2); border-radius: 12px; }
+.checks label { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-top: 1px solid var(--line); font-weight: 500; font-size: 14px; color: var(--ink); margin: 0; cursor: pointer; }
+.checks label:first-child { border-top: 0; }
+.checks input { width: 18px; height: 18px; flex: none; accent-color: var(--pri); }
+
+/* Modal / sheet */
+.overlay { position: fixed; inset: 0; background: rgba(10,22,40,.45); z-index: 60; display: flex; align-items: flex-end; justify-content: center; animation: fade .15s; }
+@keyframes fade { from { opacity: 0; } }
+.sheet { background: var(--surface); width: 100%; max-height: 92vh; border-radius: 20px 20px 0 0; display: flex; flex-direction: column; animation: up .2s ease-out; padding-bottom: var(--safe-b); }
+@keyframes up { from { transform: translateY(40px); opacity: .5; } }
+@media (min-width: 700px) { .overlay { align-items: center; } .sheet { width: 600px; border-radius: 18px; max-height: 88vh; } .sheet.wide { width: 820px; } }
+.sheet-h { display: flex; align-items: center; gap: 8px; padding: 12px 10px 10px 18px; border-bottom: 1px solid var(--line); }
+.sheet-h h3 { margin: 0; font-size: 17px; flex: 1; }
+.sheet-b { padding: 16px 18px; overflow: auto; flex: 1; }
+.sheet-f { display: flex; gap: 8px; justify-content: flex-end; padding: 12px 18px; border-top: 1px solid var(--line); }
+.sheet-f .btn { min-width: 110px; }
+.viewer { position: fixed; inset: 0; z-index: 80; background: rgba(5,10,18,.94); display: flex; align-items: center; justify-content: center; }
+.viewer img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.viewer .ibtn { position: absolute; color: #fff; background: rgba(255,255,255,.12); }
+.viewer .close { top: calc(14px + var(--safe-t)); right: 14px; } .viewer .prev { left: 10px; top: 50%; } .viewer .next { right: 10px; top: 50%; }
+.viewer .cap { position: absolute; bottom: 18px; left: 0; right: 0; text-align: center; color: #cfd8e3; font-size: 13px; }
+
+/* Toast + loading */
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--nav) + 20px + var(--safe-b)); z-index: 90; background: #17212f; color: #fff;
+  padding: 11px 16px; border-radius: 12px; font-size: 14px; box-shadow: var(--shadow-lg); display: flex; gap: 8px; align-items: center; max-width: calc(100% - 32px); animation: up .2s; }
+.toast.err { background: var(--bad); }
+@media (min-width: 960px) { .toast { bottom: 28px; } }
+.loadbar { position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 100; overflow: hidden; }
+.loadbar::after { content: ''; position: absolute; height: 100%; width: 40%; background: #ffb300; animation: lb 1s infinite ease-in-out; }
+@keyframes lb { from { left: -40%; } to { left: 100%; } }
+.skel { height: 92px; border-radius: var(--r); background: linear-gradient(90deg, #e9edf2 0, #f5f7fa 50%, #e9edf2 100%); background-size: 200% 100%; animation: shimmer 1.2s infinite; }
+.skel + .skel { margin-top: 10px; }
+
+/* Đăng nhập */
+.login { min-height: 100vh; display: grid; place-items: center; padding: 20px;
+  background: radial-gradient(1200px 600px at 10% -10%, #1d6bb3 0, transparent 60%), linear-gradient(160deg, #0a2e52, #0b4f8a 60%, #1366b3); }
+.login .box { width: 100%; max-width: 400px; background: #fff; border-radius: 22px; padding: 28px 24px 22px; box-shadow: var(--shadow-lg); }
+.login .logo { width: 56px; height: 56px; border-radius: 16px; background: var(--pri); color: #fff; display: grid; place-items: center; margin-bottom: 14px; }
+.login .logo .ms { font-size: 32px; }
+.login h2 { margin: 0; font-size: 21px; }
+.login p { margin: 4px 0 20px; color: var(--muted); font-size: 14px; }
+.otp { letter-spacing: 10px; text-align: center; font-size: 24px !important; font-weight: 700; height: 56px !important; }
+.login .foot { text-align: center; color: var(--muted); font-size: 12px; margin-top: 18px; }
+
+.avatar { width: 36px; height: 36px; border-radius: 18px; background: var(--pri-soft); color: var(--pri); display: grid; place-items: center; font-weight: 700; font-size: 14px; flex: none; }
+.side .avatar { background: rgba(255,255,255,.12); color: #fff; }
+</style>
+
+</head>
+<body>
+  <div id="app"><div class="boot-splash"><div class="spinner"></div></div></div>
+  <script src="config.js?v=1.0.0"></script>
+  <script src="vendor/vue.global.prod.js"></script>
+<script>
+/* =====================================================================
+ *  App.html : Giao diện (Vue 3). Mỗi màn hình là 1 component bên dưới.
+ * ===================================================================== */
+(function () {
+'use strict';
+const { createApp, reactive, nextTick } = Vue;
+
+/* ---------------- Lưu cục bộ (có thể bị chặn trên một số trình duyệt) ---------------- */
+const LS = {
+  get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+  set(k, v) { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) {} }
+};
+
+/* ---------------- Gọi server ---------------- */
+/* Chạy trong Apps Script -> google.script.run ; chạy trên GitHub Pages (PWA) -> fetch tới link /exec */
+const IN_GAS = typeof google !== 'undefined' && google.script && google.script.run;
+async function gsFetch(fn, args) {
+  const url = window.KTHT_API;
+  if (!url || url.indexOf('script.google.com') < 0 && url.indexOf('/exec') < 0) throw new Error('Chưa cấu hình link máy chủ (config.js)');
+  let r;
+  try {
+    r = await fetch(url, { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ fn, args }) });
+  } catch (e) { throw new Error(navigator.onLine === false ? 'Mất kết nối mạng' : 'Không kết nối được máy chủ'); }
+  if (!r.ok) throw new Error('Máy chủ lỗi ' + r.status);
+  return r.text();
+}
+function gs(fn, ...args) {
+  if (!IN_GAS) {
+    return gsFetch(fn, args).then(txt => {
+      let r;
+      try { r = JSON.parse(txt); } catch (e) { throw new Error('Phản hồi máy chủ không hợp lệ (kiểm tra quyền truy cập "Bất kỳ ai" khi triển khai)'); }
+      if (r.ok) return r.data;
+      const e = new Error(r.error); e.auth = r.auth; throw e;
+    });
+  }
+  return new Promise((resolve, reject) => {
+    google.script.run
+      .withSuccessHandler(txt => {
+        let r;
+        try { r = JSON.parse(txt); } catch (e) { return reject(new Error('Phản hồi máy chủ không hợp lệ')); }
+        if (r.ok) resolve(r.data);
+        else { const e = new Error(r.error); e.auth = r.auth; reject(e); }
+      })
+      .withFailureHandler(err => reject(new Error((err && err.message) || 'Mất kết nối, vui lòng thử lại')))
+      [fn](...args);
+  });
+}
+
+/* ---------------- Trạng thái chung ---------------- */
+const S = reactive({
+  ready: false, token: LS.get('ktht_token'), user: null, boot: null,
+  equipment: [], repairs: [], busy: 0, rev: 0, title: '',
+  view: { name: 'home', p: {} }, stack: [],
+  filter: { q: '', loai: '', flag: '' },
+  modal: null, viewer: null, confirm: null, toast: null, netErr: ''
+});
+
+async function call(action, payload, opt) {
+  opt = opt || {};
+  if (!opt.silent) S.busy++;
+  try { return await gs('api', S.token, action, payload || {}); }
+  catch (e) { if (e.auth) { forceLogout(e.message); } throw e; }
+  finally { if (!opt.silent) S.busy--; }
+}
+
+let toastTimer;
+function toast(msg, err) {
+  S.toast = { msg, err: !!err };
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { S.toast = null; }, err ? 4500 : 2600);
+}
+function fail(e) { toast((e && e.message) || String(e), true); }
+
+function ask(opts) {
+  return new Promise(resolve => { S.confirm = Object.assign({ okText: 'Đồng ý', value: '' }, opts, { resolve }); });
+}
+
+function openModal(type, props) {
+  return new Promise(resolve => { S.modal = { type, props: props || {}, resolve }; });
+}
+function closeModal(result) {
+  const m = S.modal; S.modal = null;
+  if (m) m.resolve(result);
+}
+
+/* ---------------- Điều hướng ---------------- */
+const isLX = () => S.user && S.user.VaiTro === 'Lái xe';
+const isAdmin = () => S.user && S.user.VaiTro === 'Admin';
+const isTech = () => S.user && (S.user.VaiTro === 'Admin' || S.user.VaiTro === 'Kỹ thuật');
+function homeView() { return isLX() ? 'equipList' : 'home'; }
+
+function go(name, p, opt) {
+  opt = opt || {};
+  if (opt.root) S.stack = [];
+  else if (!opt.replace) S.stack.push(S.view);
+  S.view = { name, p: p || {} };
+  S.title = '';
+  window.scrollTo(0, 0);
+}
+function back() {
+  S.view = S.stack.pop() || { name: homeView(), p: {} };
+  S.title = '';
+  window.scrollTo(0, 0);
+}
+
+/* ---------------- Khởi động / đăng nhập ---------------- */
+async function loadBoot() {
+  const b = await call('bootstrap');
+  S.boot = b; S.user = b.user; S.equipment = b.equipment; S.repairs = b.repairs;
+  S.view = { name: homeView(), p: {} }; S.stack = [];
+}
+async function reloadLists() {
+  try {
+    const r = await Promise.all([call('listEquipment', {}, { silent: true }), call('listRepairs', { scope: 'open' }, { silent: true })]);
+    S.equipment = r[0]; S.repairs = r[1];
+  } catch (e) { /* bỏ qua */ }
+}
+function refreshAll() { S.rev++; reloadLists(); }
+function forceLogout(msg) {
+  S.token = null; S.user = null; LS.set('ktht_token', null);
+  if (msg) toast(msg, true);
+}
+async function logoutNow() {
+  const ok = await ask({ title: 'Đăng xuất', msg: 'Bạn muốn đăng xuất khỏi ứng dụng?', okText: 'Đăng xuất' });
+  if (!ok) return;
+  try { await gs('logout', S.token); } catch (e) {}
+  forceLogout();
+}
+
+/* ---------------- Ảnh thu nhỏ (tải theo lô) ---------------- */
+const thumbs = reactive({});      /* id -> dataUrl | null (đang tải) | '' (không có) */
+/* LƯU Ý: Apps Script tự xoá mọi đoạn giống chú thích (dấu gạch chéo + sao) kể cả trong chuỗi -> không viết các ký tự đó liền nhau trong code */
+const ACCEPT_IMG = 'image/' + String.fromCharCode(42);
+const ACCEPT_DOC = ACCEPT_IMG + ',application/pdf';
+const isImg = m => String(m || '').indexOf('image/') === 0;
+const fullCache = {};
+let tq = new Set(), tTimer = null;
+function needThumb(id) {
+  if (!id || id in thumbs) return;
+  thumbs[id] = null; tq.add(id);
+  clearTimeout(tTimer); tTimer = setTimeout(flushThumbs, 40);
+}
+async function flushThumbs() {
+  const ids = Array.from(tq); tq = new Set();
+  const chunks = [];
+  for (let i = 0; i < ids.length; i += 12) chunks.push(ids.slice(i, i + 12));
+  await Promise.all(chunks.map(async ch => {
+    try {
+      const r = await call('thumbs', { ids: ch, size: 400 }, { silent: true });
+      ch.forEach(id => { thumbs[id] = r[id] || ''; });
+    } catch (e) { ch.forEach(id => { thumbs[id] = ''; }); }
+  }));
+}
+function viewImages(ids, i) { if (ids && ids.length) S.viewer = { ids: ids.slice(), i: i || 0 }; }
+
+/* ---------------- Xử lý file trước khi tải lên ---------------- */
+function compressImage(file, max, q) {
+  max = max || 1600; q = q || 0.8;
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      const s = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+      ctx.drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      resolve(c.toDataURL('image/jpeg', q));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Không đọc được ảnh ' + file.name)); };
+    img.src = url;
+  });
+}
+function readDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result);
+    r.onerror = () => reject(new Error('Không đọc được file ' + file.name));
+    r.readAsDataURL(file);
+  });
+}
+async function uploadFile(file, maTB, kind) {
+  let dataUrl, mime = file.type || 'application/octet-stream', name = file.name;
+  if (isImg(mime) && !/gif|svg/.test(mime)) {
+    dataUrl = await compressImage(file); mime = 'image/jpeg'; name = name.replace(/\.[^.]+$/, '') + '.jpg';
+  } else {
+    if (file.size > 10 * 1024 * 1024) throw new Error('File quá lớn (tối đa 10MB): ' + file.name);
+    dataUrl = await readDataUrl(file);
+  }
+  const res = await call('upload', { MaTB: maTB, kind, name, mime, data: dataUrl.split(',')[1] }, { silent: true });
+  thumbs[res.id] = isImg(mime) ? dataUrl : '';
+  return res;
+}
+
+/* ---------------- Định dạng ---------------- */
+const pad = n => String(n).padStart(2, '0');
+function fmtD(s) { if (!s) return ''; const m = String(s).match(/^(\d{4})-(\d{2})-(\d{2})/); return m ? m[3] + '/' + m[2] + '/' + m[1] : s; }
+function fmtDT(s) { if (!s) return ''; const m = String(s).match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/); return m ? m[3] + '/' + m[2] + '/' + m[1] + ' ' + m[4] + ':' + m[5] : fmtD(s); }
+function todayStr() { const d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+function daysTo(s) {
+  const m = String(s || '').match(/^(\d{4})-(\d{2})-(\d{2})/); if (!m) return null;
+  const t = new Date(); t.setHours(0, 0, 0, 0);
+  return Math.round((new Date(+m[1], +m[2] - 1, +m[3]) - t) / 86400000);
+}
+function ago(s) {
+  const m = String(s || '').match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/); if (!m) return fmtD(s);
+  const diff = (Date.now() - new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5])) / 60000;
+  if (diff < 1) return 'vừa xong';
+  if (diff < 60) return Math.floor(diff) + ' phút trước';
+  if (diff < 1440) return Math.floor(diff / 60) + ' giờ trước';
+  if (diff < 1440 * 7) return Math.floor(diff / 1440) + ' ngày trước';
+  return fmtD(s);
+}
+function norm(s) { return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase(); }
+function shortDoc(l) { return ({ 'Kiểm định': 'KĐ', 'Bảo hiểm': 'BH' })[l] || l; }
+function docState(days, warn) { return days == null ? 'missing' : days < 0 ? 'expired' : days <= (warn || 30) ? 'warning' : 'ok'; }
+function docCls(st) { return ({ expired: 'c-bad', warning: 'c-warn', ok: 'c-ok', missing: 'c-grey' })[st]; }
+function docText(d, long) {
+  const name = long ? d.loai : shortDoc(d.loai);
+  if (d.state === 'missing') return (long ? 'Chưa nhập' : 'Chưa có ' + name);
+  if (d.days < 0) return (long ? 'Quá hạn ' : name + ' quá hạn ') + (-d.days) + ' ngày';
+  if (d.days === 0) return (long ? '' : name + ' ') + 'hết hạn hôm nay';
+  return (long ? 'Còn ' : name + ' còn ') + d.days + ' ngày';
+}
+function stCls(s) { return ({ 'Bình thường': 'c-ok', 'Đang sửa chữa': 'c-warn', 'Ngừng hoạt động': 'c-bad', 'Thanh lý': 'c-grey' })[s] || 'c-grey'; }
+function rpCls(s) { return ({ 'Mới báo': 'c-bad', 'Đã tiếp nhận': 'c-info', 'Đang sửa': 'c-warn', 'Chờ vật tư': 'c-warn', 'Hoàn thành': 'c-ok', 'Đã nghiệm thu': 'c-pri', 'Huỷ': 'c-grey' })[s] || 'c-grey'; }
+function who(email) { return (S.boot && S.boot.names[String(email || '').toLowerCase()]) || email || ''; }
+function initials(n) { const p = String(n || '?').trim().split(/\s+/); return (p.length > 1 ? p[p.length - 2][0] + p[p.length - 1][0] : p[0].slice(0, 2)).toUpperCase(); }
+function ids(s) { return String(s || '').split(',').map(x => x.trim()).filter(Boolean); }
+function eqIcon(loai) {
+  const l = norm(loai);
+  if (/thang/.test(l)) return 'stairs';
+  if (/bang chuyen/.test(l)) return 'conveyor_belt';
+  if (/nang/.test(l)) return 'forklift';
+  if (/dau keo/.test(l)) return 'agriculture';
+  if (/cuu hoa/.test(l)) return 'fire_truck';
+  if (/cuu thuong/.test(l)) return 'ambulance';
+  if (/cap dien|khoi dong/.test(l)) return 'electric_bolt';
+  if (/cat co/.test(l)) return 'grass';
+  if (/hanh khach|bus/.test(l)) return 'directions_bus';
+  if (/quet/.test(l)) return 'cleaning_services';
+  return 'local_shipping';
+}
+
+/* =====================================================================
+ *  COMPONENT DÙNG CHUNG
+ * ===================================================================== */
+const Thumb = {
+  props: ['id', 'cls', 'icon'],
+  computed: { src() { return this.id ? thumbs[this.id] : ''; } },
+  watch: { id: { immediate: true, handler(v) { needThumb(v); } } },
+  template: `<div :class="['thumb', cls, {loading: src === null}]" :style="src ? {backgroundImage: 'url(' + src + ')'} : null">
+    <span v-if="!src && src !== null" class="ms">{{ icon || 'directions_bus' }}</span></div>`
+};
+
+const Gallery = {
+  props: { ids: Array, removable: Boolean },
+  emits: ['remove'],
+  watch: { ids: { immediate: true, handler(v) { (v || []).forEach(needThumb); } } },
+  methods: { t(id) { return thumbs[id]; } },
+  template: `<div class="gallery" v-if="ids && ids.length">
+    <button v-for="(id, i) in ids" :key="id" type="button" class="g" :style="t(id) ? {backgroundImage: 'url(' + t(id) + ')'} : null" @click="viewImages(ids, i)">
+      <span v-if="!t(id)" class="ms">{{ t(id) === null ? 'hourglass_empty' : 'description' }}</span>
+      <span v-if="removable" class="x" @click.stop="$emit('remove', i)"><span class="ms">close</span></span>
+    </button><slot></slot></div>`
+};
+
+const ImgPicker = {
+  props: { modelValue: Array, maTB: String, kind: String, accept: { type: String, default: ACCEPT_IMG }, max: { type: Number, default: 20 }, disabled: Boolean },
+  emits: ['update:modelValue'],
+  data() { return { uploading: 0 }; },
+  computed: { list() { return this.modelValue || []; } },
+  methods: {
+    pick() { if (!this.disabled && !this.uploading) this.$refs.f.click(); },
+    async onFiles(ev) {
+      const files = Array.from(ev.target.files || []).slice(0, this.max - this.list.length);
+      ev.target.value = '';
+      if (!files.length) return;
+      this.uploading = files.length;
+      let cur = this.list.slice();
+      for (const f of files) {
+        try { const r = await uploadFile(f, this.maTB, this.kind); cur = cur.concat([r.id]); this.$emit('update:modelValue', cur); }
+        catch (e) { fail(e); }
+        this.uploading--;
+      }
+    },
+    remove(i) { const cur = this.list.slice(); cur.splice(i, 1); this.$emit('update:modelValue', cur); }
+  },
+  components: { Gallery },
+  template: `<div>
+    <div class="gallery">
+      <Gallery :ids="list" removable @remove="remove" style="margin:0"></Gallery>
+      <button v-if="list.length < max" type="button" class="g add" :disabled="disabled" @click="pick">
+        <template v-if="uploading"><div class="spinner" style="width:22px;height:22px;border-width:2px"></div><span>Đang tải {{ uploading }}</span></template>
+        <template v-else><span class="ms">add_a_photo</span><span>Thêm</span></template>
+      </button>
+    </div>
+    <input ref="f" type="file" :accept="accept" :multiple="max > 1" hidden @change="onFiles">
+  </div>`
+};
+
+const Toggle = {
+  props: { modelValue: Boolean, label: String, sub: String, blue: Boolean },
+  emits: ['update:modelValue'],
+  template: `<div :class="['toggle', {on: modelValue, blue}]" @click="$emit('update:modelValue', !modelValue)">
+    <div class="grow"><div style="font-weight:600">{{ label }}</div><div v-if="sub" class="small muted">{{ sub }}</div></div><div class="sw"></div></div>`
+};
+
+/* =====================================================================
+ *  ĐĂNG NHẬP
+ * ===================================================================== */
+const LoginView = {
+  data() { return { email: LS.get('ktht_email') || '', code: '', step: 1, sending: false, err: '' }; },
+  methods: {
+    async send() {
+      this.err = ''; this.sending = true;
+      try { await gs('login_request', this.email); this.step = 2; this.code = ''; nextTick(() => this.$refs.code && this.$refs.code.focus()); }
+      catch (e) { this.err = e.message; }
+      this.sending = false;
+    },
+    async verify() {
+      this.err = ''; this.sending = true;
+      try {
+        const r = await gs('login_verify', this.email, this.code);
+        S.token = r.token; LS.set('ktht_token', r.token); LS.set('ktht_email', this.email.trim().toLowerCase());
+        await loadBoot();
+      } catch (e) { this.err = e.message; }
+      this.sending = false;
+    }
+  },
+  template: `<div class="login"><div class="box">
+    <div class="logo"><span class="ms fill">flight_takeoff</span></div>
+    <h2>Quản lý thiết bị kỹ thuật</h2>
+    <p>Phòng Kỹ thuật Hạ tầng – CHK Buôn Ma Thuột</p>
+    <form v-if="step === 1" @submit.prevent="send" class="form">
+      <div class="fld"><label>Email được cấp quyền</label>
+        <input v-model="email" type="email" inputmode="email" autocomplete="email" placeholder="ten@gmail.com" required></div>
+      <button class="btn pri block" :disabled="sending || !email">{{ sending ? 'Đang gửi mã…' : 'Gửi mã đăng nhập' }}</button>
+    </form>
+    <form v-else @submit.prevent="verify" class="form">
+      <div class="small muted">Đã gửi mã 6 số tới <b style="color:var(--ink)">{{ email }}</b>. Kiểm tra cả hộp thư Spam/Quảng cáo.</div>
+      <div class="fld"><input ref="code" v-model="code" class="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••"></div>
+      <button class="btn pri block" :disabled="sending || code.length < 6">{{ sending ? 'Đang kiểm tra…' : 'Đăng nhập' }}</button>
+      <div class="row" style="justify-content:space-between">
+        <button type="button" class="btn ghost sm" @click="step = 1">Đổi email</button>
+        <button type="button" class="btn ghost sm" :disabled="sending" @click="send">Gửi lại mã</button>
+      </div>
+    </form>
+    <div v-if="err" class="chip c-bad" style="height:auto;padding:8px 12px;margin-top:12px;white-space:normal;display:flex">{{ err }}</div>
+    <div class="foot">Đăng nhập 1 lần, dùng {{ 30 }} ngày trên thiết bị này</div>
+  </div></div>`
+};
+
+/* =====================================================================
+ *  TỔNG QUAN
+ * ===================================================================== */
+const HomeView = {
+  components: { Thumb },
+  computed: {
+    active() { return S.equipment.filter(e => e.TrangThai !== 'Thanh lý'); },
+    byStatus() {
+      const m = {}; S.boot.dm.equipStatus.forEach(s => { m[s] = 0; });
+      S.equipment.forEach(e => { m[e.TrangThai] = (m[e.TrangThai] || 0) + 1; });
+      return m;
+    },
+    docRows() {
+      const rows = [];
+      this.active.forEach(e => e.docs.forEach(d => { if (d.state === 'expired' || d.state === 'warning') rows.push({ e, d }); }));
+      return rows.sort((a, b) => a.d.days - b.d.days);
+    },
+    expired() { return this.docRows.filter(r => r.d.state === 'expired').length; },
+    warning() { return this.docRows.filter(r => r.d.state === 'warning').length; },
+    missing() {
+      return S.boot.dm.giayTo.map(g => ({ loai: g.LoaiGiayTo,
+        n: this.active.filter(e => e.docs.some(d => d.loai === g.LoaiGiayTo && d.state === 'missing')).length })).filter(x => x.n);
+    },
+    newRepairs() { return S.repairs.filter(r => r.TrangThai === 'Mới báo').length; },
+    hello() { const h = new Date().getHours(); return h < 11 ? 'Chào buổi sáng' : h < 14 ? 'Chào buổi trưa' : h < 18 ? 'Chào buổi chiều' : 'Chào buổi tối'; },
+    colors() { return { 'Bình thường': '#2e7d32', 'Đang sửa chữa': '#ef8f00', 'Ngừng hoạt động': '#c62828', 'Thanh lý': '#9aa7b6' }; }
+  },
+  methods: {
+    toList(flag) { S.filter.flag = flag; S.filter.loai = ''; S.filter.q = ''; go('equipList', {}, { root: true }); },
+    toRepairs() { go('repairList', { tab: 'open' }, { root: true }); }
+  },
+  template: `<div>
+    <div class="row" style="margin:6px 2px 14px">
+      <div class="grow"><div style="font-size:19px;font-weight:700">{{ hello }}, {{ S.user.HoTen.split(' ').pop() }}</div>
+      <div class="small muted">{{ new Date().toLocaleDateString('vi-VN', {weekday:'long', day:'2-digit', month:'2-digit', year:'numeric'}) }}</div></div>
+    </div>
+    <div class="kpis">
+      <button class="card kpi" @click="toList('')">
+        <div class="k-top">Phương tiện & TTB<span class="k-ic c-pri"><span class="ms">airport_shuttle</span></span></div>
+        <div class="k-v">{{ active.length }}</div><div class="k-s">{{ byStatus['Đang sửa chữa'] || 0 }} đang sửa · {{ byStatus['Ngừng hoạt động'] || 0 }} ngừng</div>
+      </button>
+      <button :class="['card kpi', {bad: expired}]" @click="toList('expired')">
+        <div class="k-top">Giấy tờ quá hạn<span class="k-ic c-bad"><span class="ms">gpp_bad</span></span></div>
+        <div class="k-v">{{ expired }}</div><div class="k-s">Cần làm ngay</div>
+      </button>
+      <button :class="['card kpi', {warn: warning}]" @click="toList('warning')">
+        <div class="k-top">Sắp hết hạn<span class="k-ic c-warn"><span class="ms">schedule</span></span></div>
+        <div class="k-v">{{ warning }}</div><div class="k-s">Trong 30 ngày tới</div>
+      </button>
+      <button class="card kpi" @click="toRepairs">
+        <div class="k-top">Phiếu sửa chữa mở<span class="k-ic c-info"><span class="ms">build</span></span></div>
+        <div class="k-v">{{ S.repairs.length }}</div><div class="k-s">{{ newRepairs }} chờ tiếp nhận</div>
+      </button>
+    </div>
+
+    <div class="dash-cols">
+      <div>
+        <div class="sec-title"><span class="ms">event_busy</span>Giấy tờ cần xử lý</div>
+        <div class="card list">
+          <div v-for="r in docRows.slice(0, 12)" :key="r.e.MaTB + r.d.loai" class="li" @click="go('equipDetail', {ma: r.e.MaTB, tab: 'docs'})">
+            <Thumb :id="r.e.AnhID" cls="sm" :icon="eqIcon(r.e.LoaiTB)"></Thumb>
+            <div class="grow"><div class="t">{{ r.e.TenTB }}</div>
+              <div class="s"><span class="plate" v-if="r.e.BienSo">{{ r.e.BienSo }}</span> &nbsp;{{ r.d.loai }} · hết hạn {{ fmtD(r.d.han) }}</div></div>
+            <span :class="['chip', docCls(r.d.state)]">{{ docText(r.d, true) }}</span>
+          </div>
+          <div v-if="!docRows.length" class="empty"><span class="ms">verified</span>Không có giấy tờ quá hạn hoặc sắp hết hạn</div>
+          <div v-if="docRows.length > 12" class="li" style="justify-content:center" @click="toList('alert')"><span class="btn ghost sm">Xem tất cả {{ docRows.length }}</span></div>
+        </div>
+        <div v-if="missing.length" class="card pad mt">
+          <div class="row"><span class="ms" style="color:var(--muted)">playlist_add</span><b class="grow">Dữ liệu cần bổ sung</b></div>
+          <div v-for="m in missing" :key="m.loai" class="row" style="margin-top:8px">
+            <div class="grow small">{{ m.n }} thiết bị chưa nhập <b>{{ m.loai }}</b></div>
+            <button class="btn sm" @click="toList('missing:' + m.loai)">Xem</button>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="sec-title"><span class="ms">build</span>Đang sửa chữa<button class="btn ghost sm" style="margin-left:auto" @click="toRepairs">Tất cả</button></div>
+        <div class="card list">
+          <div v-for="r in S.repairs.slice(0, 6)" :key="r.ID" class="li" @click="go('repairDetail', {id: r.ID})">
+            <Thumb :id="r.AnhTB" cls="sm" icon="build"></Thumb>
+            <div class="grow"><div class="t">{{ r.TenTB }}</div><div class="s">{{ r.SoPhieu }} · {{ r.MoTa }}</div></div>
+            <span :class="['chip', rpCls(r.TrangThai)]">{{ r.TrangThai }}</span>
+          </div>
+          <div v-if="!S.repairs.length" class="empty"><span class="ms">task_alt</span>Không có phiếu đang mở</div>
+        </div>
+        <div class="sec-title"><span class="ms">donut_large</span>Tình trạng đội xe</div>
+        <div class="card pad">
+          <div class="statusbar"><div v-for="(n, s) in byStatus" :key="s" :style="{width: (n / Math.max(S.equipment.length, 1) * 100) + '%', background: colors[s]}"></div></div>
+          <div class="legend"><span v-for="(n, s) in byStatus" :key="s"><i :style="{background: colors[s]}"></i>{{ s }}: <b>{{ n }}</b></span></div>
+        </div>
+      </div>
+    </div>
+  </div>`
+};
+
+/* =====================================================================
+ *  DANH SÁCH THIẾT BỊ
+ * ===================================================================== */
+const EquipList = {
+  components: { Thumb },
+  computed: {
+    f() { return S.filter; },
+    base() {
+      const q = norm(this.f.q);
+      return S.equipment.filter(e => !q || norm([e.TenTB, e.BienSo, e.MaTB, e.NhanHieu, e.LoaiTB].join(' ')).includes(q));
+    },
+    flagged() {
+      const fl = this.f.flag;
+      return this.base.filter(e => {
+        if (!fl) return true;
+        if (fl === 'alert') return e.docs.some(d => d.state === 'expired' || d.state === 'warning');
+        if (fl === 'expired' || fl === 'warning') return e.docs.some(d => d.state === fl);
+        if (fl === 'repair') return e.TrangThai !== 'Bình thường' && e.TrangThai !== 'Thanh lý' || e.openRepairs > 0;
+        if (fl.indexOf('missing:') === 0) { const l = fl.slice(8); return e.TrangThai !== 'Thanh lý' && e.docs.some(d => d.loai === l && d.state === 'missing'); }
+        return true;
+      });
+    },
+    list() { return this.f.loai ? this.flagged.filter(e => e.LoaiTB === this.f.loai) : this.flagged; },
+    loaiCounts() { const m = {}; this.flagged.forEach(e => { m[e.LoaiTB] = (m[e.LoaiTB] || 0) + 1; }); return m; },
+    loaiList() { const seen = []; S.equipment.forEach(e => { if (seen.indexOf(e.LoaiTB) < 0) seen.push(e.LoaiTB); }); return seen; },
+    groups() {
+      const g = []; const idx = {};
+      this.list.forEach(e => { if (!(e.LoaiTB in idx)) { idx[e.LoaiTB] = g.length; g.push({ name: e.LoaiTB, items: [] }); } g[idx[e.LoaiTB]].items.push(e); });
+      return g;
+    },
+    nAlert() { return this.base.filter(e => e.docs.some(d => d.state === 'expired' || d.state === 'warning')).length; },
+    nRepair() { return this.base.filter(e => e.TrangThai !== 'Bình thường' && e.TrangThai !== 'Thanh lý' || e.openRepairs > 0).length; },
+    flagLabel() {
+      const fl = this.f.flag;
+      if (fl === 'expired') return 'Giấy tờ quá hạn';
+      if (fl === 'warning') return 'Giấy tờ sắp hết hạn';
+      if (fl.indexOf('missing:') === 0) return 'Chưa nhập ' + fl.slice(8);
+      return '';
+    }
+  },
+  methods: {
+    setFlag(v) { this.f.flag = this.f.flag === v ? '' : v; },
+    setLoai(v) { this.f.loai = this.f.loai === v ? '' : v; },
+    alerts(e) { return e.docs.filter(d => d.state === 'expired' || d.state === 'warning'); },
+    async add() {
+      const r = await openModal('EquipForm', { isNew: true });
+      if (r) { await reloadLists(); go('equipDetail', { ma: r.equipment.MaTB }); }
+    }
+  },
+  template: `<div>
+    <div class="toolbar">
+      <div class="search"><span class="ms">search</span><input v-model="f.q" placeholder="Tìm tên xe, biển số, nhãn hiệu…" enterkeyhint="search">
+        <button v-if="f.q" class="ibtn" style="width:30px;height:30px" @click="f.q = ''"><span class="ms" style="font-size:18px">close</span></button></div>
+    </div>
+    <div class="chips">
+      <button :class="['fchip', {on: !f.flag && !f.loai}]" @click="f.flag = ''; f.loai = ''">Tất cả <b>{{ base.length }}</b></button>
+      <button :class="['fchip alert', {on: f.flag === 'alert'}]" @click="setFlag('alert')"><span class="ms" style="font-size:17px">warning</span>Cảnh báo <b>{{ nAlert }}</b></button>
+      <button :class="['fchip', {on: f.flag === 'repair'}]" @click="setFlag('repair')"><span class="ms" style="font-size:17px">build</span>Đang sửa <b>{{ nRepair }}</b></button>
+      <button v-if="flagLabel" class="fchip on" @click="f.flag = ''">{{ flagLabel }} <span class="ms" style="font-size:16px">close</span></button>
+      <span style="flex:none;width:1px;background:var(--line-2);margin:4px 2px"></span>
+      <button v-for="l in loaiList" :key="l" :class="['fchip', {on: f.loai === l}]" @click="setLoai(l)">{{ l }} <b>{{ loaiCounts[l] || 0 }}</b></button>
+    </div>
+
+    <div v-for="g in groups" :key="g.name">
+      <div class="grp-h">{{ g.name }} <small>{{ g.items.length }}</small></div>
+      <div class="eq-grid">
+        <button v-for="e in g.items" :key="e.MaTB" class="card eq" @click="go('equipDetail', {ma: e.MaTB})">
+          <Thumb :id="e.AnhID" :icon="eqIcon(e.LoaiTB)"></Thumb>
+          <div class="info">
+            <div class="t">{{ e.TenTB }}</div>
+            <div class="s"><span class="plate" v-if="e.BienSo">{{ e.BienSo }}</span><span v-if="e.NhanHieu"> &nbsp;{{ e.NhanHieu }}</span></div>
+            <div class="chips-in">
+              <span v-if="e.TrangThai !== 'Bình thường'" :class="['chip', stCls(e.TrangThai)]">{{ e.TrangThai }}</span>
+              <span v-else-if="e.openRepairs" class="chip c-warn"><span class="ms">build</span>{{ e.openRepairs }} phiếu SC</span>
+              <span v-for="d in alerts(e)" :key="d.loai" :class="['chip', docCls(d.state)]"><span class="ms">{{ d.state === 'expired' ? 'error' : 'schedule' }}</span>{{ docText(d) }}</span>
+              <span v-if="e.TrangThai === 'Bình thường' && !e.openRepairs && !alerts(e).length" class="chip c-ok"><span class="ms">check_circle</span>Bình thường</span>
+            </div>
+          </div>
+        </button>
+      </div>
+    </div>
+    <div v-if="!list.length" class="card empty mt"><span class="ms">search_off</span>Không có thiết bị phù hợp</div>
+    <button v-if="isAdmin()" class="fab" @click="add"><span class="ms">add</span>Thêm thiết bị</button>
+    <button v-else-if="isLX()" class="fab red" @click="go('repairNew', {})"><span class="ms">report</span>Báo hỏng</button>
+  </div>`
+};
+
+/* =====================================================================
+ *  CHI TIẾT THIẾT BỊ
+ * ===================================================================== */
+const EquipDetail = {
+  props: ['ma', 'tab'],
+  components: { Thumb, Gallery },
+  data() { return { d: null, t: this.tab || 'info', hero: '' }; },
+  created() { this.load(); },
+  watch: { 'S.rev'() { this.load(); } },
+  computed: {
+    e() { return this.d && this.d.equipment; },
+    img() { const id = this.e && this.e.AnhID; return id ? (this.hero || thumbs[id]) : ''; },
+    partGroups() {
+      const g = {}; (this.d.parts || []).forEach(p => { (g[p.Loai] = g[p.Loai] || []).push(p); });
+      return g;
+    },
+    openRep() { return (this.d.repairs || []).filter(r => S.boot.dm.repairOpen.indexOf(r.TrangThai) >= 0).length; },
+    info() {
+      const e = this.e; const kt = [e.Dai, e.Rong, e.Cao].some(x => x !== '' && x != null) ? [e.Dai, e.Rong, e.Cao].map(x => x || '–').join(' × ') + ' mm' : '';
+      return [
+        ['Mã thiết bị', e.MaTB], ['Loại', e.LoaiTB], ['Nhãn hiệu', e.NhanHieu], ['Nước sản xuất', e.NuocSX],
+        ['Biển số', e.BienSo], ['Năm SX / Năm SD', [e.NamSX, e.NamSD].filter(Boolean).join(' / ')],
+        ['Số máy', e.SoMay], ['Số khung', e.SoKhung], ['Serial', e.Serial], ['Kích thước (D × R × C)', kt],
+        ['Khối lượng', e.KhoiLuong ? e.KhoiLuong + ' kg' : ''], ['Tải trọng / Công suất', e.TaiTrongCongSuat],
+        ['Thông tin khác', e.ThongTinKhac, 1], ['Ghi chú', e.GhiChu, 1]
+      ];
+    }
+  },
+  methods: {
+    async load() {
+      try {
+        this.d = await call('getEquipment', { MaTB: this.ma }); S.title = this.d.equipment.TenTB;
+        const id = this.d.equipment.AnhID; this.hero = fullCache[id] || '';
+        if (id && !this.hero) {
+          needThumb(id);
+          call('fileFull', { id }, { silent: true }).then(r => { fullCache[id] = r.url; if (this.e && this.e.AnhID === id) this.hero = r.url; }).catch(() => {});
+        }
+      } catch (e) { fail(e); }
+    },
+    docInfo(doc) {
+      const dm = S.boot.dm.giayTo.find(g => g.LoaiGiayTo === doc.LoaiGiayTo) || {};
+      const days = daysTo(doc.NgayHetHan);
+      return { loai: doc.LoaiGiayTo, days, state: docState(days, dm.CanhBaoTruoc) };
+    },
+    async edit() { if (await openModal('EquipForm', { data: this.e })) { this.load(); reloadLists(); } },
+    async editDoc(doc) { if (await openModal('DocForm', { ma: this.ma, data: doc })) { this.load(); reloadLists(); } },
+    async editPart(p) { if (!isTech()) return; if (await openModal('PartForm', { ma: this.ma, data: p })) this.load(); },
+    async addFile() { if (await openModal('FileForm', { ma: this.ma })) this.load(); },
+    async openFile(f) {
+      if (isImg(f.MimeType)) return viewImages([f.FileID], 0);
+      try { const r = await call('fileLink', { id: f.FileID }); window.open(r.url, '_blank'); } catch (e) { fail(e); }
+    },
+    async delFile(f) {
+      if (!await ask({ title: 'Xoá tài liệu', msg: 'Xoá "' + f.TenTaiLieu + '" khỏi danh sách?', okText: 'Xoá', danger: true })) return;
+      try { await call('deleteFileDoc', { ID: f.ID }); this.load(); } catch (e) { fail(e); }
+    },
+    async del() {
+      if (!await ask({ title: 'Xoá thiết bị', msg: 'Xoá vĩnh viễn ' + this.e.TenTB + ' cùng giấy tờ, linh kiện, tài liệu? Thiết bị đã có lịch sử sửa chữa thì nên chuyển sang "Thanh lý".', okText: 'Xoá', danger: true })) return;
+      try { await call('deleteEquipment', { MaTB: this.ma }); toast('Đã xoá thiết bị'); await reloadLists(); back(); } catch (e) { fail(e); }
+    }
+  },
+  template: `<div v-if="!d"><div class="skel" style="height:260px"></div><div class="skel"></div></div>
+  <div v-else>
+    <div class="card hero">
+      <div class="hero-img" :style="img ? {backgroundImage: 'url(' + img + ')'} : null" @click="e.AnhID && viewImages([e.AnhID])">
+        <span v-if="!img" class="ms">{{ eqIcon(e.LoaiTB) }}</span></div>
+      <div class="hero-body">
+        <h2>{{ e.TenTB }}</h2>
+        <div class="row wrap">
+          <span class="plate" v-if="e.BienSo">{{ e.BienSo }}</span>
+          <span :class="['chip', stCls(e.TrangThai)]">{{ e.TrangThai || 'Bình thường' }}</span>
+          <span v-if="openRep" class="chip c-warn"><span class="ms">build</span>{{ openRep }} phiếu đang mở</span>
+          <span class="small muted">{{ e.LoaiTB }}</span>
+        </div>
+        <div class="docsum">
+          <div v-for="s in d.docSummary" :key="s.loai" :class="['ds', docCls(s.state)]" @click="t = 'docs'" style="cursor:pointer">
+            <div class="l">{{ s.loai }}</div>
+            <div class="d">{{ s.han ? fmtD(s.han) : '—' }}</div>
+            <div class="n">{{ docText(s, true) }}</div>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn warn" @click="go('repairNew', {ma: e.MaTB})"><span class="ms">report</span>Báo hỏng</button>
+          <button v-if="isTech()" class="btn" @click="edit"><span class="ms">edit</span>Sửa thông tin</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button :class="{on: t === 'info'}" @click="t = 'info'">Thông tin</button>
+      <button :class="{on: t === 'docs'}" @click="t = 'docs'">Giấy tờ<small>{{ d.docs.length }}</small></button>
+      <button :class="{on: t === 'parts'}" @click="t = 'parts'">Linh kiện<small>{{ d.parts.length }}</small></button>
+      <button :class="{on: t === 'rep'}" @click="t = 'rep'">Sửa chữa<small>{{ d.repairs.length }}</small></button>
+      <button :class="{on: t === 'files'}" @click="t = 'files'">Tài liệu<small>{{ d.files.length }}</small></button>
+    </div>
+
+    <!-- Thông tin -->
+    <div v-if="t === 'info'">
+      <div class="card kv" style="overflow:hidden">
+        <div v-for="r in info" :key="r[0]" :class="{full: r[2]}" v-show="r[1] !== '' && r[1] != null"><label>{{ r[0] }}</label><span>{{ r[1] }}</span></div>
+      </div>
+      <div class="small muted mt">Cập nhật {{ fmtDT(e.NgayCapNhat) }} {{ e.NguoiCapNhat ? '· ' + who(e.NguoiCapNhat) : '' }}</div>
+      <button v-if="isAdmin()" class="btn danger sm mt" @click="del"><span class="ms">delete</span>Xoá thiết bị</button>
+    </div>
+
+    <!-- Giấy tờ -->
+    <div v-if="t === 'docs'">
+      <div v-for="doc in d.docs" :key="doc.ID" class="card item-card">
+        <div class="item-head">
+          <div class="grow">
+            <div style="font-weight:700">{{ doc.LoaiGiayTo }} <span v-if="doc.SoGiay" class="muted small">· Số {{ doc.SoGiay }}</span></div>
+            <div class="small muted">{{ doc.NgayCap ? 'Cấp ' + fmtD(doc.NgayCap) + ' · ' : '' }}Hết hạn <b style="color:var(--ink)">{{ fmtD(doc.NgayHetHan) }}</b></div>
+          </div>
+          <span :class="['chip', docCls(docInfo(doc).state)]">{{ docText(docInfo(doc), true) }}</span>
+          <button v-if="isTech()" class="ibtn" @click="editDoc(doc)"><span class="ms">edit</span></button>
+        </div>
+        <Gallery :ids="ids(doc.FileIDs)"></Gallery>
+        <div v-if="doc.GhiChu" class="small muted" style="margin-top:6px">{{ doc.GhiChu }}</div>
+      </div>
+      <div v-if="!d.docs.length" class="card empty"><span class="ms">description</span>Chưa có giấy tờ</div>
+      <button v-if="isTech()" class="btn pri mt" @click="editDoc(null)"><span class="ms">add</span>Thêm giấy tờ</button>
+    </div>
+
+    <!-- Linh kiện -->
+    <div v-if="t === 'parts'">
+      <div v-for="(list, loai) in partGroups" :key="loai" class="card mb" style="overflow:hidden">
+        <div class="pad" style="padding-bottom:8px;font-weight:700">{{ loai }}</div>
+        <table class="ptable">
+          <tr><th>Vị trí</th><th>Quy cách</th><th>SL</th><th>Ngày thay</th></tr>
+          <tr v-for="p in list" :key="p.ID" :class="{click: isTech()}" @click="editPart(p)">
+            <td>{{ p.ViTri || '—' }}</td><td><b>{{ p.QuyCach }}</b><div v-if="p.GhiChu" class="small muted">{{ p.GhiChu }}</div></td>
+            <td>{{ p.SoLuong }}</td><td>{{ fmtD(p.NgayThay) || '—' }}</td>
+          </tr>
+        </table>
+      </div>
+      <div v-if="!d.parts.length" class="card empty"><span class="ms">tire_repair</span>Chưa có thông tin linh kiện</div>
+      <button v-if="isTech()" class="btn pri" @click="editPart({})"><span class="ms">add</span>Thêm linh kiện</button>
+    </div>
+
+    <!-- Sửa chữa -->
+    <div v-if="t === 'rep'">
+      <button v-for="r in d.repairs" :key="r.ID" class="card rp" @click="go('repairDetail', {id: r.ID})">
+        <div class="top"><span class="no">{{ r.SoPhieu }}</span><span class="grow"></span><span :class="['chip', rpCls(r.TrangThai)]">{{ r.TrangThai }}</span></div>
+        <div class="desc" style="margin-top:6px">{{ r.MoTa }}</div>
+        <div class="meta"><span>{{ fmtDT(r.NgayBao) }}</span><span>{{ who(r.NguoiBao) }}</span></div>
+      </button>
+      <div v-if="!d.repairs.length" class="card empty"><span class="ms">history</span>Chưa có lịch sử sửa chữa</div>
+    </div>
+
+    <!-- Tài liệu -->
+    <div v-if="t === 'files'">
+      <div class="card list" v-if="d.files.length">
+        <div v-for="f in d.files" :key="f.ID" class="li" @click="openFile(f)">
+          <span class="ms" style="color:var(--pri-2)">{{ /pdf/.test(f.MimeType) ? 'picture_as_pdf' : /image/.test(f.MimeType) ? 'image' : 'draft' }}</span>
+          <div class="grow"><div class="t">{{ f.TenTaiLieu }}</div><div class="s">{{ fmtDT(f.NgayTao) }} · {{ who(f.NguoiTao) }}</div></div>
+          <button v-if="isTech()" class="ibtn" @click.stop="delFile(f)"><span class="ms">delete</span></button>
+        </div>
+      </div>
+      <div v-else class="card empty"><span class="ms">folder_open</span>Chưa có tài liệu (hướng dẫn, catalogue, biên bản…)</div>
+      <button v-if="isTech()" class="btn pri mt" @click="addFile"><span class="ms">upload_file</span>Tải tài liệu lên</button>
+    </div>
+  </div>`
+};
+
+/* =====================================================================
+ *  SỬA CHỮA
+ * ===================================================================== */
+const RepairList = {
+  props: ['tab'],
+  components: { Thumb },
+  data() { return { t: this.tab || 'open', all: null, q: '' }; },
+  created() { this.load(); },
+  watch: { 'S.rev'() { this.load(); } },
+  computed: {
+    src() { return this.all || S.repairs; },
+    list() {
+      const q = norm(this.q);
+      const open = S.boot.dm.repairOpen;
+      return this.src.filter(r => {
+        if (this.t === 'open' && open.indexOf(r.TrangThai) < 0) return false;
+        if (this.t === 'done' && r.TrangThai !== 'Hoàn thành') return false;
+        return !q || norm([r.SoPhieu, r.TenTB, r.BienSo, r.MoTa, who(r.NguoiBao)].join(' ')).includes(q);
+      });
+    },
+    counts() {
+      const open = S.boot.dm.repairOpen;
+      return { open: this.src.filter(r => open.indexOf(r.TrangThai) >= 0).length, done: this.src.filter(r => r.TrangThai === 'Hoàn thành').length };
+    }
+  },
+  methods: { async load() { try { this.all = await call('listRepairs', { scope: 'all' }, { silent: !!this.all }); } catch (e) { fail(e); } } },
+  template: `<div>
+    <div class="toolbar"><div class="search"><span class="ms">search</span><input v-model="q" placeholder="Tìm số phiếu, xe, nội dung…"></div></div>
+    <div class="chips">
+      <button :class="['fchip', {on: t === 'open'}]" @click="t = 'open'">Đang mở <b>{{ counts.open }}</b></button>
+      <button :class="['fchip', {on: t === 'done'}]" @click="t = 'done'">Chờ nghiệm thu <b>{{ counts.done }}</b></button>
+      <button :class="['fchip', {on: t === 'all'}]" @click="t = 'all'">Tất cả <b>{{ src.length }}</b></button>
+    </div>
+    <div class="eq-grid" style="gap:10px">
+      <button v-for="r in list" :key="r.ID" class="card rp" style="margin:0" @click="go('repairDetail', {id: r.ID})">
+        <div class="top"><span class="no">{{ r.SoPhieu }}</span><span v-if="r.DungXe && S.boot.dm.repairOpen.indexOf(r.TrangThai) >= 0" class="chip c-bad"><span class="ms">block</span>Dừng xe</span>
+          <span class="grow"></span><span :class="['chip', rpCls(r.TrangThai)]">{{ r.TrangThai }}</span></div>
+        <div class="row" style="margin-top:8px"><Thumb :id="r.AnhTB" cls="sm" icon="build"></Thumb>
+          <div class="grow"><div class="eqn" style="margin:0">{{ r.TenTB }}</div><div class="desc">{{ r.MoTa }}</div></div></div>
+        <div class="meta"><span><span class="ms" style="font-size:15px">schedule</span> {{ ago(r.NgayBao) }}</span><span><span class="ms" style="font-size:15px">person</span> {{ who(r.NguoiBao) }}</span>
+          <span v-if="r.KTV"><span class="ms" style="font-size:15px">engineering</span> {{ who(r.KTV) }}</span></div>
+      </button>
+    </div>
+    <div v-if="all && !list.length" class="card empty"><span class="ms">task_alt</span>Không có phiếu</div>
+    <button class="fab red" @click="go('repairNew', {})"><span class="ms">report</span>Báo hỏng</button>
+  </div>`
+};
+
+const STEPS = ['Báo hỏng', 'Tiếp nhận', 'Xử lý', 'Hoàn thành', 'Nghiệm thu'];
+function partLabel(p) { const v = p.ViTri || ''; return norm(v).indexOf(norm(p.Loai)) === 0 ? v : (p.Loai + (v ? ' ' + v.toLowerCase() : '')); }
+const STEP_IDX = { 'Mới báo': 0, 'Đã tiếp nhận': 1, 'Đang sửa': 2, 'Chờ vật tư': 2, 'Hoàn thành': 3, 'Đã nghiệm thu': 4 };
+
+const RepairDetail = {
+  props: ['id'],
+  components: { Thumb, Gallery },
+  data() { return { r: null }; },
+  created() { this.load(); },
+  watch: { 'S.rev'() { this.load(); } },
+  computed: {
+    idx() { return STEP_IDX[this.r.TrangThai]; },
+    open() { return S.boot.dm.repairOpen.indexOf(this.r.TrangThai) >= 0; },
+    partNames() {
+      const set = ids(this.r.LinhKienThay);
+      return (this.r.parts || []).filter(p => set.indexOf(p.ID) >= 0).map(p => partLabel(p) + ' ' + p.QuyCach);
+    }
+  },
+  methods: {
+    async load() { try { this.r = await call('getRepair', { ID: this.id }); S.title = this.r.SoPhieu; } catch (e) { fail(e); } },
+    stepLabel(i) { return i === 2 && this.r.TrangThai === 'Chờ vật tư' ? 'Chờ vật tư' : STEPS[i]; },
+    async step(step, data) {
+      try { this.r = await call('updateRepair', { ID: this.id, step, data: data || {} }); toast('Đã cập nhật phiếu'); reloadLists(); }
+      catch (e) { fail(e); }
+    },
+    async process() {
+      const res = await openModal('RepairEdit', { r: this.r });
+      if (res) { this.r = res; reloadLists(); }
+    },
+    async accept() {
+      if (await ask({ title: 'Nghiệm thu', msg: 'Xác nhận nghiệm thu phiếu ' + this.r.SoPhieu + '?', okText: 'Nghiệm thu' })) this.step('nghiemthu');
+    },
+    async reopen() { if (await ask({ title: 'Mở lại phiếu', msg: 'Chuyển phiếu về trạng thái Đang sửa?', okText: 'Mở lại' })) this.step('molai'); },
+    async cancel() {
+      const v = await ask({ title: 'Huỷ phiếu', msg: 'Lý do huỷ phiếu ' + this.r.SoPhieu + ':', input: true, okText: 'Huỷ phiếu', danger: true });
+      if (v !== false) this.step('huy', { LyDo: v });
+    }
+  },
+  template: `<div v-if="!r"><div class="skel" style="height:160px"></div><div class="skel"></div></div>
+  <div v-else>
+    <div class="card pad">
+      <div class="row"><span class="no" style="font-family:ui-monospace,Menlo,monospace;font-weight:700">{{ r.SoPhieu }}</span><span class="grow"></span>
+        <span :class="['chip', rpCls(r.TrangThai)]">{{ r.TrangThai }}</span></div>
+      <div v-if="r.TrangThai === 'Huỷ'" class="chip c-grey mt" style="height:auto;padding:8px 12px;white-space:normal">Phiếu đã huỷ. {{ r.GhiChu }}</div>
+      <div v-else class="stepper mt">
+        <div v-for="(s, i) in STEPS" :key="i" :class="['st', {done: i < idx || idx === 4, cur: i === idx && idx < 4}]">
+          <div class="b"><span v-if="i < idx || idx === 4" class="ms">check</span></div>{{ stepLabel(i) }}</div>
+      </div>
+    </div>
+
+    <div class="card list mt">
+      <div class="li" @click="go('equipDetail', {ma: r.MaTB})">
+        <Thumb :id="r.AnhTB" cls="sm" icon="directions_bus"></Thumb>
+        <div class="grow"><div class="t">{{ r.TenTB }}</div><div class="s"><span class="plate" v-if="r.BienSo">{{ r.BienSo }}</span> &nbsp;{{ r.MaTB }}</div></div>
+        <span class="ms muted">chevron_right</span>
+      </div>
+    </div>
+
+    <div class="sec-title"><span class="ms">report</span>Báo hỏng</div>
+    <div class="card pad">
+      <div class="row wrap"><span class="chip c-grey">{{ r.LoaiCV }}</span><span v-if="r.DungXe" class="chip c-bad"><span class="ms">block</span>Xe phải dừng</span></div>
+      <div style="margin:10px 0 4px;white-space:pre-wrap">{{ r.MoTa }}</div>
+      <Gallery :ids="ids(r.AnhTruoc)"></Gallery>
+      <div class="small muted" style="margin-top:8px">{{ who(r.NguoiBao) }} · {{ fmtDT(r.NgayBao) }}</div>
+    </div>
+
+    <template v-if="r.KTV || r.NoiDungKhacPhuc">
+      <div class="sec-title"><span class="ms">engineering</span>Xử lý</div>
+      <div class="card pad">
+        <div class="small muted">KTV: <b style="color:var(--ink)">{{ who(r.KTV) || '—' }}</b> · tiếp nhận {{ fmtDT(r.NgayTiepNhan) }}</div>
+        <div v-if="r.NoiDungKhacPhuc" style="margin-top:10px;white-space:pre-wrap">{{ r.NoiDungKhacPhuc }}</div>
+        <div v-if="partNames.length" class="row wrap" style="margin-top:10px"><span class="small muted">Linh kiện thay:</span>
+          <span v-for="p in partNames" :key="p" class="chip c-info">{{ p }}</span></div>
+        <Gallery :ids="ids(r.AnhSau)"></Gallery>
+        <div v-if="r.NgayXong" class="small muted" style="margin-top:8px">Hoàn thành {{ fmtDT(r.NgayXong) }}</div>
+        <div v-if="r.NguoiNghiemThu" class="small muted">Nghiệm thu: {{ who(r.NguoiNghiemThu) }} · {{ fmtD(r.NgayNghiemThu) }}</div>
+      </div>
+    </template>
+
+    <div class="actions mt" v-if="isTech()">
+      <button v-if="r.TrangThai === 'Mới báo'" class="btn pri" @click="step('tiepnhan')"><span class="ms">assignment_ind</span>Tiếp nhận</button>
+      <button v-if="open" :class="['btn', r.TrangThai === 'Mới báo' ? '' : 'pri']" @click="process"><span class="ms">construction</span>Cập nhật xử lý</button>
+      <button v-if="r.TrangThai === 'Hoàn thành' && isAdmin()" class="btn pri" @click="accept"><span class="ms">verified</span>Nghiệm thu</button>
+      <button v-if="r.TrangThai === 'Hoàn thành' && isAdmin()" class="btn" @click="reopen"><span class="ms">undo</span>Mở lại</button>
+      <button v-if="open && isAdmin()" class="btn danger" @click="cancel"><span class="ms">cancel</span>Huỷ phiếu</button>
+    </div>
+  </div>`
+};
+
+const RepairNew = {
+  props: ['ma'],
+  components: { ImgPicker, Toggle, Thumb },
+  data() { return { f: { MaTB: this.ma || '', LoaiCV: 'Hỏng đột xuất', MoTa: '', AnhTruoc: [], DungXe: false }, q: '', saving: false }; },
+  created() { S.title = 'Báo hỏng'; if (isLX() && !this.ma && S.equipment.length === 1) this.f.MaTB = S.equipment[0].MaTB; },
+  computed: {
+    eq() { return S.equipment.find(e => e.MaTB === this.f.MaTB); },
+    opts() { const q = norm(this.q); return S.equipment.filter(e => e.TrangThai !== 'Thanh lý' && (!q || norm(e.TenTB + ' ' + e.BienSo + ' ' + e.MaTB).includes(q))).slice(0, 40); }
+  },
+  methods: {
+    async save() {
+      if (!this.f.MaTB) return toast('Chọn thiết bị', true);
+      if (!this.f.MoTa.trim()) return toast('Nhập mô tả hư hỏng', true);
+      this.saving = true;
+      try {
+        const r = await call('createRepair', { data: this.f });
+        toast('Đã gửi báo hỏng ' + r.SoPhieu);
+        reloadLists();
+        go('repairDetail', { id: r.ID }, { replace: true });
+      } catch (e) { fail(e); }
+      this.saving = false;
+    }
+  },
+  template: `<div style="max-width:720px">
+    <div class="card pad form">
+      <div class="fld"><label>Thiết bị <span class="req">*</span></label>
+        <div v-if="eq" class="row card" style="padding:8px;box-shadow:none">
+          <Thumb :id="eq.AnhID" cls="sm" :icon="eqIcon(eq.LoaiTB)"></Thumb>
+          <div class="grow"><b>{{ eq.TenTB }}</b><div class="small muted">{{ eq.BienSo }}</div></div>
+          <button class="btn sm" @click="f.MaTB = ''; f.AnhTruoc = []">Đổi</button>
+        </div>
+        <template v-else>
+          <input v-model="q" placeholder="Gõ tên xe hoặc biển số để tìm…">
+          <div class="checks" style="margin-top:6px">
+            <label v-for="e in opts" :key="e.MaTB" @click="f.MaTB = e.MaTB"><span class="ms" style="color:var(--muted)">{{ eqIcon(e.LoaiTB) }}</span>
+              <span class="grow">{{ e.TenTB }}</span><span class="plate" v-if="e.BienSo">{{ e.BienSo }}</span></label>
+            <div v-if="!opts.length" class="empty small">Không tìm thấy</div>
+          </div>
+        </template>
+      </div>
+      <div class="fld" v-if="!isLX()"><label>Loại công việc</label>
+        <select v-model="f.LoaiCV"><option v-for="t in S.boot.dm.repairTypes" :key="t">{{ t }}</option></select></div>
+      <div class="fld"><label>Mô tả hư hỏng <span class="req">*</span></label>
+        <textarea v-model="f.MoTa" placeholder="Hiện tượng, vị trí, thời điểm phát hiện…"></textarea></div>
+      <div class="fld"><label>Hình ảnh</label>
+        <ImgPicker v-model="f.AnhTruoc" :ma-t-b="f.MaTB" kind="SuaChua" :disabled="!f.MaTB"></ImgPicker>
+        <div class="hint" v-if="!f.MaTB">Chọn thiết bị trước khi chụp ảnh</div></div>
+      <Toggle v-model="f.DungXe" label="Xe phải dừng hoạt động" sub="Bật nếu hư hỏng ảnh hưởng an toàn, không được tiếp tục vận hành"></Toggle>
+      <button class="btn warn block" :disabled="saving" @click="save"><span class="ms">send</span>{{ saving ? 'Đang gửi…' : 'Gửi báo hỏng' }}</button>
+    </div>
+  </div>`
+};
+
+/* =====================================================================
+ *  NGƯỜI DÙNG + TÀI KHOẢN
+ * ===================================================================== */
+const UsersView = {
+  data() { return { list: null }; },
+  created() { S.title = 'Người dùng'; this.load(); },
+  methods: {
+    async load() { try { this.list = await call('listUsers'); } catch (e) { fail(e); } },
+    async edit(u) { if (await openModal('UserForm', { data: u })) this.load(); },
+    roleCls(r) { return r === 'Admin' ? 'c-pri' : r === 'Kỹ thuật' ? 'c-info' : 'c-grey'; }
+  },
+  template: `<div style="max-width:820px">
+    <div class="card list" v-if="list">
+      <div v-for="u in list" :key="u.ID" class="li" @click="edit(u)" :style="u.KichHoat === false ? 'opacity:.5' : ''">
+        <div class="avatar">{{ initials(u.HoTen) }}</div>
+        <div class="grow"><div class="t">{{ u.HoTen || '(chưa có tên)' }}</div><div class="s">{{ u.Email }}</div></div>
+        <span v-if="u.VaiTro === 'Lái xe' && u.XeDuocGiao" class="small muted">{{ ids(u.XeDuocGiao).length }} xe</span>
+        <span :class="['chip', roleCls(u.VaiTro)]">{{ u.VaiTro }}</span>
+      </div>
+    </div>
+    <div v-else class="skel"></div>
+    <button class="fab" @click="edit(null)"><span class="ms">person_add</span>Thêm</button>
+  </div>`
+};
+
+const AccountView = {
+  created() { S.title = 'Tài khoản'; },
+  template: `<div style="max-width:620px">
+    <div class="card pad row">
+      <div class="avatar" style="width:52px;height:52px;font-size:18px">{{ initials(S.user.HoTen) }}</div>
+      <div class="grow"><div style="font-weight:700;font-size:17px">{{ S.user.HoTen }}</div><div class="small muted">{{ S.user.Email }}</div>
+        <span class="chip c-pri" style="margin-top:6px">{{ S.user.VaiTro }}</span></div>
+    </div>
+    <div class="card list mt">
+      <div v-if="isAdmin()" class="li" @click="go('users')"><span class="ms" style="color:var(--pri-2)">group</span><div class="grow t">Quản lý người dùng</div><span class="ms muted">chevron_right</span></div>
+      <div class="li" @click="refreshAll(); toast('Đã tải lại dữ liệu')"><span class="ms" style="color:var(--pri-2)">sync</span><div class="grow t">Tải lại dữ liệu</div></div>
+      <div class="li" @click="logoutNow"><span class="ms" style="color:var(--bad)">logout</span><div class="grow t" style="color:var(--bad)">Đăng xuất</div></div>
+    </div>
+    <div class="small muted mt" style="text-align:center">{{ S.boot.app.name }} · {{ S.boot.app.org }}</div>
+  </div>`
+};
+
+/* =====================================================================
+ *  CÁC FORM (MODAL)
+ * ===================================================================== */
+const ModalShell = {
+  props: ['title', 'wide'],
+  template: `<div class="overlay" @click.self="closeModal()"><div :class="['sheet', {wide}]">
+    <div class="sheet-h"><h3>{{ title }}</h3><button class="ibtn" @click="closeModal()"><span class="ms">close</span></button></div>
+    <div class="sheet-b"><slot></slot></div>
+    <div class="sheet-f"><slot name="foot"></slot></div></div></div>`
+};
+
+const EquipForm = {
+  props: ['isNew', 'data'],
+  components: { ModalShell, ImgPicker },
+  data() {
+    const d = Object.assign({ MaTB: '', TenTB: '', LoaiTB: '', NhanHieu: '', NuocSX: '', BienSo: '', NamSX: '', NamSD: '', Serial: '',
+      SoMay: '', SoKhung: '', Dai: '', Rong: '', Cao: '', KhoiLuong: '', TaiTrongCongSuat: '', ThongTinKhac: '',
+      TrangThai: 'Bình thường', AnhID: '', GhiChu: '' }, this.data || {});
+    return { f: d, anh: d.AnhID ? [d.AnhID] : [], saving: false };
+  },
+  methods: {
+    async save() {
+      this.saving = true;
+      try {
+        const data = Object.assign({}, this.f, { AnhID: this.anh[this.anh.length - 1] || '' });
+        const r = await call('saveEquipment', { isNew: !!this.isNew, data });
+        toast(this.isNew ? 'Đã thêm thiết bị' : 'Đã lưu');
+        closeModal(r);
+      } catch (e) { fail(e); }
+      this.saving = false;
+    }
+  },
+  template: `<ModalShell :title="isNew ? 'Thêm thiết bị' : 'Sửa thông tin'" wide>
+    <div class="form two">
+      <div class="form-sec full">Thông tin chung</div>
+      <div class="fld"><label>Mã thiết bị <span class="req">*</span></label><input v-model="f.MaTB" :readonly="!isNew" placeholder="VD: XT9, BC5"></div>
+      <div class="fld"><label>Tên thiết bị <span class="req">*</span></label><input v-model="f.TenTB"></div>
+      <div class="fld"><label>Loại</label><input v-model="f.LoaiTB" list="dm-loai"><datalist id="dm-loai"><option v-for="l in S.boot.dm.loaiTB" :key="l.TenLoai" :value="l.TenLoai"></option></datalist></div>
+      <div class="fld"><label>Trạng thái</label><select v-model="f.TrangThai"><option v-for="s in S.boot.dm.equipStatus" :key="s">{{ s }}</option></select></div>
+      <div class="fld"><label>Nhãn hiệu</label><input v-model="f.NhanHieu"></div>
+      <div class="fld"><label>Nước sản xuất</label><input v-model="f.NuocSX"></div>
+      <div class="fld"><label>Biển số</label><input v-model="f.BienSo"></div>
+      <div class="fld"><label>Serial</label><input v-model="f.Serial"></div>
+      <div class="fld"><label>Năm sản xuất</label><input v-model="f.NamSX" inputmode="numeric"></div>
+      <div class="fld"><label>Năm sử dụng</label><input v-model="f.NamSD" inputmode="numeric"></div>
+      <div class="form-sec full">Thông số kỹ thuật</div>
+      <div class="fld"><label>Số máy</label><input v-model="f.SoMay"></div>
+      <div class="fld"><label>Số khung</label><input v-model="f.SoKhung"></div>
+      <div class="fld"><label>Dài (mm)</label><input v-model="f.Dai" inputmode="decimal"></div>
+      <div class="fld"><label>Rộng (mm)</label><input v-model="f.Rong" inputmode="decimal"></div>
+      <div class="fld"><label>Cao (mm)</label><input v-model="f.Cao" inputmode="decimal"></div>
+      <div class="fld"><label>Khối lượng (kg)</label><input v-model="f.KhoiLuong" inputmode="decimal"></div>
+      <div class="fld full"><label>Tải trọng / Công suất</label><input v-model="f.TaiTrongCongSuat"></div>
+      <div class="fld full"><label>Thông tin khác</label><textarea v-model="f.ThongTinKhac" style="min-height:60px"></textarea></div>
+      <div class="fld full" v-if="!isNew"><label>Ảnh đại diện</label><ImgPicker v-model="anh" :ma-t-b="f.MaTB" kind="AnhXe" :max="1"></ImgPicker></div>
+      <div class="fld full hint" v-else>Thêm ảnh đại diện sau khi lưu thiết bị.</div>
+      <div class="fld full"><label>Ghi chú</label><input v-model="f.GhiChu"></div>
+    </div>
+    <template #foot><button class="btn" @click="closeModal()">Huỷ</button><button class="btn pri" :disabled="saving" @click="save">{{ saving ? 'Đang lưu…' : 'Lưu' }}</button></template>
+  </ModalShell>`
+};
+
+const DocForm = {
+  props: ['ma', 'data'],
+  components: { ModalShell, ImgPicker },
+  data() {
+    const d = Object.assign({ ID: '', LoaiGiayTo: S.boot.dm.giayTo[0] && S.boot.dm.giayTo[0].LoaiGiayTo, SoGiay: '', NgayCap: '', NgayHetHan: '', GhiChu: '' }, this.data || {});
+    return { f: d, files: ids(d.FileIDs), saving: false };
+  },
+  methods: {
+    async save() {
+      this.saving = true;
+      try { await call('saveDoc', { data: Object.assign({}, this.f, { MaTB: this.ma, FileIDs: this.files }) }); toast('Đã lưu giấy tờ'); closeModal(true); }
+      catch (e) { fail(e); }
+      this.saving = false;
+    },
+    async del() {
+      if (!await ask({ title: 'Xoá giấy tờ', msg: 'Xoá giấy tờ này?', okText: 'Xoá', danger: true })) return;
+      try { await call('deleteDoc', { ID: this.f.ID }); closeModal(true); } catch (e) { fail(e); }
+    }
+  },
+  template: `<ModalShell :title="f.ID ? 'Sửa giấy tờ' : 'Thêm giấy tờ'">
+    <div class="form two">
+      <div class="fld"><label>Loại giấy tờ <span class="req">*</span></label>
+        <select v-model="f.LoaiGiayTo"><option v-for="g in S.boot.dm.giayTo" :key="g.LoaiGiayTo">{{ g.LoaiGiayTo }}</option></select></div>
+      <div class="fld"><label>Số giấy / số seri</label><input v-model="f.SoGiay"></div>
+      <div class="fld"><label>Ngày cấp</label><input v-model="f.NgayCap" type="date"></div>
+      <div class="fld"><label>Ngày hết hạn <span class="req">*</span></label><input v-model="f.NgayHetHan" type="date"></div>
+      <div class="fld full"><label>Ảnh / file giấy tờ</label><ImgPicker v-model="files" :ma-t-b="ma" kind="GiayTo" :accept="ACCEPT_DOC"></ImgPicker></div>
+      <div class="fld full"><label>Ghi chú</label><input v-model="f.GhiChu"></div>
+    </div>
+    <template #foot><button v-if="f.ID" class="btn danger" style="margin-right:auto;min-width:0" @click="del"><span class="ms">delete</span></button>
+      <button class="btn" @click="closeModal()">Huỷ</button><button class="btn pri" :disabled="saving" @click="save">{{ saving ? 'Đang lưu…' : 'Lưu' }}</button></template>
+  </ModalShell>`
+};
+
+const PartForm = {
+  props: ['ma', 'data'],
+  components: { ModalShell },
+  data() { return { f: Object.assign({ ID: '', Loai: 'Ắc quy', ViTri: '', QuyCach: '', SoLuong: 1, NgayThay: '', GhiChu: '' }, this.data || {}), saving: false }; },
+  methods: {
+    async save() {
+      this.saving = true;
+      try { await call('savePart', { data: Object.assign({}, this.f, { MaTB: this.ma }) }); toast('Đã lưu'); closeModal(true); } catch (e) { fail(e); }
+      this.saving = false;
+    },
+    async del() {
+      if (!await ask({ title: 'Xoá linh kiện', msg: 'Xoá dòng linh kiện này?', okText: 'Xoá', danger: true })) return;
+      try { await call('deletePart', { ID: this.f.ID }); closeModal(true); } catch (e) { fail(e); }
+    }
+  },
+  template: `<ModalShell :title="f.ID ? 'Sửa linh kiện' : 'Thêm linh kiện'">
+    <div class="form two">
+      <div class="fld"><label>Loại</label><select v-model="f.Loai"><option v-for="t in S.boot.dm.partTypes" :key="t">{{ t }}</option></select></div>
+      <div class="fld"><label>Vị trí</label><input v-model="f.ViTri" placeholder="VD: Lốp trước, Lốp sau"></div>
+      <div class="fld"><label>Quy cách <span class="req">*</span></label><input v-model="f.QuyCach" placeholder="VD: 185/70R14, 12V90Ah"></div>
+      <div class="fld"><label>Số lượng</label><input v-model="f.SoLuong" inputmode="numeric"></div>
+      <div class="fld"><label>Ngày thay gần nhất</label><input v-model="f.NgayThay" type="date"></div>
+      <div class="fld"><label>Ghi chú</label><input v-model="f.GhiChu"></div>
+    </div>
+    <template #foot><button v-if="f.ID" class="btn danger" style="margin-right:auto;min-width:0" @click="del"><span class="ms">delete</span></button>
+      <button class="btn" @click="closeModal()">Huỷ</button><button class="btn pri" :disabled="saving" @click="save">Lưu</button></template>
+  </ModalShell>`
+};
+
+const FileForm = {
+  props: ['ma'],
+  components: { ModalShell },
+  data() { return { name: '', file: null, saving: false }; },
+  methods: {
+    pick(ev) { this.file = ev.target.files[0] || null; if (this.file && !this.name) this.name = this.file.name.replace(/\.[^.]+$/, ''); },
+    async save() {
+      if (!this.file) return toast('Chọn file', true);
+      this.saving = true;
+      try {
+        const up = await uploadFile(this.file, this.ma, 'TaiLieu');
+        await call('saveFileDoc', { data: { MaTB: this.ma, TenTaiLieu: this.name || this.file.name, FileID: up.id, MimeType: up.mime } });
+        toast('Đã tải lên'); closeModal(true);
+      } catch (e) { fail(e); }
+      this.saving = false;
+    }
+  },
+  template: `<ModalShell title="Tải tài liệu lên">
+    <div class="form">
+      <div class="fld"><label>File (PDF, Word, Excel, ảnh – tối đa 10MB)</label><input type="file" @change="pick" style="padding-top:9px"></div>
+      <div class="fld"><label>Tên tài liệu</label><input v-model="name" placeholder="VD: Biên bản kiểm định 2026"></div>
+    </div>
+    <template #foot><button class="btn" @click="closeModal()">Huỷ</button><button class="btn pri" :disabled="saving || !file" @click="save">{{ saving ? 'Đang tải…' : 'Tải lên' }}</button></template>
+  </ModalShell>`
+};
+
+const RepairEdit = {
+  props: ['r'],
+  components: { ModalShell, ImgPicker, Toggle },
+  data() {
+    const r = this.r;
+    return { f: { NoiDungKhacPhuc: r.NoiDungKhacPhuc || '', TrangThai: ['Đang sửa', 'Chờ vật tư'].indexOf(r.TrangThai) >= 0 ? r.TrangThai : 'Đang sửa',
+      LinhKienThay: ids(r.LinhKienThay), AnhSau: ids(r.AnhSau), DungXe: !!r.DungXe, NgayXong: todayStr() }, saving: false };
+  },
+  methods: {
+    async save(step) {
+      if (step === 'hoanthanh' && !this.f.NoiDungKhacPhuc.trim()) return toast('Nhập nội dung khắc phục', true);
+      this.saving = true;
+      try {
+        const res = await call('updateRepair', { ID: this.r.ID, step, data: this.f });
+        toast(step === 'hoanthanh' ? 'Đã hoàn thành phiếu' : 'Đã lưu');
+        closeModal(res);
+      } catch (e) { fail(e); }
+      this.saving = false;
+    }
+  },
+  template: `<ModalShell :title="'Xử lý ' + r.SoPhieu">
+    <div class="form">
+      <div class="fld"><label>Nội dung khắc phục</label><textarea v-model="f.NoiDungKhacPhuc" placeholder="Nguyên nhân, công việc đã làm, vật tư sử dụng…"></textarea></div>
+      <div class="fld"><label>Tiến độ</label>
+        <div class="chips" style="padding:0"><button v-for="s in ['Đang sửa', 'Chờ vật tư']" :key="s" type="button" :class="['fchip', {on: f.TrangThai === s}]" @click="f.TrangThai = s">{{ s }}</button></div></div>
+      <div class="fld" v-if="r.parts && r.parts.length"><label>Linh kiện đã thay (tự cập nhật ngày thay khi hoàn thành)</label>
+        <div class="checks"><label v-for="p in r.parts" :key="p.ID"><input type="checkbox" :value="p.ID" v-model="f.LinhKienThay">
+          <span class="grow">{{ partLabel(p) }} – <b>{{ p.QuyCach }}</b></span><span class="small muted">{{ fmtD(p.NgayThay) }}</span></label></div></div>
+      <div class="fld"><label>Ảnh sau sửa chữa</label><ImgPicker v-model="f.AnhSau" :ma-t-b="r.MaTB" kind="SuaChua"></ImgPicker></div>
+      <Toggle v-model="f.DungXe" label="Xe đang phải dừng hoạt động"></Toggle>
+      <div class="fld"><label>Ngày hoàn thành (khi bấm Hoàn thành)</label><input v-model="f.NgayXong" type="date"></div>
+    </div>
+    <template #foot><button class="btn" :disabled="saving" @click="save('capnhat')">Lưu</button>
+      <button class="btn pri" :disabled="saving" @click="save('hoanthanh')"><span class="ms">task_alt</span>Hoàn thành</button></template>
+  </ModalShell>`
+};
+
+const UserForm = {
+  props: ['data'],
+  components: { ModalShell, Toggle },
+  data() {
+    const d = Object.assign({ ID: '', Email: '', HoTen: '', VaiTro: 'Lái xe', XeDuocGiao: '', KichHoat: true, GhiChu: '' }, this.data || {});
+    return { f: Object.assign({}, d, { KichHoat: d.KichHoat !== false, XeDuocGiao: ids(d.XeDuocGiao) }), q: '', saving: false };
+  },
+  computed: { eqs() { const q = norm(this.q); return S.equipment.filter(e => !q || norm(e.TenTB + ' ' + e.BienSo).includes(q)); } },
+  methods: {
+    async save() {
+      this.saving = true;
+      try { await call('saveUser', { data: this.f }); toast('Đã lưu người dùng'); closeModal(true); } catch (e) { fail(e); }
+      this.saving = false;
+    },
+    async del() {
+      if (!await ask({ title: 'Xoá người dùng', msg: 'Xoá ' + this.f.Email + '? (Có thể chỉ cần tắt "Kích hoạt")', okText: 'Xoá', danger: true })) return;
+      try { await call('deleteUser', { ID: this.f.ID }); closeModal(true); } catch (e) { fail(e); }
+    }
+  },
+  template: `<ModalShell :title="f.ID ? 'Sửa người dùng' : 'Thêm người dùng'">
+    <div class="form">
+      <div class="fld"><label>Email (Gmail) <span class="req">*</span></label><input v-model="f.Email" type="email"></div>
+      <div class="fld"><label>Họ tên</label><input v-model="f.HoTen"></div>
+      <div class="fld"><label>Vai trò</label>
+        <div class="chips" style="padding:0"><button v-for="r in S.boot.dm.roles" :key="r" type="button" :class="['fchip', {on: f.VaiTro === r}]" @click="f.VaiTro = r">{{ r }}</button></div></div>
+      <div class="fld" v-if="f.VaiTro === 'Lái xe'"><label>Xe được giao ({{ f.XeDuocGiao.length }}) – để trống = xem tất cả</label>
+        <input v-model="q" placeholder="Tìm xe…" style="margin-bottom:6px">
+        <div class="checks"><label v-for="e in eqs" :key="e.MaTB"><input type="checkbox" :value="e.MaTB" v-model="f.XeDuocGiao">
+          <span class="grow">{{ e.TenTB }}</span><span class="plate" v-if="e.BienSo">{{ e.BienSo }}</span></label></div></div>
+      <Toggle v-model="f.KichHoat" label="Kích hoạt" sub="Tắt để khoá tài khoản" blue></Toggle>
+      <div class="fld"><label>Ghi chú</label><input v-model="f.GhiChu"></div>
+    </div>
+    <template #foot><button v-if="f.ID && f.ID !== S.user.ID" class="btn danger" style="margin-right:auto;min-width:0" @click="del"><span class="ms">delete</span></button>
+      <button class="btn" @click="closeModal()">Huỷ</button><button class="btn pri" :disabled="saving" @click="save">Lưu</button></template>
+  </ModalShell>`
+};
+
+/* ---------------- Xem ảnh ---------------- */
+const Viewer = {
+  data() { return { src: '', loading: false, err: '' }; },
+  computed: { v() { return S.viewer; }, id() { return this.v.ids[this.v.i]; } },
+  watch: { id: { immediate: true, handler() { this.load(); } } },
+  mounted() { this.k = ev => { if (ev.key === 'Escape') S.viewer = null; if (ev.key === 'ArrowLeft') this.nav(-1); if (ev.key === 'ArrowRight') this.nav(1); }; document.addEventListener('keydown', this.k); },
+  unmounted() { document.removeEventListener('keydown', this.k); },
+  methods: {
+    async load() {
+      const id = this.id; this.err = '';
+      if (fullCache[id]) { this.src = fullCache[id]; return; }
+      this.src = thumbs[id] || ''; this.loading = true;
+      try { const r = await call('fileFull', { id }, { silent: true }); fullCache[id] = r.url; if (this.id === id) this.src = r.url; }
+      catch (e) { if (!this.src) this.err = e.message; }
+      this.loading = false;
+    },
+    nav(d) { const n = this.v.ids.length; this.v.i = (this.v.i + d + n) % n; },
+    async orig() { try { const r = await call('fileLink', { id: this.id }); window.open(r.url, '_blank'); } catch (e) { fail(e); } }
+  },
+  template: `<div class="viewer" @click.self="S.viewer = null">
+    <img v-if="src" :src="src">
+    <div v-else-if="err" style="color:#fff">{{ err }}</div>
+    <div v-if="loading && !src" class="spinner"></div>
+    <button class="ibtn close" @click="S.viewer = null"><span class="ms">close</span></button>
+    <template v-if="v.ids.length > 1"><button class="ibtn prev" @click="nav(-1)"><span class="ms">chevron_left</span></button>
+      <button class="ibtn next" @click="nav(1)"><span class="ms">chevron_right</span></button></template>
+    <div class="cap">{{ v.i + 1 }} / {{ v.ids.length }} <span v-if="loading"> · đang tải ảnh gốc…</span>
+      <button v-if="isTech()" class="btn ghost sm" style="color:#9cc7f5" @click="orig">Mở file gốc</button></div>
+  </div>`
+};
+
+const ConfirmBox = {
+  computed: { c() { return S.confirm; } },
+  mounted() { if (this.$refs.inp) this.$refs.inp.focus(); },
+  methods: {
+    done(ok) { const c = S.confirm; S.confirm = null; c.resolve(ok ? (c.input ? c.value : true) : false); }
+  },
+  template: `<div class="overlay" style="z-index:85" @click.self="done(false)"><div class="sheet" style="max-width:440px">
+    <div class="sheet-h"><h3>{{ c.title }}</h3></div>
+    <div class="sheet-b"><div>{{ c.msg }}</div><div v-if="c.input" class="fld mt"><textarea ref="inp" v-model="c.value" style="min-height:70px"></textarea></div></div>
+    <div class="sheet-f"><button class="btn" @click="done(false)">Đóng</button>
+      <button :class="['btn', c.danger ? 'warn' : 'pri']" @click="done(true)">{{ c.okText }}</button></div></div></div>`
+};
+
+/* =====================================================================
+ *  KHUNG ỨNG DỤNG
+ * ===================================================================== */
+const VIEWS = { home: HomeView, equipList: EquipList, equipDetail: EquipDetail, repairList: RepairList,
+  repairDetail: RepairDetail, repairNew: RepairNew, users: UsersView, account: AccountView };
+const MODALS = { EquipForm, DocForm, PartForm, FileForm, RepairEdit, UserForm };
+
+const Root = {
+  components: Object.assign({ LoginView, Viewer, ConfirmBox }, MODALS),
+  computed: {
+    viewComp() { return VIEWS[S.view.name] || HomeView; },
+    viewKey() { return S.view.name + JSON.stringify(S.view.p); },
+    nav() {
+      if (isLX()) return [
+        { v: 'equipList', icon: 'directions_bus', label: 'Xe của tôi' },
+        { v: 'repairNew', icon: 'report', label: 'Báo hỏng' },
+        { v: 'repairList', icon: 'build', label: 'Phiếu', cnt: S.repairs.length },
+        { v: 'account', icon: 'person', label: 'Tài khoản' }];
+      return [
+        { v: 'home', icon: 'space_dashboard', label: 'Tổng quan' },
+        { v: 'equipList', icon: 'airport_shuttle', label: 'Thiết bị' },
+        { v: 'repairList', icon: 'build', label: 'Sửa chữa', cnt: S.repairs.filter(r => r.TrangThai === 'Mới báo').length },
+        { v: 'account', icon: 'person', label: 'Tài khoản' }];
+    },
+    sideNav() { return isAdmin() ? this.nav.slice(0, 3).concat([{ v: 'users', icon: 'group', label: 'Người dùng' }]) : this.nav.slice(0, 3); },
+    activeRoot() {
+      const n = S.stack.length ? S.stack[0].name : S.view.name;
+      return ({ equipDetail: 'equipList', repairDetail: 'repairList' })[n] || n;
+    },
+    title() {
+      if (S.title) return S.title;
+      const all = this.nav.concat([{ v: 'users', label: 'Người dùng' }]);
+      const f = all.find(x => x.v === S.view.name);
+      return f ? f.label : 'KTHT';
+    }
+  },
+  methods: {
+    navTo(v) { if (v === 'equipList') { S.filter.flag = ''; } go(v, {}, { root: true }); },
+    retryStart() { S.ready = false; start(); }
+  },
+  template: `
+  <div v-if="!S.ready" class="boot-splash"><div class="spinner"></div></div>
+  <div v-else-if="!S.user && S.netErr" class="login"><div class="box" style="text-align:center">
+    <div class="logo" style="margin:0 auto 14px"><span class="ms">cloud_off</span></div>
+    <h2>Chưa kết nối được</h2><p>{{ S.netErr }}. Kiểm tra mạng (4G/Wi-Fi) rồi thử lại.</p>
+    <button class="btn pri block" @click="retryStart"><span class="ms">refresh</span>Thử lại</button></div></div>
+  <LoginView v-else-if="!S.user"></LoginView>
+  <div v-else class="shell with-side">
+    <aside class="side">
+      <div class="logo"><div class="brand-dot" style="width:40px;height:40px;background:#1366b3"><span class="ms fill">flight_takeoff</span></div>
+        <div><b>KTHT Thiết bị</b><small>CHK Buôn Ma Thuột</small></div></div>
+      <template v-for="m in S.boot.modules" :key="m.id">
+        <div :class="['mod', {off: !m.active}]"><span class="ms">{{ m.icon }}</span>{{ m.name }}<span v-if="!m.active" class="soon">Sắp có</span></div>
+        <template v-if="m.active">
+          <button v-for="n in sideNav" :key="n.v" :class="['item', {on: activeRoot === n.v}]" @click="navTo(n.v)">
+            <span class="ms">{{ n.icon }}</span>{{ n.label }}<span v-if="n.cnt" class="cnt">{{ n.cnt }}</span></button>
+        </template>
+      </template>
+      <div class="me"><div class="avatar">{{ initials(S.user.HoTen) }}</div>
+        <div class="who"><b>{{ S.user.HoTen }}</b><small>{{ S.user.VaiTro }}</small></div>
+        <button class="ibtn" title="Đăng xuất" @click="logoutNow"><span class="ms">logout</span></button></div>
+    </aside>
+    <header class="topbar">
+      <button v-if="S.stack.length" class="ibtn" @click="back"><span class="ms">arrow_back</span></button>
+      <div v-else class="brand-dot m-only"><span class="ms fill">flight_takeoff</span></div>
+      <h1>{{ title }}</h1>
+      <button class="ibtn" title="Tải lại" @click="refreshAll"><span class="ms">refresh</span></button>
+    </header>
+    <main class="main"><component :is="viewComp" :key="viewKey" v-bind="S.view.p"></component></main>
+    <nav class="bnav">
+      <button v-for="n in nav" :key="n.v" :class="{on: activeRoot === n.v}" @click="navTo(n.v)">
+        <span class="ms">{{ n.icon }}</span>{{ n.label }}<span v-if="n.cnt" class="dot">{{ n.cnt }}</span></button>
+    </nav>
+  </div>
+  <div v-if="S.busy" class="loadbar"></div>
+  <component v-if="S.modal" :is="S.modal.type" v-bind="S.modal.props"></component>
+  <Viewer v-if="S.viewer"></Viewer>
+  <ConfirmBox v-if="S.confirm"></ConfirmBox>
+  <div v-if="S.toast" :class="['toast', {err: S.toast.err}]"><span class="ms">{{ S.toast.err ? 'error' : 'check_circle' }}</span>{{ S.toast.msg }}</div>`
+};
+
+const app = createApp(Root);
+Object.assign(app.config.globalProperties, {
+  S, go, back, toast, fmtD, fmtDT, ago, docCls, docText, stCls, rpCls, who, ids, eqIcon, initials, viewImages,
+  isAdmin, isTech, isLX, closeModal, logoutNow, refreshAll, STEPS, partLabel, ACCEPT_DOC
+});
+app.config.errorHandler = (err) => { console.error(err); fail(err); };
+app.mount('#app');
+
+async function start() {
+  S.netErr = '';
+  if (S.token) {
+    try { await loadBoot(); } catch (e) { if (!e.auth) S.netErr = e.message || 'Không kết nối được máy chủ'; }
+  }
+  S.ready = true;
+}
+window.addEventListener('online', () => { if (S.netErr) start(); });
+start();
+})();
+</script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+    }
+  </script>
+</body>
+</html>

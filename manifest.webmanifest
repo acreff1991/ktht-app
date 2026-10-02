@@ -1,0 +1,29 @@
+{
+  "name": "KTHT – Quản lý thiết bị",
+  "short_name": "KTHT",
+  "description": "Quản lý phương tiện, trang thiết bị kỹ thuật – Phòng KTHT, CHK Buôn Ma Thuột",
+  "lang": "vi",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b4f8a",
+  "theme_color": "#0b4f8a",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
