@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <title>KTHT – Quản lý thiết bị</title>
   <meta name="description" content="Quản lý phương tiện, trang thiết bị kỹ thuật – Phòng KTHT, CHK Buôn Ma Thuột">
   <meta name="theme-color" content="#0b4f8a">
@@ -35,7 +35,8 @@
   --safe-t: env(safe-area-inset-top, 0px);
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; touch-action: pan-x pan-y; }
+body, button, a, input, select, textarea, label { touch-action: manipulation; }
 html, body { margin: 0; padding: 0; max-width: 100%; overflow-x: clip; background: var(--bg); color: var(--ink);
   font-family: 'Be Vietnam Pro', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; font-size: 15px; line-height: 1.45; }
 button, input, select, textarea { font: inherit; color: inherit; }
@@ -363,7 +364,7 @@ a { color: var(--pri-2); text-decoration: none; }
 </head>
 <body>
   <div id="app"><div class="boot-splash"><div class="spinner"></div></div></div>
-  <script src="config.js?v=1.0.1"></script>
+  <script src="config.js?v=1.0.2"></script>
   <script src="vendor/vue.global.prod.js"></script>
 <script>
 /* =====================================================================
@@ -381,6 +382,11 @@ const LS = {
 
 /* ---------------- Gọi server ---------------- */
 /* Chạy trong Apps Script -> google.script.run ; chạy trên GitHub Pages (PWA) -> fetch tới link /exec */
+/* Khoá zoom bằng 2 ngón và chạm đúp (iPhone bỏ qua user-scalable=no nên chặn thêm bằng JS) */
+['gesturestart', 'gesturechange', 'gestureend'].forEach(ev => document.addEventListener(ev, e => e.preventDefault(), { passive: false }));
+document.addEventListener('touchmove', e => { if (e.touches && e.touches.length > 1) e.preventDefault(); }, { passive: false });
+/* Chạm đúp: đã chặn bằng CSS touch-action: manipulation (không chặn bằng JS để khỏi nuốt thao tác bấm nhanh) */
+
 const IN_GAS = typeof google !== 'undefined' && google.script && google.script.run;
 async function gsFetch(fn, args) {
   const url = window.KTHT_API;
