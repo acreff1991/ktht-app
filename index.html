@@ -364,7 +364,7 @@ a { color: var(--pri-2); text-decoration: none; }
 </head>
 <body>
   <div id="app"><div class="boot-splash"><div class="spinner"></div></div></div>
-  <script src="config.js?v=1.0.2"></script>
+  <script src="config.js?v=1.0.3"></script>
   <script src="vendor/vue.global.prod.js"></script>
 <script>
 /* =====================================================================
@@ -423,7 +423,7 @@ function gs(fn, ...args) {
 /* ---------------- Trạng thái chung ---------------- */
 const S = reactive({
   ready: false, token: LS.get('ktht_token'), user: null, boot: null,
-  equipment: [], repairs: [], busy: 0, rev: 0, title: '',
+  equipment: [], repairs: [], repairsAll: [], bootAt: 0, busy: 0, rev: 0, title: '',
   view: { name: 'home', p: {} }, stack: [],
   filter: { q: '', loai: '', flag: '' },
   modal: null, viewer: null, confirm: null, toast: null, netErr: ''
@@ -478,20 +478,31 @@ function back() {
 }
 
 /* ---------------- Khởi động / đăng nhập ---------------- */
-async function loadBoot() {
-  const b = await call('bootstrap');
-  S.boot = b; S.user = b.user; S.equipment = b.equipment; S.repairs = b.repairs;
-  S.view = { name: homeView(), p: {} }; S.stack = [];
+/* Dữ liệu lần trước được lưu trên máy -> mở app hiện ngay, cập nhật ngầm phía sau */
+const BOOT_KEY = 'ktht_boot_v1';
+let detailCache = {};
+const FRESH_MS = 60000;           /* dữ liệu tải trong 60 giây gần nhất coi là mới, không gọi lại máy chủ */
+const isFresh = () => Date.now() - S.bootAt < FRESH_MS;
+function applyBoot(b, keepView) {
+  S.boot = b; S.user = b.user; S.equipment = b.equipment;
+  S.repairsAll = b.repairs || [];
+  S.repairs = S.repairsAll.filter(r => b.dm.repairOpen.indexOf(r.TrangThai) >= 0);
+  detailCache = b.details || {};
+  if (!keepView) { S.view = { name: homeView(), p: {} }; S.stack = []; }
+}
+async function loadBoot(keepView, silent) {
+  const b = await call('bootstrap', {}, { silent: !!silent });
+  S.bootAt = Date.now();
+  applyBoot(b, keepView);
+  LS.set(BOOT_KEY, JSON.stringify(b));
+  if (keepView) S.rev++;
 }
 async function reloadLists() {
-  try {
-    const r = await Promise.all([call('listEquipment', {}, { silent: true }), call('listRepairs', { scope: 'open' }, { silent: true })]);
-    S.equipment = r[0]; S.repairs = r[1];
-  } catch (e) { /* bỏ qua */ }
+  try { await loadBoot(true, true); } catch (e) { /* bỏ qua */ }
 }
-function refreshAll() { S.rev++; reloadLists(); }
+function refreshAll() { loadBoot(true).catch(fail); }
 function forceLogout(msg) {
-  S.token = null; S.user = null; LS.set('ktht_token', null);
+  S.token = null; S.user = null; LS.set('ktht_token', null); LS.set(BOOT_KEY, null);
   if (msg) toast(msg, true);
 }
 async function logoutNow() {
@@ -509,19 +520,41 @@ const ACCEPT_DOC = ACCEPT_IMG + ',application/pdf';
 const isImg = m => String(m || '').indexOf('image/') === 0;
 const fullCache = {};
 let tq = new Set(), tTimer = null;
+/* Kho ảnh trên máy (Cache Storage): ảnh đã tải 1 lần thì lần sau lấy ngay, không gọi máy chủ */
+const IMGC = {
+  name: 'ktht-img-v1',
+  ok() { try { return typeof caches !== 'undefined' && (location.protocol === 'https:' || location.hostname === 'localhost'); } catch (e) { return false; } },
+  key(k) { return new URL('./__img/' + k, location.href).href; },
+  async getMany(keys) {
+    const out = {};
+    if (!this.ok()) return out;
+    try {
+      const c = await caches.open(this.name);
+      await Promise.all(keys.map(async k => { const r = await c.match(this.key(k)); if (r) out[k] = await r.text(); }));
+    } catch (e) {}
+    return out;
+  },
+  put(k, dataUrl) {
+    if (!this.ok() || !dataUrl) return;
+    try { caches.open(this.name).then(c => c.put(this.key(k), new Response(dataUrl))).catch(() => {}); } catch (e) {}
+  }
+};
+const THUMB_SIZE = 240;
 function needThumb(id) {
   if (!id || id in thumbs) return;
   thumbs[id] = null; tq.add(id);
-  clearTimeout(tTimer); tTimer = setTimeout(flushThumbs, 40);
+  clearTimeout(tTimer); tTimer = setTimeout(flushThumbs, 30);
 }
 async function flushThumbs() {
-  const ids = Array.from(tq); tq = new Set();
+  let ids = Array.from(tq); tq = new Set();
+  const local = await IMGC.getMany(ids.map(id => 't_' + id));
+  ids = ids.filter(id => { const v = local['t_' + id]; if (v) { thumbs[id] = v; return false; } return true; });
   const chunks = [];
   for (let i = 0; i < ids.length; i += 12) chunks.push(ids.slice(i, i + 12));
   await Promise.all(chunks.map(async ch => {
     try {
-      const r = await call('thumbs', { ids: ch, size: 400 }, { silent: true });
-      ch.forEach(id => { thumbs[id] = r[id] || ''; });
+      const r = await call('thumbs', { ids: ch, size: THUMB_SIZE }, { silent: true });
+      ch.forEach(id => { thumbs[id] = r[id] || ''; IMGC.put('t_' + id, r[id]); });
     } catch (e) { ch.forEach(id => { thumbs[id] = ''; }); }
   }));
 }
@@ -565,6 +598,7 @@ async function uploadFile(file, maTB, kind) {
   }
   const res = await call('upload', { MaTB: maTB, kind, name, mime, data: dataUrl.split(',')[1] }, { silent: true });
   thumbs[res.id] = isImg(mime) ? dataUrl : '';
+  if (isImg(mime)) IMGC.put('t_' + res.id, dataUrl);
   return res;
 }
 
@@ -919,7 +953,7 @@ const EquipDetail = {
   components: { Thumb, Gallery },
   data() { return { d: null, t: this.tab || 'info', hero: '' }; },
   created() { this.load(); },
-  watch: { 'S.rev'() { this.load(); } },
+  watch: { 'S.rev'() { this.load('cache'); } },
   computed: {
     e() { return this.d && this.d.equipment; },
     img() { const id = this.e && this.e.AnhID; return id ? (this.hero || thumbs[id]) : ''; },
@@ -940,32 +974,50 @@ const EquipDetail = {
     }
   },
   methods: {
-    async load() {
+    /* mode: 'cache' = chỉ dùng dữ liệu đã có ; 'force' = luôn hỏi máy chủ ; mặc định = dùng cache, cũ quá 60s thì cập nhật ngầm */
+    async load(mode) {
+      const c = detailCache[this.ma];
+      if (c) this.setD(c);
+      if (c && (mode === 'cache' || (mode !== 'force' && isFresh()))) return;
       try {
-        this.d = await call('getEquipment', { MaTB: this.ma }); S.title = this.d.equipment.TenTB;
-        const id = this.d.equipment.AnhID; this.hero = fullCache[id] || '';
-        if (id && !this.hero) {
-          needThumb(id);
-          call('fileFull', { id }, { silent: true }).then(r => { fullCache[id] = r.url; if (this.e && this.e.AnhID === id) this.hero = r.url; }).catch(() => {});
-        }
-      } catch (e) { fail(e); }
+        const d = await call('getEquipment', { MaTB: this.ma }, { silent: !!c });
+        detailCache[this.ma] = d; this.setD(d);
+      } catch (e) { if (!c) fail(e); }
+    },
+    refresh() { this.load('force'); reloadLists(); },
+    setD(d) {
+      const prevId = this.e && this.e.AnhID;
+      this.d = d; S.title = d.equipment.TenTB;
+      const id = d.equipment.AnhID;
+      if (id !== prevId || !this.hero) this.loadHero(id);
+    },
+    async loadHero(id) {
+      this.hero = (id && fullCache[id]) || '';
+      if (!id || this.hero) return;
+      needThumb(id);
+      const local = await IMGC.getMany(['f_' + id]);
+      if (local['f_' + id]) { fullCache[id] = local['f_' + id]; if (this.e && this.e.AnhID === id) this.hero = fullCache[id]; return; }
+      call('fileFull', { id }, { silent: true }).then(r => {
+        fullCache[id] = r.url; IMGC.put('f_' + id, r.url);
+        if (this.e && this.e.AnhID === id) this.hero = r.url;
+      }).catch(() => {});
     },
     docInfo(doc) {
       const dm = S.boot.dm.giayTo.find(g => g.LoaiGiayTo === doc.LoaiGiayTo) || {};
       const days = daysTo(doc.NgayHetHan);
       return { loai: doc.LoaiGiayTo, days, state: docState(days, dm.CanhBaoTruoc) };
     },
-    async edit() { if (await openModal('EquipForm', { data: this.e })) { this.load(); reloadLists(); } },
-    async editDoc(doc) { if (await openModal('DocForm', { ma: this.ma, data: doc })) { this.load(); reloadLists(); } },
-    async editPart(p) { if (!isTech()) return; if (await openModal('PartForm', { ma: this.ma, data: p })) this.load(); },
-    async addFile() { if (await openModal('FileForm', { ma: this.ma })) this.load(); },
+    async edit() { if (await openModal('EquipForm', { data: this.e })) this.refresh(); },
+    async editDoc(doc) { if (await openModal('DocForm', { ma: this.ma, data: doc })) this.refresh(); },
+    async editPart(p) { if (!isTech()) return; if (await openModal('PartForm', { ma: this.ma, data: p })) this.refresh(); },
+    async addFile() { if (await openModal('FileForm', { ma: this.ma })) this.refresh(); },
     async openFile(f) {
       if (isImg(f.MimeType)) return viewImages([f.FileID], 0);
       try { const r = await call('fileLink', { id: f.FileID }); window.open(r.url, '_blank'); } catch (e) { fail(e); }
     },
     async delFile(f) {
       if (!await ask({ title: 'Xoá tài liệu', msg: 'Xoá "' + f.TenTaiLieu + '" khỏi danh sách?', okText: 'Xoá', danger: true })) return;
-      try { await call('deleteFileDoc', { ID: f.ID }); this.load(); } catch (e) { fail(e); }
+      try { await call('deleteFileDoc', { ID: f.ID }); this.refresh(); } catch (e) { fail(e); }
     },
     async del() {
       if (!await ask({ title: 'Xoá thiết bị', msg: 'Xoá vĩnh viễn ' + this.e.TenTB + ' cùng giấy tờ, linh kiện, tài liệu? Thiết bị đã có lịch sử sửa chữa thì nên chuyển sang "Thanh lý".', okText: 'Xoá', danger: true })) return;
@@ -1083,9 +1135,9 @@ const RepairList = {
   components: { Thumb },
   data() { return { t: this.tab || 'open', all: null, q: '' }; },
   created() { this.load(); },
-  watch: { 'S.rev'() { this.load(); } },
+  watch: { 'S.rev'() { this.all = null; } },
   computed: {
-    src() { return this.all || S.repairs; },
+    src() { return this.all || S.repairsAll; },
     list() {
       const q = norm(this.q);
       const open = S.boot.dm.repairOpen;
@@ -1100,7 +1152,7 @@ const RepairList = {
       return { open: this.src.filter(r => open.indexOf(r.TrangThai) >= 0).length, done: this.src.filter(r => r.TrangThai === 'Hoàn thành').length };
     }
   },
-  methods: { async load() { try { this.all = await call('listRepairs', { scope: 'all' }, { silent: !!this.all }); } catch (e) { fail(e); } } },
+  methods: { async load() { if (isFresh()) return; try { this.all = await call('listRepairs', { scope: 'all' }, { silent: true }); } catch (e) { fail(e); } } },
   template: `<div>
     <div class="toolbar"><div class="search"><span class="ms">search</span><input v-model="q" placeholder="Tìm số phiếu, xe, nội dung…"></div></div>
     <div class="chips">
@@ -1118,7 +1170,7 @@ const RepairList = {
           <span v-if="r.KTV"><span class="ms" style="font-size:15px">engineering</span> {{ who(r.KTV) }}</span></div>
       </button>
     </div>
-    <div v-if="all && !list.length" class="card empty"><span class="ms">task_alt</span>Không có phiếu</div>
+    <div v-if="!list.length" class="card empty"><span class="ms">task_alt</span>Không có phiếu</div>
     <button class="fab red" @click="go('repairNew', {})"><span class="ms">report</span>Báo hỏng</button>
   </div>`
 };
@@ -1132,7 +1184,7 @@ const RepairDetail = {
   components: { Thumb, Gallery },
   data() { return { r: null }; },
   created() { this.load(); },
-  watch: { 'S.rev'() { this.load(); } },
+  watch: { 'S.rev'() { this.load('cache'); } },
   computed: {
     idx() { return STEP_IDX[this.r.TrangThai]; },
     open() { return S.boot.dm.repairOpen.indexOf(this.r.TrangThai) >= 0; },
@@ -1142,7 +1194,16 @@ const RepairDetail = {
     }
   },
   methods: {
-    async load() { try { this.r = await call('getRepair', { ID: this.id }); S.title = this.r.SoPhieu; } catch (e) { fail(e); } },
+    async load(mode) {
+      const c = S.repairsAll.find(x => x.ID === this.id);
+      if (c) {
+        const det = detailCache[c.MaTB];
+        this.r = Object.assign({}, c, { parts: (det && det.parts) || (this.r && this.r.parts) || [] });
+        S.title = c.SoPhieu;
+        if (mode === 'cache' || isFresh()) return;
+      }
+      try { this.r = await call('getRepair', { ID: this.id }, { silent: !!c }); S.title = this.r.SoPhieu; } catch (e) { if (!c) fail(e); }
+    },
     stepLabel(i) { return i === 2 && this.r.TrangThai === 'Chờ vật tư' ? 'Chờ vật tư' : STEPS[i]; },
     async step(step, data) {
       try { this.r = await call('updateRepair', { ID: this.id, step, data: data || {} }); toast('Đã cập nhật phiếu'); reloadLists(); }
@@ -1544,7 +1605,9 @@ const Viewer = {
       const id = this.id; this.err = '';
       if (fullCache[id]) { this.src = fullCache[id]; return; }
       this.src = thumbs[id] || ''; this.loading = true;
-      try { const r = await call('fileFull', { id }, { silent: true }); fullCache[id] = r.url; if (this.id === id) this.src = r.url; }
+      const local = await IMGC.getMany(['f_' + id]);
+      if (local['f_' + id]) { fullCache[id] = local['f_' + id]; if (this.id === id) this.src = fullCache[id]; this.loading = false; return; }
+      try { const r = await call('fileFull', { id }, { silent: true }); fullCache[id] = r.url; IMGC.put('f_' + id, r.url); if (this.id === id) this.src = r.url; }
       catch (e) { if (!this.src) this.err = e.message; }
       this.loading = false;
     },
@@ -1668,7 +1731,15 @@ app.mount('#app');
 async function start() {
   S.netErr = '';
   if (S.token) {
-    try { await loadBoot(); } catch (e) { if (!e.auth) S.netErr = e.message || 'Không kết nối được máy chủ'; }
+    let cached = null;
+    try { cached = JSON.parse(LS.get(BOOT_KEY) || 'null'); } catch (e) {}
+    if (cached && cached.user) { applyBoot(cached, !!S.user); S.ready = true; }      /* hiện ngay dữ liệu đã lưu */
+    try { await loadBoot(!!cached, !cached); }
+    catch (e) {
+      if (e.auth) { /* đã đăng xuất trong call() */ }
+      else if (cached) toast('Đang xem dữ liệu đã lưu – chưa cập nhật được', true);
+      else S.netErr = e.message || 'Không kết nối được máy chủ';
+    }
   }
   S.ready = true;
 }
