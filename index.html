@@ -1029,8 +1029,11 @@ const EquipDetail = {
       try { await call('deleteFileDoc', { ID: f.ID }); this.refresh(); } catch (e) { fail(e); }
     },
     async del() {
-      if (!await ask({ title: 'Xoá thiết bị', msg: 'Xoá vĩnh viễn ' + this.e.TenTB + ' cùng giấy tờ, linh kiện, tài liệu? Thiết bị đã có lịch sử sửa chữa thì nên chuyển sang "Thanh lý".', okText: 'Xoá', danger: true })) return;
-      try { await call('deleteEquipment', { MaTB: this.ma }); toast('Đã xoá thiết bị'); await reloadLists(); back(); } catch (e) { fail(e); }
+      const soSC = (this.d && this.d.repairs || []).length;
+      if (!await ask({ title: 'Xoá thiết bị', msg: 'Xoá vĩnh viễn ' + this.e.TenTB + ' cùng giấy tờ, linh kiện, tài liệu' +
+        (soSC ? ' và ' + soSC + ' PHIẾU SỬA CHỮA' : '') + '? Bản sao lưu giữ trong sheet ThungRac. (Muốn giữ lịch sử thì chuyển trạng thái "Thanh lý".)',
+        okText: soSC ? 'Xoá cả lịch sử' : 'Xoá', danger: true })) return;
+      try { await call('deleteEquipment', { MaTB: this.ma, force: true }); toast('Đã xoá thiết bị'); await reloadLists(); back(); } catch (e) { fail(e); }
     }
   },
   template: `<div v-if="!d"><div class="skel" style="height:260px"></div><div class="skel"></div></div>
@@ -1233,6 +1236,25 @@ const RepairDetail = {
     async cancel() {
       const v = await ask({ title: 'Huỷ phiếu', msg: 'Lý do huỷ phiếu ' + this.r.SoPhieu + ':', input: true, okText: 'Huỷ phiếu', danger: true });
       if (v !== false) this.step('huy', { LyDo: v });
+    },
+    async adminEdit() {
+      const res = await openModal('RepairAdminForm', { r: this.r });
+      if (res) { this.r = res; reloadLists(); }
+    },
+    async del() {
+      if (!await ask({ title: 'Xoá phiếu sửa chữa', msg: 'Xoá vĩnh viễn phiếu ' + this.r.SoPhieu + ' (' + (this.r.TenTB || this.r.MaTB) +
+        ')? Bản sao lưu được giữ trong sheet ThungRac của KTHT_Data.', okText: 'Xoá phiếu', danger: true })) return;
+      let hoanKho = false;
+      if (this.r.MaPhieuKho) {
+        hoanKho = await ask({ title: 'Phiếu xuất kho đi kèm',
+          msg: 'Phiếu này đã xuất kho (' + this.r.MaPhieuKho + (this.r.SoPhieuKho ? ' – ' + this.r.SoPhieuKho : '') + ').\n' +
+            'Bấm "Hoàn kho" để xoá luôn phiếu xuất và cộng trả vật tư vào kho.\nBấm "Đóng" để GIỮ NGUYÊN sổ kho.', okText: 'Hoàn kho' });
+      }
+      try {
+        const res = await call('deleteRepair', { ID: this.id, hoanKho: !!hoanKho });
+        toast('Đã xoá phiếu' + (res.kho && res.kho.soDong ? ', hoàn kho ' + res.kho.soDong + ' vật tư' : ''));
+        await reloadLists(); back();
+      } catch (e) { fail(e); }
     }
   },
   template: `<div v-if="!r"><div class="skel" style="height:160px"></div><div class="skel"></div></div>
@@ -1300,10 +1322,67 @@ const RepairDetail = {
       <button v-if="r.TrangThai === 'Mới báo'" class="btn pri" @click="step('tiepnhan')"><span class="ms">assignment_ind</span>Tiếp nhận</button>
       <button v-if="open" :class="['btn', r.TrangThai === 'Mới báo' ? '' : 'pri']" @click="process"><span class="ms">construction</span>Cập nhật xử lý</button>
       <button v-if="r.TrangThai === 'Hoàn thành' && isAdmin()" class="btn pri" @click="accept"><span class="ms">verified</span>Nghiệm thu</button>
-      <button v-if="r.TrangThai === 'Hoàn thành' && isAdmin()" class="btn" @click="reopen"><span class="ms">undo</span>Mở lại</button>
+      <button v-if="!open && isAdmin()" class="btn" @click="reopen"><span class="ms">undo</span>Mở lại</button>
       <button v-if="open && isAdmin()" class="btn danger" @click="cancel"><span class="ms">cancel</span>Huỷ phiếu</button>
+      <button v-if="isAdmin()" class="btn" @click="adminEdit"><span class="ms">edit_note</span>Sửa toàn bộ</button>
+      <button v-if="isAdmin()" class="btn danger" @click="del"><span class="ms">delete_forever</span>Xoá phiếu</button>
     </div>
   </div>`
+};
+
+/* Admin sửa trực tiếp mọi trường của phiếu sửa chữa */
+const RepairAdminForm = {
+  props: ['r'],
+  components: { ModalShell, Toggle },
+  data() {
+    const r = this.r, f = {};
+    ['SoPhieu', 'MaTB', 'LoaiCV', 'TrangThai', 'NguoiBao', 'NgayBao', 'MoTa', 'KTV', 'NgayTiepNhan',
+      'NoiDungKhacPhuc', 'NgayXong', 'NguoiNghiemThu', 'NgayNghiemThu', 'GhiChu'].forEach(k => { f[k] = r[k] == null ? '' : String(r[k]); });
+    f.DungXe = r.DungXe === true || r.DungXe === 'TRUE';
+    return { f, saving: false };
+  },
+  computed: {
+    users() { const m = S.boot.names || {}; return Object.keys(m).map(e => ({ e, n: m[e] || e })); }
+  },
+  methods: {
+    async save() {
+      if (!this.f.SoPhieu.trim()) return toast('Số phiếu không được trống', true);
+      if (!this.f.MoTa.trim()) return toast('Mô tả không được trống', true);
+      if (!await ask({ title: 'Lưu thay đổi', msg: 'Ghi đè trực tiếp dữ liệu phiếu ' + this.r.SoPhieu + '? Thao tác được ghi vào nhật ký hệ thống.', okText: 'Lưu' })) return;
+      this.saving = true;
+      try {
+        const res = await call('updateRepair', { ID: this.r.ID, step: 'admin', data: this.f });
+        toast('Đã lưu phiếu'); closeModal(res);
+      } catch (e) { fail(e); }
+      this.saving = false;
+    }
+  },
+  template: `<ModalShell :title="'Admin sửa ' + r.SoPhieu" wide>
+    <datalist id="dsNguoiDung"><option v-for="u in users" :key="u.e" :value="u.e">{{ u.n }}</option></datalist>
+    <div class="form two">
+      <div class="fld"><label>Số phiếu</label><input v-model="f.SoPhieu"></div>
+      <div class="fld"><label>Thiết bị</label>
+        <select v-model="f.MaTB"><option v-for="e in S.equipment" :key="e.MaTB" :value="e.MaTB">{{ e.TenTB }}{{ e.BienSo ? ' – ' + e.BienSo : '' }}</option></select></div>
+      <div class="fld"><label>Loại công việc</label>
+        <select v-model="f.LoaiCV"><option v-for="t in S.boot.dm.repairTypes" :key="t">{{ t }}</option></select></div>
+      <div class="fld"><label>Trạng thái</label>
+        <select v-model="f.TrangThai"><option v-for="t in S.boot.dm.repairStatus" :key="t">{{ t }}</option></select></div>
+      <div class="fld"><label>Người báo (email)</label><input v-model="f.NguoiBao" list="dsNguoiDung"></div>
+      <div class="fld"><label>Ngày báo</label><input v-model="f.NgayBao" type="datetime-local"></div>
+      <div class="fld full"><label>Mô tả hư hỏng</label><textarea v-model="f.MoTa"></textarea></div>
+      <div class="fld"><label>KTV tiếp nhận (email)</label><input v-model="f.KTV" list="dsNguoiDung"></div>
+      <div class="fld"><label>Ngày tiếp nhận</label><input v-model="f.NgayTiepNhan" type="datetime-local"></div>
+      <div class="fld full"><label>Nội dung khắc phục</label><textarea v-model="f.NoiDungKhacPhuc"></textarea></div>
+      <div class="fld"><label>Ngày xong</label><input v-model="f.NgayXong" type="datetime-local"></div>
+      <div class="fld"><label>Người nghiệm thu (email)</label><input v-model="f.NguoiNghiemThu" list="dsNguoiDung"></div>
+      <div class="fld"><label>Ngày nghiệm thu</label><input v-model="f.NgayNghiemThu" type="date"></div>
+      <div class="fld full"><label>Ghi chú</label><input v-model="f.GhiChu"></div>
+    </div>
+    <Toggle v-model="f.DungXe" label="Xe phải dừng hoạt động" sub="Ảnh hưởng trạng thái xe khi phiếu còn mở"></Toggle>
+    <div class="small muted mt">Vật tư xuất kho / số phiếu kho không sửa ở đây (sửa trong app Kho).</div>
+    <template #foot><button class="btn" @click="closeModal()">Huỷ</button>
+      <button class="btn pri" :disabled="saving" @click="save">{{ saving ? 'Đang lưu…' : 'Lưu' }}</button></template>
+  </ModalShell>`
 };
 
 const RepairNew = {
@@ -1760,7 +1839,7 @@ const ConfirmBox = {
  * ===================================================================== */
 const VIEWS = { home: HomeView, equipList: EquipList, equipDetail: EquipDetail, repairList: RepairList,
   repairDetail: RepairDetail, repairNew: RepairNew, users: UsersView, account: AccountView };
-const MODALS = { EquipForm, DocForm, PartForm, FileForm, RepairEdit, UserForm };
+const MODALS = { EquipForm, DocForm, PartForm, FileForm, RepairEdit, RepairAdminForm, UserForm };
 
 const Root = {
   components: Object.assign({ LoginView, Viewer, ConfirmBox }, MODALS),
