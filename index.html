@@ -1330,61 +1330,6 @@ const RepairDetail = {
   </div>`
 };
 
-/* Admin sửa trực tiếp mọi trường của phiếu sửa chữa */
-const RepairAdminForm = {
-  props: ['r'],
-  components: { ModalShell, Toggle },
-  data() {
-    const r = this.r, f = {};
-    ['SoPhieu', 'MaTB', 'LoaiCV', 'TrangThai', 'NguoiBao', 'NgayBao', 'MoTa', 'KTV', 'NgayTiepNhan',
-      'NoiDungKhacPhuc', 'NgayXong', 'NguoiNghiemThu', 'NgayNghiemThu', 'GhiChu'].forEach(k => { f[k] = r[k] == null ? '' : String(r[k]); });
-    f.DungXe = r.DungXe === true || r.DungXe === 'TRUE';
-    return { f, saving: false };
-  },
-  computed: {
-    users() { const m = S.boot.names || {}; return Object.keys(m).map(e => ({ e, n: m[e] || e })); }
-  },
-  methods: {
-    async save() {
-      if (!this.f.SoPhieu.trim()) return toast('Số phiếu không được trống', true);
-      if (!this.f.MoTa.trim()) return toast('Mô tả không được trống', true);
-      if (!await ask({ title: 'Lưu thay đổi', msg: 'Ghi đè trực tiếp dữ liệu phiếu ' + this.r.SoPhieu + '? Thao tác được ghi vào nhật ký hệ thống.', okText: 'Lưu' })) return;
-      this.saving = true;
-      try {
-        const res = await call('updateRepair', { ID: this.r.ID, step: 'admin', data: this.f });
-        toast('Đã lưu phiếu'); closeModal(res);
-      } catch (e) { fail(e); }
-      this.saving = false;
-    }
-  },
-  template: `<ModalShell :title="'Admin sửa ' + r.SoPhieu" wide>
-    <datalist id="dsNguoiDung"><option v-for="u in users" :key="u.e" :value="u.e">{{ u.n }}</option></datalist>
-    <div class="form two">
-      <div class="fld"><label>Số phiếu</label><input v-model="f.SoPhieu"></div>
-      <div class="fld"><label>Thiết bị</label>
-        <select v-model="f.MaTB"><option v-for="e in S.equipment" :key="e.MaTB" :value="e.MaTB">{{ e.TenTB }}{{ e.BienSo ? ' – ' + e.BienSo : '' }}</option></select></div>
-      <div class="fld"><label>Loại công việc</label>
-        <select v-model="f.LoaiCV"><option v-for="t in S.boot.dm.repairTypes" :key="t">{{ t }}</option></select></div>
-      <div class="fld"><label>Trạng thái</label>
-        <select v-model="f.TrangThai"><option v-for="t in S.boot.dm.repairStatus" :key="t">{{ t }}</option></select></div>
-      <div class="fld"><label>Người báo (email)</label><input v-model="f.NguoiBao" list="dsNguoiDung"></div>
-      <div class="fld"><label>Ngày báo</label><input v-model="f.NgayBao" type="datetime-local"></div>
-      <div class="fld full"><label>Mô tả hư hỏng</label><textarea v-model="f.MoTa"></textarea></div>
-      <div class="fld"><label>KTV tiếp nhận (email)</label><input v-model="f.KTV" list="dsNguoiDung"></div>
-      <div class="fld"><label>Ngày tiếp nhận</label><input v-model="f.NgayTiepNhan" type="datetime-local"></div>
-      <div class="fld full"><label>Nội dung khắc phục</label><textarea v-model="f.NoiDungKhacPhuc"></textarea></div>
-      <div class="fld"><label>Ngày xong</label><input v-model="f.NgayXong" type="datetime-local"></div>
-      <div class="fld"><label>Người nghiệm thu (email)</label><input v-model="f.NguoiNghiemThu" list="dsNguoiDung"></div>
-      <div class="fld"><label>Ngày nghiệm thu</label><input v-model="f.NgayNghiemThu" type="date"></div>
-      <div class="fld full"><label>Ghi chú</label><input v-model="f.GhiChu"></div>
-    </div>
-    <Toggle v-model="f.DungXe" label="Xe phải dừng hoạt động" sub="Ảnh hưởng trạng thái xe khi phiếu còn mở"></Toggle>
-    <div class="small muted mt">Vật tư xuất kho / số phiếu kho không sửa ở đây (sửa trong app Kho).</div>
-    <template #foot><button class="btn" @click="closeModal()">Huỷ</button>
-      <button class="btn pri" :disabled="saving" @click="save">{{ saving ? 'Đang lưu…' : 'Lưu' }}</button></template>
-  </ModalShell>`
-};
-
 const RepairNew = {
   props: ['ma'],
   components: { ImgPicker, Toggle, Thumb },
@@ -1839,6 +1784,61 @@ const ConfirmBox = {
  * ===================================================================== */
 const VIEWS = { home: HomeView, equipList: EquipList, equipDetail: EquipDetail, repairList: RepairList,
   repairDetail: RepairDetail, repairNew: RepairNew, users: UsersView, account: AccountView };
+/* Admin sửa trực tiếp mọi trường của phiếu sửa chữa */
+const RepairAdminForm = {
+  props: ['r'],
+  components: { ModalShell, Toggle },
+  data() {
+    const r = this.r, f = {};
+    ['SoPhieu', 'MaTB', 'LoaiCV', 'TrangThai', 'NguoiBao', 'NgayBao', 'MoTa', 'KTV', 'NgayTiepNhan',
+      'NoiDungKhacPhuc', 'NgayXong', 'NguoiNghiemThu', 'NgayNghiemThu', 'GhiChu'].forEach(k => { f[k] = r[k] == null ? '' : String(r[k]); });
+    f.DungXe = r.DungXe === true || r.DungXe === 'TRUE';
+    return { f, saving: false };
+  },
+  computed: {
+    users() { const m = S.boot.names || {}; return Object.keys(m).map(e => ({ e, n: m[e] || e })); }
+  },
+  methods: {
+    async save() {
+      if (!this.f.SoPhieu.trim()) return toast('Số phiếu không được trống', true);
+      if (!this.f.MoTa.trim()) return toast('Mô tả không được trống', true);
+      if (!await ask({ title: 'Lưu thay đổi', msg: 'Ghi đè trực tiếp dữ liệu phiếu ' + this.r.SoPhieu + '? Thao tác được ghi vào nhật ký hệ thống.', okText: 'Lưu' })) return;
+      this.saving = true;
+      try {
+        const res = await call('updateRepair', { ID: this.r.ID, step: 'admin', data: this.f });
+        toast('Đã lưu phiếu'); closeModal(res);
+      } catch (e) { fail(e); }
+      this.saving = false;
+    }
+  },
+  template: `<ModalShell :title="'Admin sửa ' + r.SoPhieu" wide>
+    <datalist id="dsNguoiDung"><option v-for="u in users" :key="u.e" :value="u.e">{{ u.n }}</option></datalist>
+    <div class="form two">
+      <div class="fld"><label>Số phiếu</label><input v-model="f.SoPhieu"></div>
+      <div class="fld"><label>Thiết bị</label>
+        <select v-model="f.MaTB"><option v-for="e in S.equipment" :key="e.MaTB" :value="e.MaTB">{{ e.TenTB }}{{ e.BienSo ? ' – ' + e.BienSo : '' }}</option></select></div>
+      <div class="fld"><label>Loại công việc</label>
+        <select v-model="f.LoaiCV"><option v-for="t in S.boot.dm.repairTypes" :key="t">{{ t }}</option></select></div>
+      <div class="fld"><label>Trạng thái</label>
+        <select v-model="f.TrangThai"><option v-for="t in S.boot.dm.repairStatus" :key="t">{{ t }}</option></select></div>
+      <div class="fld"><label>Người báo (email)</label><input v-model="f.NguoiBao" list="dsNguoiDung"></div>
+      <div class="fld"><label>Ngày báo</label><input v-model="f.NgayBao" type="datetime-local"></div>
+      <div class="fld full"><label>Mô tả hư hỏng</label><textarea v-model="f.MoTa"></textarea></div>
+      <div class="fld"><label>KTV tiếp nhận (email)</label><input v-model="f.KTV" list="dsNguoiDung"></div>
+      <div class="fld"><label>Ngày tiếp nhận</label><input v-model="f.NgayTiepNhan" type="datetime-local"></div>
+      <div class="fld full"><label>Nội dung khắc phục</label><textarea v-model="f.NoiDungKhacPhuc"></textarea></div>
+      <div class="fld"><label>Ngày xong</label><input v-model="f.NgayXong" type="datetime-local"></div>
+      <div class="fld"><label>Người nghiệm thu (email)</label><input v-model="f.NguoiNghiemThu" list="dsNguoiDung"></div>
+      <div class="fld"><label>Ngày nghiệm thu</label><input v-model="f.NgayNghiemThu" type="date"></div>
+      <div class="fld full"><label>Ghi chú</label><input v-model="f.GhiChu"></div>
+    </div>
+    <Toggle v-model="f.DungXe" label="Xe phải dừng hoạt động" sub="Ảnh hưởng trạng thái xe khi phiếu còn mở"></Toggle>
+    <div class="small muted mt">Vật tư xuất kho / số phiếu kho không sửa ở đây (sửa trong app Kho).</div>
+    <template #foot><button class="btn" @click="closeModal()">Huỷ</button>
+      <button class="btn pri" :disabled="saving" @click="save">{{ saving ? 'Đang lưu…' : 'Lưu' }}</button></template>
+  </ModalShell>`
+};
+
 const MODALS = { EquipForm, DocForm, PartForm, FileForm, RepairEdit, RepairAdminForm, UserForm };
 
 const Root = {
