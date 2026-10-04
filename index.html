@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0..1,0&icon_names=add,add_a_photo,agriculture,airport_shuttle,ambulance,api,arrow_back,assignment_ind,block,bolt,build,cancel,cell_tower,check,check_circle,chevron_left,chevron_right,cleaning_services,close,cloud_off,construction,conveyor_belt,delete,description,directions_bus,docs,donut_large,draft,edit,electric_bolt,engineering,error,event_busy,files,fire_truck,flight_takeoff,folder_open,forklift,gpp_bad,grass,group,history,home,hourglass_empty,image,info,local_shipping,logout,mode_fan,person,person_add,picture_as_pdf,playlist_add,refresh,remove,report,schedule,search,search_off,send,space_dashboard,stairs,sync,tab,task_alt,tire_repair,title,toast,undo,upload,upload_file,verified,warning&display=block" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0..1,0&icon_names=add,add_a_photo,agriculture,airport_shuttle,ambulance,api,arrow_back,assignment_ind,badge,block,bolt,build,cancel,cell_tower,check,check_circle,chevron_left,chevron_right,cleaning_services,close,cloud_off,construction,conveyor_belt,delete,description,directions_bus,docs,donut_large,draft,edit,electric_bolt,engineering,error,event_busy,files,fire_truck,flight_takeoff,folder_open,forklift,gpp_bad,grass,group,history,home,hourglass_empty,image,info,inventory_2,local_shipping,logout,mode_fan,pending_actions,person,person_add,picture_as_pdf,playlist_add,refresh,remove,report,schedule,search,search_off,send,space_dashboard,stairs,sync,sync_alt,tab,task_alt,tire_repair,title,toast,undo,upload,upload_file,verified,warning&display=block" rel="stylesheet">
 <style>
 :root {
   --pri: #0b4f8a; --pri-2: #1366b3; --pri-soft: #e6f0fa; --pri-ink: #ffffff;
@@ -329,6 +329,15 @@ a { color: var(--pri-2); text-decoration: none; }
 .avatar { width: 36px; height: 36px; border-radius: 18px; background: var(--pri-soft); color: var(--pri); display: grid; place-items: center; font-weight: 700; font-size: 14px; flex: none; }
 .side .avatar { background: rgba(255,255,255,.12); color: #fff; }
 
+/* ---------- Xuất kho ---------- */
+.kho-box { border: 1px solid var(--line-2); border-radius: 14px; padding: 12px; background: #fafcff; }
+.kho-line { display: flex; align-items: center; gap: 8px; padding: 10px 0; border-top: 1px solid var(--line); margin-top: 8px; }
+.kho-line + .kho-line { margin-top: 0; }
+.qty { display: flex; align-items: center; border: 1px solid var(--line-2); border-radius: 10px; overflow: hidden; background: #fff; flex: none; }
+.qty button { width: 34px; height: 36px; border: 0; background: var(--grey-soft); cursor: pointer; display: grid; place-items: center; }
+.qty button .ms { font-size: 18px; }
+.qty input { width: 52px; height: 36px; border: 0; text-align: center; font-weight: 700; outline: 0; font-size: 16px; }
+
 /* ---------- Tối ưu điện thoại ---------- */
 .li .s .plate { margin-right: 4px; }
 .m-days { display: none; }
@@ -364,7 +373,7 @@ a { color: var(--pri-2); text-decoration: none; }
 </head>
 <body>
   <div id="app"><div class="boot-splash"><div class="spinner"></div></div></div>
-  <script src="config.js?v=1.0.3"></script>
+  <script src="config.js?v=1.1.1"></script>
   <script src="vendor/vue.global.prod.js"></script>
 <script>
 /* =====================================================================
@@ -1144,12 +1153,14 @@ const RepairList = {
       return this.src.filter(r => {
         if (this.t === 'open' && open.indexOf(r.TrangThai) < 0) return false;
         if (this.t === 'done' && r.TrangThai !== 'Hoàn thành') return false;
+        if (this.t === 'hoso' && !(r.MaPhieuKho && !r.HoSoKho)) return false;
         return !q || norm([r.SoPhieu, r.TenTB, r.BienSo, r.MoTa, who(r.NguoiBao)].join(' ')).includes(q);
       });
     },
     counts() {
       const open = S.boot.dm.repairOpen;
-      return { open: this.src.filter(r => open.indexOf(r.TrangThai) >= 0).length, done: this.src.filter(r => r.TrangThai === 'Hoàn thành').length };
+      return { open: this.src.filter(r => open.indexOf(r.TrangThai) >= 0).length, done: this.src.filter(r => r.TrangThai === 'Hoàn thành').length,
+        hoso: this.src.filter(r => r.MaPhieuKho && !r.HoSoKho).length };
     }
   },
   methods: { async load() { if (isFresh()) return; try { this.all = await call('listRepairs', { scope: 'all' }, { silent: true }); } catch (e) { fail(e); } } },
@@ -1158,11 +1169,12 @@ const RepairList = {
     <div class="chips">
       <button :class="['fchip', {on: t === 'open'}]" @click="t = 'open'">Đang mở <b>{{ counts.open }}</b></button>
       <button :class="['fchip', {on: t === 'done'}]" @click="t = 'done'">Chờ nghiệm thu <b>{{ counts.done }}</b></button>
+      <button v-if="S.boot.dm.khoEnabled" :class="['fchip', {on: t === 'hoso'}]" @click="t = 'hoso'"><span class="ms" style="font-size:17px">pending_actions</span>Chờ hồ sơ <b>{{ counts.hoso }}</b></button>
       <button :class="['fchip', {on: t === 'all'}]" @click="t = 'all'">Tất cả <b>{{ src.length }}</b></button>
     </div>
     <div class="eq-grid" style="gap:10px">
       <button v-for="r in list" :key="r.ID" class="card rp" style="margin:0" @click="go('repairDetail', {id: r.ID})">
-        <div class="top"><span class="no">{{ r.SoPhieu }}</span><span v-if="r.DungXe && S.boot.dm.repairOpen.indexOf(r.TrangThai) >= 0" class="chip c-bad"><span class="ms">block</span>Dừng xe</span>
+        <div class="top"><span class="no">{{ r.SoPhieu }}</span><span v-if="r.DungXe && S.boot.dm.repairOpen.indexOf(r.TrangThai) >= 0" class="chip c-bad"><span class="ms">block</span>Dừng xe</span><span v-if="r.MaPhieuKho" :class="['chip', r.HoSoKho ? 'c-ok' : 'c-warn']"><span class="ms">inventory_2</span>{{ r.HoSoKho ? 'Đã HS' : 'Chờ HS' }}</span>
           <span class="grow"></span><span :class="['chip', rpCls(r.TrangThai)]">{{ r.TrangThai }}</span></div>
         <div class="row" style="margin-top:8px"><Thumb :id="r.AnhTB" cls="sm" icon="build"></Thumb>
           <div class="grow"><div class="eqn" style="margin:0">{{ r.TenTB }}</div><div class="desc">{{ r.MoTa }}</div></div></div>
@@ -1188,6 +1200,7 @@ const RepairDetail = {
   computed: {
     idx() { return STEP_IDX[this.r.TrangThai]; },
     open() { return S.boot.dm.repairOpen.indexOf(this.r.TrangThai) >= 0; },
+    vatTu() { try { return JSON.parse(this.r.VatTuXuat || '[]'); } catch (e) { return []; } },
     partNames() {
       const set = ids(this.r.LinhKienThay);
       return (this.r.parts || []).filter(p => set.indexOf(p.ID) >= 0).map(p => partLabel(p) + ' ' + p.QuyCach);
@@ -1263,6 +1276,26 @@ const RepairDetail = {
       </div>
     </template>
 
+    <template v-if="r.MaPhieuKho">
+      <div class="sec-title"><span class="ms">inventory_2</span>Xuất kho</div>
+      <div class="card" style="overflow:hidden">
+        <div class="pad" style="padding-bottom:6px">
+          <div class="row wrap">
+            <span class="no" style="font-family:ui-monospace,Menlo,monospace;font-weight:700;font-size:13px">{{ r.MaPhieuKho }}</span><span class="grow"></span>
+            <a v-if="r.HoSoKho" :href="r.HoSoKho" target="_blank" class="chip c-ok"><span class="ms">folder_open</span>Đã lập hồ sơ</a>
+            <span v-else-if="r.HoSoKho === ''" class="chip c-warn"><span class="ms">pending_actions</span>Chờ lập hồ sơ</span>
+          </div>
+          <div v-if="r.SoPhieuKho" class="row wrap" style="margin-top:8px;gap:6px"><span v-for="x in r.SoPhieuKho.split(',')" :key="x" class="chip c-pri">{{ x.trim() }}</span></div>
+        </div>
+        <table class="ptable">
+          <tr><th>Vật tư</th><th style="text-align:right">SL</th></tr>
+          <tr v-for="v in vatTu" :key="v.ma"><td><b style="font-weight:600">{{ v.ten }}</b><div class="small muted">{{ v.ma }}</div></td>
+            <td style="text-align:right;white-space:nowrap">{{ v.sl }} {{ v.dvt }}</td></tr>
+        </table>
+        <div class="pad small muted" style="padding-top:8px">Người xuất: {{ r.NguoiXuatKho }}<span v-if="r.HoSoKho === ''"> · Lập hồ sơ (biên bản QT01, phiếu xuất) trong app Kho</span></div>
+      </div>
+    </template>
+
     <div class="actions mt" v-if="isTech()">
       <button v-if="r.TrangThai === 'Mới báo'" class="btn pri" @click="step('tiepnhan')"><span class="ms">assignment_ind</span>Tiếp nhận</button>
       <button v-if="open" :class="['btn', r.TrangThai === 'Mới báo' ? '' : 'pri']" @click="process"><span class="ms">construction</span>Cập nhật xử lý</button>
@@ -1335,14 +1368,30 @@ const UsersView = {
   methods: {
     async load() { try { this.list = await call('listUsers'); } catch (e) { fail(e); } },
     async edit(u) { if (await openModal('UserForm', { data: u })) this.load(); },
+    async syncKho() {
+      try {
+        const r = await call('dongBoKho');
+        await ask({ title: 'Đồng bộ tài khoản kho', okText: 'Đóng', noCancel: true,
+          msg: 'Đã liên kết ' + r.khop.length + ' người: ' + (r.khop.join('; ') || '—') +
+            (r.chuaKhop.length ? '. Chưa khớp (chọn tay trong từng người dùng): ' + r.chuaKhop.join(', ') : '') +
+            (r.ghiEmail ? '. Đã điền ' + r.ghiEmail + ' email vào danh sách nhân viên app Kho.' : '') });
+        this.load();
+      } catch (e) { fail(e); }
+    },
     roleCls(r) { return r === 'Admin' ? 'c-pri' : r === 'Kỹ thuật' ? 'c-info' : 'c-grey'; }
   },
   template: `<div style="max-width:820px">
+    <div v-if="S.boot.dm.khoEnabled" class="card pad row mb">
+      <span class="ms" style="color:var(--pri-2)">sync_alt</span>
+      <div class="grow small">Liên kết tài khoản với app Kho để xuất vật tư khi hoàn thành sửa chữa (khớp theo email, rồi theo họ tên).</div>
+      <button class="btn sm" @click="syncKho">Đồng bộ tài khoản kho</button>
+    </div>
     <div class="card list" v-if="list">
       <div v-for="u in list" :key="u.ID" class="li" @click="edit(u)" :style="u.KichHoat === false ? 'opacity:.5' : ''">
         <div class="avatar">{{ initials(u.HoTen) }}</div>
         <div class="grow"><div class="t">{{ u.HoTen || '(chưa có tên)' }}</div><div class="s">{{ u.Email }}</div></div>
         <span v-if="u.VaiTro === 'Lái xe' && u.XeDuocGiao" class="small muted">{{ ids(u.XeDuocGiao).length }} xe</span>
+        <span v-if="u.MaNVKho" class="chip c-grey" title="Tài khoản app Kho"><span class="ms">inventory_2</span>{{ u.MaNVKho }}</span>
         <span :class="['chip', roleCls(u.VaiTro)]">{{ u.VaiTro }}</span>
       </div>
     </div>
@@ -1525,34 +1574,96 @@ const RepairEdit = {
   data() {
     const r = this.r;
     return { f: { NoiDungKhacPhuc: r.NoiDungKhacPhuc || '', TrangThai: ['Đang sửa', 'Chờ vật tư'].indexOf(r.TrangThai) >= 0 ? r.TrangThai : 'Đang sửa',
-      LinhKienThay: ids(r.LinhKienThay), AnhSau: ids(r.AnhSau), DungXe: !!r.DungXe, NgayXong: todayStr() }, saving: false };
+      LinhKienThay: ids(r.LinhKienThay), AnhSau: ids(r.AnhSau), DungXe: !!r.DungXe, NgayXong: todayStr() }, saving: false,
+      kho: null, khoErr: '', q: '', lines: [], capSo: true };
   },
+  computed: {
+    khoOn() { return S.boot.dm.khoEnabled && !this.r.MaPhieuKho; },
+    found() {
+      if (!this.kho || !this.kho.vatTu) return [];
+      const q = norm(this.q).trim();
+      if (!q) return [];
+      const words = q.split(/\s+/);
+      const chosen = this.lines.map(l => l.ma);
+      return this.kho.vatTu.filter(v => chosen.indexOf(v.ma) < 0 && words.every(w => norm(v.ten + ' ' + v.ma + ' ' + v.nhom).includes(w)))
+        .map(v => ({ v, sc: (v.ton > 0 ? 2 : 0) + (/(^| )xe( |$)/.test(norm(v.nhom)) ? 1 : 0) }))
+        .sort((a, b) => b.sc - a.sc).map(x => x.v).slice(0, 25);
+    },
+    lineErr() { return this.lines.some(l => !(Number(l.sl) > 0) || Number(l.sl) > l.ton); }
+  },
+  created() { if (this.khoOn) this.loadKho(); },
   methods: {
+    async loadKho() {
+      try { this.kho = await call('khoInfo', {}, { silent: true }); } catch (e) { this.khoErr = e.message; }
+    },
+    add(v) { if (v.ton <= 0) return toast('Vật tư này đã hết trong kho', true); this.lines.push({ ma: v.ma, ten: v.ten, dvt: v.dvt, ton: v.ton, sl: 1 }); this.q = ''; },
+    step(l, d) { const n = Math.round((Number(l.sl) || 0) * 1000 + d * 1000) / 1000; l.sl = Math.max(0, Math.min(l.ton, n)); },
     async save(step) {
       if (step === 'hoanthanh' && !this.f.NoiDungKhacPhuc.trim()) return toast('Nhập nội dung khắc phục', true);
+      const vt = step === 'hoanthanh' ? this.lines.filter(l => Number(l.sl) > 0) : [];
+      if (vt.length) {
+        if (this.lineErr) return toast('Số lượng vật tư không hợp lệ hoặc vượt tồn', true);
+        const ok = await ask({ title: 'Hoàn thành & xuất kho',
+          msg: 'Xuất ' + vt.length + ' vật tư khỏi kho (' + vt.map(l => l.ten + ' × ' + l.sl).join('; ') + ')' +
+            (this.capSo ? ' và cấp 4 số phiếu' + (this.kho.soTiep && this.kho.soTiep.length ? ' (' + this.kho.soTiep.map(x => x.split('/')[0]).join(', ') + ')' : '') : '') +
+            '. Thao tác này ghi vào sổ kho, không tự hoàn tác được.', okText: 'Xuất kho' });
+        if (!ok) return;
+      }
       this.saving = true;
       try {
-        const res = await call('updateRepair', { ID: this.r.ID, step, data: this.f });
-        toast(step === 'hoanthanh' ? 'Đã hoàn thành phiếu' : 'Đã lưu');
+        const data = Object.assign({}, this.f, { VatTu: vt.map(l => ({ maVT: l.ma, soLuong: Number(l.sl) })), CapSo: vt.length ? this.capSo : false });
+        const res = await call('updateRepair', { ID: this.r.ID, step, data });
+        toast(step !== 'hoanthanh' ? 'Đã lưu' : vt.length ? 'Đã hoàn thành & xuất kho' + (res.SoPhieuKho ? ' – ' + res.SoPhieuKho.split(',')[0] + '…' : '') : 'Đã hoàn thành phiếu');
         closeModal(res);
       } catch (e) { fail(e); }
       this.saving = false;
     }
   },
-  template: `<ModalShell :title="'Xử lý ' + r.SoPhieu">
+  template: `<ModalShell :title="'Xử lý ' + r.SoPhieu" wide>
     <div class="form">
-      <div class="fld"><label>Nội dung khắc phục</label><textarea v-model="f.NoiDungKhacPhuc" placeholder="Nguyên nhân, công việc đã làm, vật tư sử dụng…"></textarea></div>
+      <div class="fld"><label>Nội dung khắc phục</label><textarea v-model="f.NoiDungKhacPhuc" placeholder="Nguyên nhân, công việc đã làm…"></textarea></div>
       <div class="fld"><label>Tiến độ</label>
         <div class="chips" style="padding:0"><button v-for="s in ['Đang sửa', 'Chờ vật tư']" :key="s" type="button" :class="['fchip', {on: f.TrangThai === s}]" @click="f.TrangThai = s">{{ s }}</button></div></div>
-      <div class="fld" v-if="r.parts && r.parts.length"><label>Linh kiện đã thay (tự cập nhật ngày thay khi hoàn thành)</label>
+
+      <div v-if="khoOn" class="kho-box">
+        <div class="row"><span class="ms" style="color:var(--pri-2)">inventory_2</span><b class="grow">Vật tư xuất kho</b>
+          <span v-if="kho && kho.nv" class="chip c-info"><span class="ms">badge</span>{{ kho.nv.hoTen }} · {{ kho.nv.maNV }}</span></div>
+        <div v-if="khoErr" class="small" style="color:var(--bad);margin-top:6px">{{ khoErr }}</div>
+        <div v-else-if="!kho" class="small muted" style="margin-top:6px">Đang tải danh sách vật tư…</div>
+        <div v-else-if="!kho.nv" class="small" style="color:var(--warn);margin-top:6px">Tài khoản của bạn chưa liên kết với nhân viên app Kho nên chưa xuất kho được. Báo Admin vào <b>Người dùng → Đồng bộ tài khoản kho</b>.</div>
+        <template v-else>
+          <div class="search" style="margin-top:10px"><span class="ms">search</span><input v-model="q" placeholder="Tìm vật tư theo tên hoặc mã…"></div>
+          <div v-if="found.length" class="checks" style="margin-top:6px;max-height:220px">
+            <label v-for="v in found" :key="v.ma" @click.prevent="add(v)" :style="v.ton <= 0 ? 'opacity:.45' : ''">
+              <span class="grow"><b style="font-weight:600">{{ v.ten }}</b><div class="small muted">{{ v.ma }} · {{ v.nhom }}</div></span>
+              <span :class="['chip', v.ton > 0 ? 'c-ok' : 'c-grey']">Tồn {{ v.ton }} {{ v.dvt }}</span></label>
+          </div>
+          <div v-else-if="q" class="small muted" style="margin-top:6px">Không tìm thấy vật tư phù hợp</div>
+          <div v-for="(l, i) in lines" :key="l.ma" class="kho-line">
+            <div class="grow"><div style="font-weight:600;font-size:14px">{{ l.ten }}</div>
+              <div :class="['small', Number(l.sl) > l.ton ? '' : 'muted']" :style="Number(l.sl) > l.ton ? 'color:var(--bad)' : ''">Tồn {{ l.ton }} {{ l.dvt }}</div></div>
+            <div class="qty"><button type="button" @click="step(l, -1)"><span class="ms">remove</span></button>
+              <input v-model="l.sl" inputmode="decimal"><button type="button" @click="step(l, 1)"><span class="ms">add</span></button></div>
+            <span class="small muted" style="width:34px">{{ l.dvt }}</span>
+            <button type="button" class="ibtn" @click="lines.splice(i, 1)"><span class="ms">close</span></button>
+          </div>
+          <label v-if="lines.length" class="toggle blue" :class="{on: capSo}" style="margin-top:10px" @click.prevent="capSo = !capSo">
+            <div class="grow"><div style="font-weight:600">Cấp 4 số phiếu</div>
+              <div class="small muted">YCSC · KNKT · NTSC · THVT<span v-if="kho.soTiep && kho.soTiep.length"> – số tiếp theo: {{ kho.soTiep.map(x => x.split('/')[0]).join(', ') }}</span></div></div>
+            <div class="sw"></div></label>
+          <div v-if="lines.length" class="small muted" style="margin-top:6px">Vật tư chỉ bị trừ khỏi kho khi bấm <b>Hoàn thành</b>. Phiếu xuất sẽ nằm trong lịch sử app Kho ở trạng thái chờ lập hồ sơ.</div>
+        </template>
+      </div>
+
+      <div class="fld" v-if="r.parts && r.parts.length"><label>Linh kiện của xe đã thay (tự cập nhật ngày thay)</label>
         <div class="checks"><label v-for="p in r.parts" :key="p.ID"><input type="checkbox" :value="p.ID" v-model="f.LinhKienThay">
           <span class="grow">{{ partLabel(p) }} – <b>{{ p.QuyCach }}</b></span><span class="small muted">{{ fmtD(p.NgayThay) }}</span></label></div></div>
       <div class="fld"><label>Ảnh sau sửa chữa</label><ImgPicker v-model="f.AnhSau" :ma-t-b="r.MaTB" kind="SuaChua"></ImgPicker></div>
       <Toggle v-model="f.DungXe" label="Xe đang phải dừng hoạt động"></Toggle>
       <div class="fld"><label>Ngày hoàn thành (khi bấm Hoàn thành)</label><input v-model="f.NgayXong" type="date"></div>
     </div>
-    <template #foot><button class="btn" :disabled="saving" @click="save('capnhat')">Lưu</button>
-      <button class="btn pri" :disabled="saving" @click="save('hoanthanh')"><span class="ms">task_alt</span>Hoàn thành</button></template>
+    <template #foot><button class="btn" style="flex:0 0 auto;min-width:76px" :disabled="saving" @click="save('capnhat')">Lưu</button>
+      <button class="btn pri" :disabled="saving || (lines.length > 0 && lineErr)" @click="save('hoanthanh')"><span class="ms">task_alt</span>{{ lines.length ? 'Hoàn thành & xuất kho' : 'Hoàn thành' }}</button></template>
   </ModalShell>`
 };
 
@@ -1561,8 +1672,9 @@ const UserForm = {
   components: { ModalShell, Toggle },
   data() {
     const d = Object.assign({ ID: '', Email: '', HoTen: '', VaiTro: 'Lái xe', XeDuocGiao: '', KichHoat: true, GhiChu: '' }, this.data || {});
-    return { f: Object.assign({}, d, { KichHoat: d.KichHoat !== false, XeDuocGiao: ids(d.XeDuocGiao) }), q: '', saving: false };
+    return { f: Object.assign({ MaNVKho: '' }, d, { KichHoat: d.KichHoat !== false, XeDuocGiao: ids(d.XeDuocGiao) }), q: '', saving: false, khoNV: null };
   },
+  created() { if (S.boot.dm.khoEnabled) call('khoNhanVien', {}, { silent: true }).then(r => { this.khoNV = r; }).catch(() => { this.khoNV = []; }); },
   computed: { eqs() { const q = norm(this.q); return S.equipment.filter(e => !q || norm(e.TenTB + ' ' + e.BienSo).includes(q)); } },
   methods: {
     async save() {
@@ -1585,6 +1697,10 @@ const UserForm = {
         <input v-model="q" placeholder="Tìm xe…" style="margin-bottom:6px">
         <div class="checks"><label v-for="e in eqs" :key="e.MaTB"><input type="checkbox" :value="e.MaTB" v-model="f.XeDuocGiao">
           <span class="grow">{{ e.TenTB }}</span><span class="plate" v-if="e.BienSo">{{ e.BienSo }}</span></label></div></div>
+      <div class="fld" v-if="S.boot.dm.khoEnabled && f.VaiTro !== 'Lái xe'"><label>Tài khoản app Kho (dùng khi xuất vật tư)</label>
+        <select v-model="f.MaNVKho"><option value="">— Chưa liên kết —</option>
+          <option v-for="n in (khoNV || [])" :key="n.maNV" :value="n.maNV">{{ n.maNV }} – {{ n.hoTen }} ({{ n.vaiTro }})</option></select>
+        <div class="hint" v-if="!khoNV">Đang tải danh sách nhân viên kho…</div></div>
       <Toggle v-model="f.KichHoat" label="Kích hoạt" sub="Tắt để khoá tài khoản" blue></Toggle>
       <div class="fld"><label>Ghi chú</label><input v-model="f.GhiChu"></div>
     </div>
@@ -1635,7 +1751,7 @@ const ConfirmBox = {
   template: `<div class="overlay" style="z-index:85" @click.self="done(false)"><div class="sheet" style="max-width:440px">
     <div class="sheet-h"><h3>{{ c.title }}</h3></div>
     <div class="sheet-b"><div>{{ c.msg }}</div><div v-if="c.input" class="fld mt"><textarea ref="inp" v-model="c.value" style="min-height:70px"></textarea></div></div>
-    <div class="sheet-f"><button class="btn" @click="done(false)">Đóng</button>
+    <div class="sheet-f"><button v-if="!c.noCancel" class="btn" @click="done(false)">Đóng</button>
       <button :class="['btn', c.danger ? 'warn' : 'pri']" @click="done(true)">{{ c.okText }}</button></div></div></div>`
 };
 
