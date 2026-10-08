@@ -632,7 +632,7 @@ function ago(s) {
 }
 function norm(s) { return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase(); }
 function shortDoc(l) { return ({ 'Kiểm định': 'KĐ', 'Bảo hiểm': 'BH' })[l] || l; }
-function docState(days, warn) { return days == null ? 'missing' : days < 0 ? 'expired' : days <= (warn || 30) ? 'warning' : 'ok'; }
+function docState(days, warn) { return days == null ? 'missing' : days < 0 ? 'expired' : days <= (Number(warn) || 45) ? 'warning' : 'ok'; }
 function docCls(st) { return ({ expired: 'c-bad', warning: 'c-warn', ok: 'c-ok', missing: 'c-grey' })[st]; }
 function docText(d, long) {
   const name = long ? d.loai : shortDoc(d.loai);
@@ -817,7 +817,7 @@ const HomeView = {
       </button>
       <button :class="['card kpi', {warn: warning}]" @click="toList('warning')">
         <div class="k-top">Sắp hết hạn<span class="k-ic c-warn"><span class="ms">schedule</span></span></div>
-        <div class="k-v">{{ warning }}</div><div class="k-s">Trong 30 ngày tới</div>
+        <div class="k-v">{{ warning }}</div><div class="k-s">Trong {{ Math.max(...S.boot.dm.giayTo.map(g => Number(g.CanhBaoTruoc) || 45), 0) || 45 }} ngày tới</div>
       </button>
       <button class="card kpi" @click="toRepairs">
         <div class="k-top">Phiếu sửa chữa mở<span class="k-ic c-info"><span class="ms">build</span></span></div>
