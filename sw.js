@@ -1,5 +1,5 @@
 /* Service worker: lưu khung app để mở nhanh, cập nhật tự động khi có bản mới */
-const VERSION = 'ktht-1.1.3';
+const VERSION = 'ktht-1.2.0';
 const SHELL = ['./', './index.html', './config.js', './manifest.webmanifest', './vendor/vue.global.prod.js',
   './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png', './icons/favicon.png'];
 
