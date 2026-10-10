@@ -497,6 +497,7 @@ function applyBoot(b, keepView) {
   S.repairsAll = b.repairs || [];
   S.repairs = S.repairsAll.filter(r => b.dm.repairOpen.indexOf(r.TrangThai) >= 0);
   detailCache = b.details || {};
+  markPublic(b);
   if (!keepView) { S.view = { name: homeView(), p: {} }; S.stack = []; }
 }
 async function loadBoot(keepView, silent) {
@@ -552,10 +553,38 @@ const IMGC = {
   }
 };
 const THUMB_SIZE = 240;
+
+/* Ảnh xe + ảnh sửa chữa nằm trong thư mục công khai theo link -> tải THẲNG từ máy chủ ảnh của Google (nhanh).
+ * Giấy tờ / tài liệu vẫn tải qua Apps Script. Ảnh nào tải thẳng lỗi -> tự quay về cách cũ. */
+const PUB = new Set(), pubFail = new Set();
+const pubUrl = (id, w) => 'https://lh3.googleusercontent.com/d/' + id + '=w' + w;
+function markPublic(b) {
+  (b.equipment || []).forEach(e => ids(e.AnhID).forEach(i => PUB.add(i)));
+  (b.repairs || []).forEach(r => ids(r.AnhTruoc).concat(ids(r.AnhSau)).forEach(i => PUB.add(i)));
+}
+function taiAnh(url) {
+  return new Promise((ok, no) => {
+    const im = new Image();
+    const t = setTimeout(() => no(new Error('timeout')), 15000);
+    im.onload = () => { clearTimeout(t); im.naturalWidth > 1 ? ok(url) : no(new Error('rỗng')); };
+    im.onerror = () => { clearTimeout(t); no(new Error('lỗi')); };
+    im.src = url;
+  });
+}
+async function anhLon(id) {
+  if (!PUB.has(id) || pubFail.has(id)) return null;
+  try { return await taiAnh(pubUrl(id, 1600)); } catch (e) { pubFail.add(id); return null; }
+}
+function hangDoiMayChu(id) { tq.add(id); clearTimeout(tTimer); tTimer = setTimeout(flushThumbs, 30); }
 function needThumb(id) {
   if (!id || id in thumbs) return;
-  thumbs[id] = null; tq.add(id);
-  clearTimeout(tTimer); tTimer = setTimeout(flushThumbs, 30);
+  thumbs[id] = null;
+  if (PUB.has(id) && !pubFail.has(id)) {
+    const u = pubUrl(id, THUMB_SIZE * 2);
+    taiAnh(u).then(() => { thumbs[id] = u; }).catch(() => { pubFail.add(id); hangDoiMayChu(id); });
+    return;
+  }
+  hangDoiMayChu(id);
 }
 async function flushThumbs() {
   let ids = Array.from(tq); tq = new Set();
@@ -610,7 +639,8 @@ async function uploadFile(file, maTB, kind) {
   }
   const res = await call('upload', { MaTB: maTB, kind, name, mime, data: dataUrl.split(',')[1] }, { silent: true });
   thumbs[res.id] = isImg(mime) ? dataUrl : '';
-  if (isImg(mime)) IMGC.put('t_' + res.id, dataUrl);
+  if (res.pub) { PUB.add(res.id); fullCache[res.id] = dataUrl; }
+  else if (isImg(mime)) IMGC.put('t_' + res.id, dataUrl);
   return res;
 }
 
@@ -1007,6 +1037,8 @@ const EquipDetail = {
       this.hero = (id && fullCache[id]) || '';
       if (!id || this.hero) return;
       needThumb(id);
+      const d = await anhLon(id);
+      if (d) { fullCache[id] = d; if (this.e && this.e.AnhID === id) this.hero = d; return; }
       const local = await IMGC.getMany(['f_' + id]);
       if (local['f_' + id]) { fullCache[id] = local['f_' + id]; if (this.e && this.e.AnhID === id) this.hero = fullCache[id]; return; }
       call('fileFull', { id }, { silent: true }).then(r => {
@@ -1748,6 +1780,8 @@ const Viewer = {
       const id = this.id; this.err = '';
       if (fullCache[id]) { this.src = fullCache[id]; return; }
       this.src = thumbs[id] || ''; this.loading = true;
+      const d = await anhLon(id);
+      if (d) { fullCache[id] = d; if (this.id === id) this.src = d; this.loading = false; return; }
       const local = await IMGC.getMany(['f_' + id]);
       if (local['f_' + id]) { fullCache[id] = local['f_' + id]; if (this.id === id) this.src = fullCache[id]; this.loading = false; return; }
       try { const r = await call('fileFull', { id }, { silent: true }); fullCache[id] = r.url; IMGC.put('f_' + id, r.url); if (this.id === id) this.src = r.url; }
