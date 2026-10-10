@@ -500,8 +500,11 @@ function applyBoot(b, keepView) {
   if (!keepView) { S.view = { name: homeView(), p: {} }; S.stack = []; }
 }
 async function loadBoot(keepView, silent) {
-  const b = await call('bootstrap', {}, { silent: !!silent });
+  /* Gửi mã phiên bản dữ liệu đang có; máy chủ trả {same:true} nếu không có gì mới -> khỏi tải lại toàn bộ */
+  const ver = keepView && S.boot && S.boot.ver ? S.boot.ver : '';
+  const b = await call('bootstrap', { ver }, { silent: !!silent });
   S.bootAt = Date.now();
+  if (b.same) return;
   applyBoot(b, keepView);
   LS.set(BOOT_KEY, JSON.stringify(b));
   if (keepView) S.rev++;
@@ -1946,6 +1949,11 @@ start();
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+      /* Có bản app mới (sw.js đổi VERSION) -> tự tải lại 1 lần để dùng giao diện mới */
+      if (navigator.serviceWorker.controller) {
+        var daTai = false;
+        navigator.serviceWorker.addEventListener('controllerchange', function () { if (!daTai) { daTai = true; location.reload(); } });
+      }
     }
   </script>
 </body>
