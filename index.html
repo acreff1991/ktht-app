@@ -1349,7 +1349,7 @@ const RepairDetail = {
           <tr v-for="v in vatTu" :key="v.ma"><td><b style="font-weight:600">{{ v.ten }}</b><div class="small muted">{{ v.ma }}</div></td>
             <td style="text-align:right;white-space:nowrap">{{ v.sl }} {{ v.dvt }}</td></tr>
         </table>
-        <div class="pad small muted" style="padding-top:8px">Người xuất: {{ r.NguoiXuatKho }}<span v-if="r.HoSoKho === ''"> · Lập hồ sơ (biên bản QT01, phiếu xuất) trong app Kho</span></div>
+        <div class="pad small muted" style="padding-top:8px">Người xuất: {{ r.NguoiXuatKho }}<span v-if="r.HoSoKho === ''"> · Lập hồ sơ (biên bản QT01, phiếu xuất) trong app Kho — phiếu YCSC dùng mẫu của P.PVMĐ</span></div>
       </div>
     </template>
 
@@ -1664,7 +1664,8 @@ const RepairEdit = {
         if (this.lineErr) return toast('Số lượng vật tư không hợp lệ hoặc vượt tồn', true);
         const ok = await ask({ title: 'Hoàn thành & xuất kho',
           msg: 'Xuất ' + vt.length + ' vật tư khỏi kho (' + vt.map(l => l.ten + ' × ' + l.sl).join('; ') + ')' +
-            (this.capSo ? ' và cấp 4 số phiếu' + (this.kho.soTiep && this.kho.soTiep.length ? ' (' + this.kho.soTiep.map(x => x.split('/')[0]).join(', ') + ')' : '') : '') +
+            (this.capSo ? ' và cấp 3 số phiếu KNKT, NTSC, THVT' + (this.kho.soTiep && this.kho.soTiep.length ? ' (' + this.kho.soTiep.map(x => x.split('/')[0]).join(', ') + ')' : '') +
+              '; phiếu YCSC dùng mẫu của P.PVMĐ (không lấy số)' : '') +
             '. Thao tác này ghi vào sổ kho, không tự hoàn tác được.', okText: 'Xuất kho' });
         if (!ok) return;
       }
@@ -1707,10 +1708,11 @@ const RepairEdit = {
             <button type="button" class="ibtn" @click="lines.splice(i, 1)"><span class="ms">close</span></button>
           </div>
           <label v-if="lines.length" class="toggle blue" :class="{on: capSo}" style="margin-top:10px" @click.prevent="capSo = !capSo">
-            <div class="grow"><div style="font-weight:600">Cấp 4 số phiếu</div>
-              <div class="small muted">YCSC · KNKT · NTSC · THVT<span v-if="kho.soTiep && kho.soTiep.length"> – số tiếp theo: {{ kho.soTiep.map(x => x.split('/')[0]).join(', ') }}</span></div></div>
+            <div class="grow"><div style="font-weight:600">Cấp 3 số phiếu</div>
+              <div class="small muted">KNKT · NTSC · THVT<span v-if="kho.soTiep && kho.soTiep.length"> – số tiếp theo: {{ kho.soTiep.map(x => x.split('/')[0]).join(', ') }}</span>
+                <br>Phiếu YCSC dùng mẫu của P.PVMĐ, không lấy số</div></div>
             <div class="sw"></div></label>
-          <div v-if="lines.length" class="small muted" style="margin-top:6px">Vật tư chỉ bị trừ khỏi kho khi bấm <b>Hoàn thành</b>. Phiếu xuất sẽ nằm trong lịch sử app Kho ở trạng thái chờ lập hồ sơ.</div>
+          <div v-if="lines.length" class="small muted" style="margin-top:6px">Vật tư chỉ bị trừ khỏi kho khi bấm <b>Hoàn thành</b>. Phiếu xuất sẽ nằm trong lịch sử app Kho ở trạng thái chờ lập hồ sơ (gắn nhãn Xe / TTB mặt đất – P.PVMĐ).</div>
         </template>
       </div>
 
