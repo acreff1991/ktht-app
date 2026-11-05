@@ -808,22 +808,43 @@ const Toggle = {
 /* =====================================================================
  *  ĐĂNG NHẬP
  * ===================================================================== */
+/* Đăng nhập: nhớ "đang chờ nhập mã" 10 phút -> trang bị tải lại (bản app mới, F5, mạng chập chờn) vẫn mở thẳng ô nhập mã */
+const OTP_KEY = 'ktht_otp_cho';
+function otpCho() { try { const o = JSON.parse(LS.get(OTP_KEY) || 'null'); return o && Date.now() - o.at < 600000 ? o : null; } catch (e) { return null; } }
 const LoginView = {
-  data() { return { email: LS.get('ktht_email') || '', code: '', step: 1, sending: false, err: '' }; },
+  data() {
+    const cho = otpCho();
+    return { email: (cho && cho.email) || LS.get('ktht_email') || '', code: '', step: cho ? 2 : 1, sending: false, err: '', note: '' };
+  },
+  mounted() { if (this.step === 2) this.focusCode(); },
   methods: {
+    focusCode() { nextTick(() => this.$refs.code && this.$refs.code.focus()); },
+    toStep2(note) {
+      this.step = 2; this.code = ''; this.note = note || '';
+      LS.set(OTP_KEY, JSON.stringify({ email: this.email.trim().toLowerCase(), at: Date.now() }));
+      this.focusCode();
+    },
     async send() {
-      this.err = ''; this.sending = true;
-      try { await gs('login_request', this.email); this.step = 2; this.code = ''; nextTick(() => this.$refs.code && this.$refs.code.focus()); }
-      catch (e) { this.err = e.message; }
+      this.err = ''; this.note = ''; this.sending = true;
+      try { await gs('login_request', this.email); this.toStep2(); }
+      catch (e) {
+        /* Máy chủ báo vừa gửi -> mã đã nằm trong hộp thư, chuyển luôn sang ô nhập mã */
+        if (/vừa gửi mã/i.test(e.message)) this.toStep2('Mã vừa được gửi trước đó – dùng mã trong email mới nhất.');
+        else this.err = e.message;
+      }
       this.sending = false;
     },
+    coMa() { if (!this.email.trim()) return toast('Nhập email trước', true); this.err = ''; this.toStep2(); },
+    doiEmail() { this.step = 1; this.err = ''; this.note = ''; LS.set(OTP_KEY, null); },
+    nhapMa(ev) { this.code = String(ev.target.value || '').replace(/\D/g, '').slice(0, 6); ev.target.value = this.code; if (this.code.length === 6 && !this.sending) this.verify(); },
     async verify() {
+      if (this.code.length < 6) return;
       this.err = ''; this.sending = true;
       try {
         const r = await gs('login_verify', this.email, this.code);
-        S.token = r.token; LS.set('ktht_token', r.token); LS.set('ktht_email', this.email.trim().toLowerCase());
+        S.token = r.token; LS.set('ktht_token', r.token); LS.set('ktht_email', this.email.trim().toLowerCase()); LS.set(OTP_KEY, null);
         await loadBoot();
-      } catch (e) { this.err = e.message; }
+      } catch (e) { this.err = e.message; if (/hết hạn|gửi lại mã/i.test(e.message)) LS.set(OTP_KEY, null); }
       this.sending = false;
     }
   },
@@ -835,13 +856,15 @@ const LoginView = {
       <div class="fld"><label>Email được cấp quyền</label>
         <input v-model="email" type="email" inputmode="email" autocomplete="email" placeholder="ten@gmail.com" required></div>
       <button class="btn pri block" :disabled="sending || !email">{{ sending ? 'Đang gửi mã…' : 'Gửi mã đăng nhập' }}</button>
+      <button type="button" class="btn ghost sm" style="justify-self:center" @click="coMa">Đã có mã trong email? Nhập mã</button>
     </form>
     <form v-else @submit.prevent="verify" class="form">
-      <div class="small muted">Đã gửi mã 6 số tới <b style="color:var(--ink)">{{ email }}</b>. Kiểm tra cả hộp thư Spam/Quảng cáo.</div>
-      <div class="fld"><input ref="code" v-model="code" class="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••"></div>
+      <div class="small muted">Mã 6 số đã gửi tới <b style="color:var(--ink)">{{ email }}</b>. Kiểm tra cả hộp thư Spam/Quảng cáo.</div>
+      <div v-if="note" class="chip c-info" style="height:auto;padding:8px 12px;white-space:normal;display:flex">{{ note }}</div>
+      <div class="fld"><input ref="code" :value="code" @input="nhapMa" class="otp" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••"></div>
       <button class="btn pri block" :disabled="sending || code.length < 6">{{ sending ? 'Đang kiểm tra…' : 'Đăng nhập' }}</button>
       <div class="row" style="justify-content:space-between">
-        <button type="button" class="btn ghost sm" @click="step = 1">Đổi email</button>
+        <button type="button" class="btn ghost sm" @click="doiEmail">Đổi email</button>
         <button type="button" class="btn ghost sm" :disabled="sending" @click="send">Gửi lại mã</button>
       </div>
     </form>
