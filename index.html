@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0..1,0&icon_names=add,add_a_photo,agriculture,airport_shuttle,ambulance,api,arrow_back,assignment_ind,badge,block,bolt,build,cancel,cell_tower,check,check_circle,chevron_left,chevron_right,cleaning_services,close,cloud_off,construction,conveyor_belt,delete,description,directions_bus,docs,donut_large,draft,edit,electric_bolt,engineering,error,event_busy,files,fire_truck,flight_takeoff,folder_open,forklift,gpp_bad,grass,group,history,home,hourglass_empty,image,info,inventory_2,local_shipping,logout,mode_fan,pending_actions,person,person_add,picture_as_pdf,playlist_add,refresh,remove,report,schedule,search,search_off,send,space_dashboard,stairs,sync,sync_alt,tab,task_alt,tire_repair,title,toast,undo,upload,upload_file,verified,warning&display=block" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0..1,0&icon_names=add,add_a_photo,agriculture,airport_shuttle,ambulance,api,arrow_back,assignment_ind,badge,block,bolt,build,cancel,cell_tower,check,check_circle,chevron_left,chevron_right,cleaning_services,close,cloud_off,construction,conveyor_belt,delete,delete_forever,description,directions_bus,docs,donut_large,draft,edit,edit_note,electric_bolt,engineering,error,event_busy,files,fire_truck,flight_takeoff,folder_open,forklift,gpp_bad,grass,group,history,home,hourglass_empty,image,info,inventory_2,local_shipping,logout,mode_fan,pending_actions,person,person_add,photo_camera,picture_as_pdf,playlist_add,refresh,remove,report,schedule,search,search_off,send,space_dashboard,speed,stairs,sync,sync_alt,tab,task_alt,timer,tire_repair,title,toast,undo,upload,upload_file,verified,warning&display=block" rel="stylesheet">
 <style>
 :root {
   --pri: #0b4f8a; --pri-2: #1366b3; --pri-soft: #e6f0fa; --pri-ink: #ffffff;
@@ -337,6 +337,17 @@ a { color: var(--pri-2); text-decoration: none; }
 .qty button { width: 34px; height: 36px; border: 0; background: var(--grey-soft); cursor: pointer; display: grid; place-items: center; }
 .qty button .ms { font-size: 18px; }
 .qty input { width: 52px; height: 36px; border: 0; text-align: center; font-weight: 700; outline: 0; font-size: 16px; }
+
+/* ---------- Ghi giờ hoạt động ---------- */
+.hm-photo { width: 100%; max-height: 260px; object-fit: contain; border-radius: 12px; background: #0f1722; display: block; }
+.hm-input { width: 100%; height: 64px !important; font-size: 32px !important; font-weight: 700; text-align: center; letter-spacing: .04em;
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; }
+.hm-cam { width: 100%; padding: 28px 12px; border: 2px dashed var(--line-2); border-radius: 16px; background: #fafcff; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--pri); font-weight: 700; font-size: 16px; text-align: center; }
+.hm-cam .ms { font-size: 44px; }
+.hm-note { border-radius: 12px; padding: 10px 12px; font-size: 13.5px; display: flex; gap: 8px; align-items: flex-start; }
+.hm-note .ms { font-size: 19px; flex: none; }
+.hm-now { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; flex: none; }
 
 /* ---------- Tối ưu điện thoại ---------- */
 .li .s .plate { margin-right: 4px; }
@@ -664,6 +675,17 @@ function ago(s) {
   return fmtD(s);
 }
 function norm(s) { return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase(); }
+/* Số giờ hoạt động: 1234.5 -> "1.234,5" */
+function fmtH(v) { if (v === '' || v == null || isNaN(Number(v))) return ''; return Number(v).toLocaleString('vi-VN', { maximumFractionDigits: 1 }); }
+const hasH = v => v !== '' && v != null && !isNaN(Number(v));
+/* "1.234,5" | "1234,5" | "1234.5" -> 1234.5 ; không hợp lệ -> null */
+function parseH(v) {
+  let s = String(v == null ? '' : v).replace(/\s/g, '');
+  if (s.indexOf(',') >= 0) s = s.replace(/\./g, '').replace(',', '.');
+  else if (/\.\d{3}$/.test(s)) s = s.replace(/\./g, '');
+  const n = Number(s);
+  return s === '' || isNaN(n) || n < 0 ? null : n;
+}
 function shortDoc(l) { return ({ 'Kiểm định': 'KĐ', 'Bảo hiểm': 'BH' })[l] || l; }
 function docState(days, warn) { return days == null ? 'missing' : days < 0 ? 'expired' : days <= (Number(warn) || 45) ? 'warning' : 'ok'; }
 function docCls(st) { return ({ expired: 'c-bad', warning: 'c-warn', ok: 'c-ok', missing: 'c-grey' })[st]; }
@@ -970,7 +992,7 @@ const EquipList = {
           <Thumb :id="e.AnhID" :icon="eqIcon(e.LoaiTB)"></Thumb>
           <div class="info">
             <div class="t">{{ e.TenTB }}</div>
-            <div class="s"><span class="plate" v-if="e.BienSo">{{ e.BienSo }}</span><span v-if="e.NhanHieu"> &nbsp;{{ e.NhanHieu }}</span></div>
+            <div class="s"><span class="plate" v-if="e.BienSo">{{ e.BienSo }}</span><span v-if="e.NhanHieu"> &nbsp;{{ e.NhanHieu }}</span><span v-if="hasH(e.ChiSo)"> · {{ fmtH(e.ChiSo) }} h</span></div>
             <div class="chips-in">
               <span v-if="e.TrangThai !== 'Bình thường'" :class="['chip', stCls(e.TrangThai)]">{{ e.TrangThai }}</span>
               <span v-else-if="e.openRepairs" class="chip c-warn"><span class="ms">build</span>{{ e.openRepairs }} phiếu SC</span>
@@ -999,6 +1021,7 @@ const EquipDetail = {
   computed: {
     e() { return this.d && this.d.equipment; },
     img() { const id = this.e && this.e.AnhID; return id ? (this.hero || thumbs[id]) : ''; },
+    gio() { return (this.d && this.d.gio) || []; },
     partGroups() {
       const g = {}; (this.d.parts || []).forEach(p => { (g[p.Loai] = g[p.Loai] || []).push(p); });
       return g;
@@ -1052,6 +1075,16 @@ const EquipDetail = {
       return { loai: doc.LoaiGiayTo, days, state: docState(days, dm.CanhBaoTruoc) };
     },
     async edit() { if (await openModal('EquipForm', { data: this.e })) this.refresh(); },
+    async ghiGio() {
+      const r = await openModal('HourForm', { ma: this.ma });
+      if (!r) return;
+      this.d.gio = r.lichSu; this.d.equipment.ChiSo = r.ChiSo; this.d.equipment.NgayChiSo = r.rec.ThoiGian;
+      this.t = 'gio'; this.refresh();
+    },
+    async xoaGio(g) {
+      if (!await ask({ title: 'Xoá lần ghi giờ', msg: 'Xoá lần ghi ' + fmtH(g.SoGio) + ' h lúc ' + fmtDT(g.ThoiGian) + '? (Sao lưu trong ThungRac)', okText: 'Xoá', danger: true })) return;
+      try { await call('xoaGioHD', { ID: g.ID }); toast('Đã xoá'); this.refresh(); } catch (e) { fail(e); }
+    },
     async editDoc(doc) { if (await openModal('DocForm', { ma: this.ma, data: doc })) this.refresh(); },
     async editPart(p) { if (!isTech()) return; if (await openModal('PartForm', { ma: this.ma, data: p })) this.refresh(); },
     async addFile() { if (await openModal('FileForm', { ma: this.ma })) this.refresh(); },
@@ -1065,7 +1098,7 @@ const EquipDetail = {
     },
     async del() {
       const soSC = (this.d && this.d.repairs || []).length;
-      if (!await ask({ title: 'Xoá thiết bị', msg: 'Xoá vĩnh viễn ' + this.e.TenTB + ' cùng giấy tờ, linh kiện, tài liệu' +
+      if (!await ask({ title: 'Xoá thiết bị', msg: 'Xoá vĩnh viễn ' + this.e.TenTB + ' cùng giấy tờ, linh kiện, tài liệu, số giờ hoạt động' +
         (soSC ? ' và ' + soSC + ' PHIẾU SỬA CHỮA' : '') + '? Bản sao lưu giữ trong sheet ThungRac. (Muốn giữ lịch sử thì chuyển trạng thái "Thanh lý".)',
         okText: soSC ? 'Xoá cả lịch sử' : 'Xoá', danger: true })) return;
       try { await call('deleteEquipment', { MaTB: this.ma, force: true }); toast('Đã xoá thiết bị'); await reloadLists(); back(); } catch (e) { fail(e); }
@@ -1082,6 +1115,7 @@ const EquipDetail = {
           <span class="plate" v-if="e.BienSo">{{ e.BienSo }}</span>
           <span :class="['chip', stCls(e.TrangThai)]">{{ e.TrangThai || 'Bình thường' }}</span>
           <span v-if="openRep" class="chip c-warn"><span class="ms">build</span>{{ openRep }} phiếu đang mở</span>
+          <span v-if="hasH(e.ChiSo)" class="chip c-info" style="cursor:pointer" @click="t = 'gio'"><span class="ms">timer</span>{{ fmtH(e.ChiSo) }} h</span>
           <span class="small muted">{{ e.LoaiTB }}</span>
         </div>
         <div class="docsum">
@@ -1093,6 +1127,7 @@ const EquipDetail = {
         </div>
         <div class="actions">
           <button class="btn warn" @click="go('repairNew', {ma: e.MaTB})"><span class="ms">report</span>Báo hỏng</button>
+          <button class="btn" @click="ghiGio"><span class="ms">speed</span>Ghi giờ</button>
           <button v-if="isTech()" class="btn" @click="edit"><span class="ms">edit</span>Sửa thông tin</button>
         </div>
       </div>
@@ -1103,6 +1138,7 @@ const EquipDetail = {
       <button :class="{on: t === 'docs'}" @click="t = 'docs'">Giấy tờ<small>{{ d.docs.length }}</small></button>
       <button :class="{on: t === 'parts'}" @click="t = 'parts'">Linh kiện<small>{{ d.parts.length }}</small></button>
       <button :class="{on: t === 'rep'}" @click="t = 'rep'">Sửa chữa<small>{{ d.repairs.length }}</small></button>
+      <button :class="{on: t === 'gio'}" @click="t = 'gio'">Giờ HĐ<small>{{ gio.length }}</small></button>
       <button :class="{on: t === 'files'}" @click="t = 'files'">Tài liệu<small>{{ d.files.length }}</small></button>
     </div>
 
@@ -1157,6 +1193,29 @@ const EquipDetail = {
         <div class="meta"><span>{{ fmtDT(r.NgayBao) }}</span><span>{{ who(r.NguoiBao) }}</span></div>
       </button>
       <div v-if="!d.repairs.length" class="card empty"><span class="ms">history</span>Chưa có lịch sử sửa chữa</div>
+    </div>
+
+    <!-- Giờ hoạt động -->
+    <div v-if="t === 'gio'">
+      <div class="card pad row">
+        <span class="hm-now c-info"><span class="ms">timer</span></span>
+        <div class="grow"><div class="small muted">Số giờ hoạt động hiện tại</div>
+          <div style="font-size:26px;font-weight:700;line-height:1.2">{{ hasH(e.ChiSo) ? fmtH(e.ChiSo) + ' h' : '—' }}</div>
+          <div v-if="e.NgayChiSo" class="small muted">Ghi lúc {{ fmtDT(e.NgayChiSo) }}</div></div>
+        <button class="btn pri" @click="ghiGio"><span class="ms">photo_camera</span>Ghi giờ</button>
+      </div>
+      <div v-if="gio.length" class="card list mt">
+        <div v-for="(g, i) in gio" :key="g.ID" class="li" @click="g.AnhID && viewImages([g.AnhID])">
+          <Thumb :id="g.AnhID" cls="sm" icon="speed"></Thumb>
+          <div class="grow"><div class="t">{{ fmtH(g.SoGio) }} h
+              <span v-if="gio[i + 1]" class="small muted" style="font-weight:500">(+{{ fmtH(g.SoGio - gio[i + 1].SoGio) }})</span></div>
+            <div class="s">{{ fmtDT(g.ThoiGian) }} · {{ who(g.NguoiGhi) }}<span v-if="g.Nguon === 'AI-sửa' && hasH(g.SoGioAI)"> · AI đọc {{ fmtH(g.SoGioAI) }}</span><span v-if="g.GhiChu"> · {{ g.GhiChu }}</span></div></div>
+          <span :class="['chip', g.Nguon === 'AI' ? 'c-ok' : g.Nguon === 'AI-sửa' ? 'c-warn' : 'c-grey']">{{ g.Nguon }}</span>
+          <button v-if="isAdmin()" class="ibtn" @click.stop="xoaGio(g)"><span class="ms">delete</span></button>
+        </div>
+      </div>
+      <div v-else class="card empty mt"><span class="ms">speed</span>Chưa ghi số giờ lần nào</div>
+      <div class="small muted mt">AI = Gemini đọc, giữ nguyên · AI-sửa = người dùng sửa số AI đọc (nên xem lại ảnh) · Nhập tay = không qua AI.</div>
     </div>
 
     <!-- Tài liệu -->
@@ -1477,6 +1536,34 @@ const AccountView = {
 };
 
 /* =====================================================================
+ *  GHI GIỜ HOẠT ĐỘNG – Lái xe: chọn xe rồi chụp
+ * ===================================================================== */
+const HourNew = {
+  components: { Thumb },
+  data() { return { q: '' }; },
+  created() { S.title = 'Ghi giờ hoạt động'; },
+  computed: {
+    opts() { const q = norm(this.q); return S.equipment.filter(e => e.TrangThai !== 'Thanh lý' && (!q || norm(e.TenTB + ' ' + e.BienSo + ' ' + e.MaTB).includes(q))); }
+  },
+  methods: {
+    async pick(e) { const r = await openModal('HourForm', { ma: e.MaTB }); if (r) go('equipDetail', { ma: e.MaTB, tab: 'gio' }); }
+  },
+  template: `<div style="max-width:720px">
+    <div class="toolbar"><div class="search"><span class="ms">search</span><input v-model="q" placeholder="Tìm xe, biển số…"></div></div>
+    <div class="card list">
+      <div v-for="e in opts" :key="e.MaTB" class="li" @click="pick(e)">
+        <Thumb :id="e.AnhID" cls="sm" :icon="eqIcon(e.LoaiTB)"></Thumb>
+        <div class="grow"><div class="t">{{ e.TenTB }}</div><div class="s"><span class="plate" v-if="e.BienSo">{{ e.BienSo }}</span>
+          {{ e.NgayChiSo ? ' Ghi ' + ago(e.NgayChiSo) : ' Chưa ghi giờ' }}</div></div>
+        <b v-if="hasH(e.ChiSo)" style="white-space:nowrap">{{ fmtH(e.ChiSo) }} h</b>
+        <span class="ms" style="color:var(--pri-2)">photo_camera</span>
+      </div>
+      <div v-if="!opts.length" class="empty">Không có xe phù hợp</div>
+    </div>
+  </div>`
+};
+
+/* =====================================================================
  *  CÁC FORM (MODAL)
  * ===================================================================== */
 const ModalShell = {
@@ -1770,6 +1857,104 @@ const UserForm = {
   </ModalShell>`
 };
 
+/* Ghi giờ hoạt động: chụp đồng hồ -> Gemini đọc số -> xác nhận / sửa -> lưu */
+const HourForm = {
+  props: ['ma'],
+  components: { ModalShell },
+  data() { return { step: 'chup', anh: '', kq: null, so: '', ghiChu: '', saving: false, err: '', acc: ACCEPT_IMG }; },
+  computed: {
+    e() { return S.equipment.find(x => x.MaTB === this.ma) || { TenTB: this.ma }; },
+    ai() { return this.kq && this.kq.ai; },
+    truoc() {
+      if (this.kq && this.kq.truoc) return this.kq.truoc;
+      const d = detailCache[this.ma]; return (d && d.gio && d.gio[0]) || null;
+    },
+    soNum() { return parseH(this.so); },
+    tang() { return this.truoc && this.soNum != null ? Math.round((this.soNum - Number(this.truoc.SoGio)) * 10) / 10 : null; },
+    sua() { return !!(this.ai && this.ai.soGio != null && this.soNum != null && Math.abs(this.soNum - this.ai.soGio) > 0.001); }
+  },
+  methods: {
+    chup() { this.$refs.cam.click(); },
+    async onFile(ev) {
+      const file = ev.target.files && ev.target.files[0]; ev.target.value = '';
+      if (!file) return;
+      this.err = ''; this.kq = null; this.so = '';
+      try {
+        this.anh = await compressImage(file, 1600, 0.85);
+        this.step = 'doc';
+        this.kq = await call('docGioHD', { MaTB: this.ma, mime: 'image/jpeg', data: this.anh.split(',')[1] }, { silent: true });
+        thumbs[this.kq.AnhID] = this.anh;
+        if (this.ai && this.ai.soGio != null) this.so = String(this.ai.soGio).replace('.', ',');
+        this.step = 'xacnhan';
+        if (!this.so) nextTick(() => this.$refs.so && this.$refs.so.focus());
+      } catch (e) { this.err = e.message; this.step = 'chup'; }
+    },
+    nhapTay() { this.kq = { AnhID: '', ai: null, truoc: null, canhBao: [] }; this.anh = ''; this.step = 'xacnhan'; },
+    dungGoiY() { this.so = String(this.kq.goiY).replace('.', ','); },
+    async save(boQua) {
+      if (this.soNum == null) return toast('Nhập số giờ hợp lệ', true);
+      if (!boQua && this.sua && !this.ghiChu.trim() && !await ask({ title: 'Đã sửa số AI đọc',
+        msg: 'AI đọc ' + fmtH(this.ai.soGio) + ' h, bạn ghi ' + fmtH(this.soNum) + ' h. Chắc chắn số của bạn đúng?', okText: 'Đúng, lưu' })) return;
+      this.saving = true;
+      try {
+        const r = await call('luuGioHD', { MaTB: this.ma, SoGio: this.soNum, AnhID: this.kq.AnhID,
+          SoGioAI: this.ai && this.ai.soGio != null ? this.ai.soGio : '', DoTinCay: this.ai ? this.ai.doTinCay : '',
+          GhiChu: this.ghiChu, BoQua: !!boQua });
+        this.saving = false;
+        toast('Đã ghi ' + fmtH(r.ChiSo) + ' h'); reloadLists(); closeModal(r);
+        return;
+      } catch (e) {
+        this.saving = false;
+        if (/^\[GHI_DE\]/.test(e.message) && isAdmin()) {
+          const v = await ask({ title: 'Số giờ bất thường', msg: e.message.replace('[GHI_DE] ', '') + '. Nhập lý do để ghi đè (VD: thay đồng hồ mới):',
+            input: true, okText: 'Ghi đè', danger: true });
+          if (v !== false && String(v).trim()) { this.ghiChu = [this.ghiChu.trim(), String(v).trim()].filter(Boolean).join(' – '); return this.save(true); }
+          return;
+        }
+        fail(e);
+      }
+    }
+  },
+  template: `<ModalShell :title="'Ghi giờ · ' + (e.BienSo || e.TenTB)">
+    <input ref="cam" type="file" :accept="acc" capture="environment" hidden @change="onFile">
+    <div v-if="truoc" class="small muted" style="margin-bottom:10px">Lần trước: <b style="color:var(--ink)">{{ fmtH(truoc.SoGio) }} h</b> · {{ fmtDT(truoc.ThoiGian) }} · {{ who(truoc.NguoiGhi) }}</div>
+
+    <template v-if="step === 'chup'">
+      <button type="button" class="hm-cam" @click="chup"><span class="ms">photo_camera</span>Chụp đồng hồ giờ
+        <span class="small muted" style="font-weight:500">Chụp gần, thẳng mặt đồng hồ, đủ sáng, không loá – chỉ cần rõ dãy số</span></button>
+      <div v-if="err" class="hm-note c-bad mt"><span class="ms">error</span><div>{{ err }}</div></div>
+      <button v-if="isAdmin()" type="button" class="btn ghost sm mt" @click="nhapTay">Nhập tay không cần ảnh (Admin)</button>
+    </template>
+
+    <template v-else-if="step === 'doc'">
+      <img :src="anh" class="hm-photo">
+      <div class="row mt" style="justify-content:center"><div class="spinner" style="width:22px;height:22px;border-width:2px"></div><b>Đang đọc số trên đồng hồ…</b></div>
+    </template>
+
+    <div v-else class="form">
+      <img v-if="anh" :src="anh" class="hm-photo">
+      <div v-if="kq.aiLoi" class="hm-note c-warn"><span class="ms">warning</span><div>Không đọc tự động được: {{ kq.aiLoi }}. Nhập số theo ảnh.</div></div>
+      <div v-else-if="ai && ai.soGio == null" class="hm-note c-warn"><span class="ms">warning</span><div>AI không thấy đồng hồ giờ{{ ai.ghiChu ? ': ' + ai.ghiChu : '' }}. Chụp lại hoặc nhập theo ảnh.</div></div>
+      <div v-else-if="ai" :class="['hm-note', ai.canKiemTra ? 'c-warn' : 'c-ok']"><span class="ms">{{ ai.canKiemTra ? 'warning' : 'check_circle' }}</span>
+        <div>AI đọc <b>{{ ai.chuoiSo }}</b> · tin cậy {{ Math.round(ai.doTinCay * 100) }}%<span v-if="ai.canKiemTra"> – <b>so kỹ với ảnh</b></span><span v-if="ai.ghiChu">. {{ ai.ghiChu }}</span></div></div>
+      <div class="fld"><label>Số giờ hoạt động (h) <span class="req">*</span></label>
+        <input ref="so" v-model="so" class="hm-input" inputmode="decimal" placeholder="0,0">
+        <div v-if="tang != null" class="hint" :style="tang < 0 ? 'color:var(--bad);font-weight:600' : ''">{{ tang >= 0 ? 'Tăng +' + fmtH(tang) + ' h so với lần trước' : 'NHỎ HƠN lần trước ' + fmtH(-tang) + ' h' }}</div></div>
+      <div v-for="c in (kq.canhBao || [])" :key="c" class="hm-note c-bad"><span class="ms">error</span><div>{{ c }}</div></div>
+      <button v-if="kq.goiY != null" type="button" class="btn sm" @click="dungGoiY">Có thể số cuối là phần thập phân → dùng {{ fmtH(kq.goiY) }} h</button>
+      <div class="fld"><label>Ghi chú</label><input v-model="ghiChu" :placeholder="sua ? 'Lý do sửa số AI đọc (khuyến nghị)' : ''"></div>
+    </div>
+
+    <template #foot>
+      <template v-if="step === 'xacnhan'">
+        <button class="btn" style="flex:0 0 auto" :disabled="saving" @click="chup"><span class="ms">photo_camera</span>Chụp lại</button>
+        <button class="btn pri" :disabled="saving || soNum == null" @click="save()">{{ saving ? 'Đang lưu…' : 'Lưu số giờ' }}</button>
+      </template>
+      <button v-else class="btn" @click="closeModal()">Đóng</button>
+    </template>
+  </ModalShell>`
+};
+
 /* ---------------- Xem ảnh ---------------- */
 const Viewer = {
   data() { return { src: '', loading: false, err: '' }; },
@@ -1822,7 +2007,7 @@ const ConfirmBox = {
  *  KHUNG ỨNG DỤNG
  * ===================================================================== */
 const VIEWS = { home: HomeView, equipList: EquipList, equipDetail: EquipDetail, repairList: RepairList,
-  repairDetail: RepairDetail, repairNew: RepairNew, users: UsersView, account: AccountView };
+  repairDetail: RepairDetail, repairNew: RepairNew, users: UsersView, account: AccountView, hourNew: HourNew };
 /* Admin sửa trực tiếp mọi trường của phiếu sửa chữa */
 const RepairAdminForm = {
   props: ['r'],
@@ -1878,7 +2063,7 @@ const RepairAdminForm = {
   </ModalShell>`
 };
 
-const MODALS = { EquipForm, DocForm, PartForm, FileForm, RepairEdit, RepairAdminForm, UserForm };
+const MODALS = { EquipForm, DocForm, PartForm, FileForm, RepairEdit, RepairAdminForm, UserForm, HourForm };
 
 const Root = {
   components: Object.assign({ LoginView, Viewer, ConfirmBox }, MODALS),
@@ -1888,6 +2073,7 @@ const Root = {
     nav() {
       if (isLX()) return [
         { v: 'equipList', icon: 'directions_bus', label: 'Xe của tôi' },
+        { v: 'hourNew', icon: 'speed', label: 'Ghi giờ' },
         { v: 'repairNew', icon: 'report', label: 'Báo hỏng' },
         { v: 'repairList', icon: 'build', label: 'Phiếu', cnt: S.repairs.length },
         { v: 'account', icon: 'person', label: 'Tài khoản' }];
@@ -1897,14 +2083,18 @@ const Root = {
         { v: 'repairList', icon: 'build', label: 'Sửa chữa', cnt: S.repairs.filter(r => r.TrangThai === 'Mới báo').length },
         { v: 'account', icon: 'person', label: 'Tài khoản' }];
     },
-    sideNav() { return isAdmin() ? this.nav.slice(0, 3).concat([{ v: 'users', icon: 'group', label: 'Người dùng' }]) : this.nav.slice(0, 3); },
+    sideNav() {
+      if (isLX()) return this.nav.slice(0, 4);
+      const ds = this.nav.slice(0, 3).concat([{ v: 'hourNew', icon: 'speed', label: 'Ghi giờ' }]);
+      return isAdmin() ? ds.concat([{ v: 'users', icon: 'group', label: 'Người dùng' }]) : ds;
+    },
     activeRoot() {
       const n = S.stack.length ? S.stack[0].name : S.view.name;
       return ({ equipDetail: 'equipList', repairDetail: 'repairList' })[n] || n;
     },
     title() {
       if (S.title) return S.title;
-      const all = this.nav.concat([{ v: 'users', label: 'Người dùng' }]);
+      const all = this.nav.concat([{ v: 'users', label: 'Người dùng' }, { v: 'hourNew', label: 'Ghi giờ' }]);
       const f = all.find(x => x.v === S.view.name);
       return f ? f.label : 'KTHT';
     }
@@ -1957,7 +2147,7 @@ const Root = {
 const app = createApp(Root);
 Object.assign(app.config.globalProperties, {
   S, go, back, toast, fmtD, fmtDT, ago, docCls, docText, stCls, rpCls, who, ids, eqIcon, initials, viewImages,
-  isAdmin, isTech, isLX, closeModal, logoutNow, refreshAll, STEPS, partLabel, ACCEPT_DOC, shortDoc
+  isAdmin, isTech, isLX, closeModal, logoutNow, refreshAll, STEPS, partLabel, ACCEPT_DOC, shortDoc, fmtH, hasH
 });
 app.config.errorHandler = (err) => { console.error(err); fail(err); };
 app.mount('#app');
