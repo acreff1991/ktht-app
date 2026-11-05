@@ -348,6 +348,13 @@ a { color: var(--pri-2); text-decoration: none; }
 .hm-note { border-radius: 12px; padding: 10px 12px; font-size: 13.5px; display: flex; gap: 8px; align-items: flex-start; }
 .hm-note .ms { font-size: 19px; flex: none; }
 .hm-now { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; flex: none; }
+.hm-prev { padding: 10px 12px; border-radius: 12px; background: var(--grey-soft); font-size: 13.5px; color: var(--ink-2); }
+.hm-shot { position: relative; }
+.hm-shot .btn { position: absolute; right: 8px; bottom: 8px; }
+.gio-banner { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 14px; margin-top: 10px; text-align: left; font: inherit; cursor: pointer; }
+.gio-banner.bad { border-color: #f2c4c1; background: #fffafa; }
+.gio-banner .statusbar, .gio-head .statusbar { margin: 8px 0 6px; }
+.gio-head .big { font-size: 22px; font-weight: 700; line-height: 1.2; }
 
 /* ---------- Tối ưu điện thoại ---------- */
 .li .s .plate { margin-right: 4px; }
@@ -686,6 +693,24 @@ function parseH(v) {
   const n = Number(s);
   return s === '' || isNaN(n) || n < 0 ? null : n;
 }
+/* ---------- Ghi giờ hoạt động ---------- */
+/* Xe đã ghi số giờ trong ngày hôm nay chưa (so ngày trên máy, giờ VN) */
+const ghiHomNay = e => !!e && !!e.NgayChiSo && String(e.NgayChiSo).slice(0, 10) === todayStr();
+/* Số ngày kể từ lần ghi gần nhất (null = chưa ghi lần nào) */
+function ngayChuaGhi(e) { const d = e && e.NgayChiSo ? daysTo(e.NgayChiSo) : null; return d == null ? null : -d; }
+/* Thống kê xe PHẢI ghi giờ (có đồng hồ giờ máy + đang Bình thường) */
+function gioStats() {
+  const ds = S.equipment.filter(e => e.PhaiGhiGio);
+  const da = ds.filter(ghiHomNay).length;
+  return { tong: ds.length, da, chua: ds.length - da, pct: ds.length ? Math.round(da / ds.length * 100) : 0 };
+}
+/* Ô số giờ: chỉ nhận chữ số + 1 dấu phẩy, tối đa 1 số lẻ (trống 1/10 giờ) */
+function locSo(v) {
+  let s = String(v || '').replace(/\./g, ',').replace(/[^\d,]/g, '');
+  const i = s.indexOf(',');
+  if (i >= 0) s = s.slice(0, i + 1) + s.slice(i + 1).replace(/,/g, '').slice(0, 1);
+  return s.replace(/^0+(?=\d)/, '');
+}
 function shortDoc(l) { return ({ 'Kiểm định': 'KĐ', 'Bảo hiểm': 'BH' })[l] || l; }
 function docState(days, warn) { return days == null ? 'missing' : days < 0 ? 'expired' : days <= (Number(warn) || 45) ? 'warning' : 'ok'; }
 function docCls(st) { return ({ expired: 'c-bad', warning: 'c-warn', ok: 'c-ok', missing: 'c-grey' })[st]; }
@@ -849,6 +874,7 @@ const HomeView = {
         n: this.active.filter(e => e.docs.some(d => d.loai === g.LoaiGiayTo && d.state === 'missing')).length })).filter(x => x.n);
     },
     newRepairs() { return S.repairs.filter(r => r.TrangThai === 'Mới báo').length; },
+    gio() { return gioStats(); },
     hello() { const h = new Date().getHours(); return h < 11 ? 'Chào buổi sáng' : h < 14 ? 'Chào buổi trưa' : h < 18 ? 'Chào buổi chiều' : 'Chào buổi tối'; },
     colors() { return { 'Bình thường': '#2e7d32', 'Đang sửa chữa': '#ef8f00', 'Ngừng hoạt động': '#c62828', 'Thanh lý': '#9aa7b6' }; }
   },
@@ -879,6 +905,14 @@ const HomeView = {
         <div class="k-v">{{ S.repairs.length }}</div><div class="k-s">{{ newRepairs }} chờ tiếp nhận</div>
       </button>
     </div>
+
+    <button v-if="gio.tong" :class="['card gio-banner', {bad: gio.chua}]" @click="go('gioDash', {}, {root: true})">
+      <span :class="['k-ic hm-now', gio.chua ? 'c-bad' : 'c-ok']"><span class="ms">timer</span></span>
+      <div class="grow"><div style="font-weight:700">Giờ hoạt động hôm nay</div>
+        <div class="statusbar"><div :style="{width: gio.pct + '%', background: 'var(--ok)'}"></div></div>
+        <div class="small muted">{{ gio.da }}/{{ gio.tong }} xe đã ghi<span v-if="gio.chua"> · <b style="color:var(--bad)">{{ gio.chua }} xe chưa cập nhật</b></span><span v-else> · đủ</span></div></div>
+      <span class="ms muted">chevron_right</span>
+    </button>
 
     <div class="dash-cols">
       <div>
@@ -1022,6 +1056,8 @@ const EquipDetail = {
     e() { return this.d && this.d.equipment; },
     img() { const id = this.e && this.e.AnhID; return id ? (this.hero || thumbs[id]) : ''; },
     gio() { return (this.d && this.d.gio) || []; },
+    eqL() { return S.equipment.find(x => x.MaTB === this.ma) || {}; },
+    coGio() { return !!this.eqL.CoGio || this.gio.length > 0; },
     partGroups() {
       const g = {}; (this.d.parts || []).forEach(p => { (g[p.Loai] = g[p.Loai] || []).push(p); });
       return g;
@@ -1078,7 +1114,8 @@ const EquipDetail = {
     async ghiGio() {
       const r = await openModal('HourForm', { ma: this.ma });
       if (!r) return;
-      this.d.gio = r.lichSu; this.d.equipment.ChiSo = r.ChiSo; this.d.equipment.NgayChiSo = r.rec.ThoiGian;
+      this.d.gio = r.lichSu;
+      Object.assign(this.d.equipment, { ChiSo: r.ChiSo, NgayChiSo: r.rec.ThoiGian }, r.rec.AnhID ? { AnhChiSo: r.rec.AnhID } : {});
       this.t = 'gio'; this.refresh();
     },
     async xoaGio(g) {
@@ -1116,6 +1153,7 @@ const EquipDetail = {
           <span :class="['chip', stCls(e.TrangThai)]">{{ e.TrangThai || 'Bình thường' }}</span>
           <span v-if="openRep" class="chip c-warn"><span class="ms">build</span>{{ openRep }} phiếu đang mở</span>
           <span v-if="hasH(e.ChiSo)" class="chip c-info" style="cursor:pointer" @click="t = 'gio'"><span class="ms">timer</span>{{ fmtH(e.ChiSo) }} h</span>
+          <span v-if="eqL.PhaiGhiGio && !ghiHomNay(eqL)" class="chip c-warn" style="cursor:pointer" @click="t = 'gio'"><span class="ms">schedule</span>Chưa ghi giờ hôm nay</span>
           <span class="small muted">{{ e.LoaiTB }}</span>
         </div>
         <div class="docsum">
@@ -1127,7 +1165,7 @@ const EquipDetail = {
         </div>
         <div class="actions">
           <button class="btn warn" @click="go('repairNew', {ma: e.MaTB})"><span class="ms">report</span>Báo hỏng</button>
-          <button class="btn" @click="ghiGio"><span class="ms">speed</span>Ghi giờ</button>
+          <button v-if="coGio" class="btn" @click="ghiGio"><span class="ms">speed</span>Ghi giờ</button>
           <button v-if="isTech()" class="btn" @click="edit"><span class="ms">edit</span>Sửa thông tin</button>
         </div>
       </div>
@@ -1138,7 +1176,7 @@ const EquipDetail = {
       <button :class="{on: t === 'docs'}" @click="t = 'docs'">Giấy tờ<small>{{ d.docs.length }}</small></button>
       <button :class="{on: t === 'parts'}" @click="t = 'parts'">Linh kiện<small>{{ d.parts.length }}</small></button>
       <button :class="{on: t === 'rep'}" @click="t = 'rep'">Sửa chữa<small>{{ d.repairs.length }}</small></button>
-      <button :class="{on: t === 'gio'}" @click="t = 'gio'">Giờ HĐ<small>{{ gio.length }}</small></button>
+      <button v-if="coGio" :class="{on: t === 'gio'}" @click="t = 'gio'">Giờ HĐ<small>{{ gio.length }}</small></button>
       <button :class="{on: t === 'files'}" @click="t = 'files'">Tài liệu<small>{{ d.files.length }}</small></button>
     </div>
 
@@ -1198,24 +1236,26 @@ const EquipDetail = {
     <!-- Giờ hoạt động -->
     <div v-if="t === 'gio'">
       <div class="card pad row">
-        <span class="hm-now c-info"><span class="ms">timer</span></span>
+        <span :class="['hm-now', eqL.PhaiGhiGio && !ghiHomNay(eqL) ? 'c-warn' : 'c-info']"><span class="ms">timer</span></span>
         <div class="grow"><div class="small muted">Số giờ hoạt động hiện tại</div>
           <div style="font-size:26px;font-weight:700;line-height:1.2">{{ hasH(e.ChiSo) ? fmtH(e.ChiSo) + ' h' : '—' }}</div>
-          <div v-if="e.NgayChiSo" class="small muted">Ghi lúc {{ fmtDT(e.NgayChiSo) }}</div></div>
-        <button class="btn pri" @click="ghiGio"><span class="ms">photo_camera</span>Ghi giờ</button>
+          <div v-if="e.NgayChiSo" class="small muted">Ghi lúc {{ fmtDT(e.NgayChiSo) }} ({{ ago(e.NgayChiSo) }})</div></div>
+        <button class="btn pri" @click="ghiGio"><span class="ms">edit_note</span>Ghi giờ</button>
+      </div>
+      <div v-if="e.AnhChiSo" class="card pad mt">
+        <div class="small muted">Ảnh đồng hồ mới nhất (mỗi xe chỉ lưu 1 ảnh)</div>
+        <Gallery :ids="[e.AnhChiSo]"></Gallery>
       </div>
       <div v-if="gio.length" class="card list mt">
-        <div v-for="(g, i) in gio" :key="g.ID" class="li" @click="g.AnhID && viewImages([g.AnhID])">
-          <Thumb :id="g.AnhID" cls="sm" icon="speed"></Thumb>
+        <div v-for="(g, i) in gio" :key="g.ID" class="li" :style="g.AnhID ? '' : 'cursor:default'" @click="g.AnhID && viewImages([g.AnhID])">
+          <span class="ms" :style="{color: g.AnhID ? 'var(--pri-2)' : 'var(--line-2)'}">{{ g.AnhID ? 'photo_camera' : 'timer' }}</span>
           <div class="grow"><div class="t">{{ fmtH(g.SoGio) }} h
               <span v-if="gio[i + 1]" class="small muted" style="font-weight:500">(+{{ fmtH(g.SoGio - gio[i + 1].SoGio) }})</span></div>
-            <div class="s">{{ fmtDT(g.ThoiGian) }} · {{ who(g.NguoiGhi) }}<span v-if="g.Nguon === 'AI-sửa' && hasH(g.SoGioAI)"> · AI đọc {{ fmtH(g.SoGioAI) }}</span><span v-if="g.GhiChu"> · {{ g.GhiChu }}</span></div></div>
-          <span :class="['chip', g.Nguon === 'AI' ? 'c-ok' : g.Nguon === 'AI-sửa' ? 'c-warn' : 'c-grey']">{{ g.Nguon }}</span>
+            <div class="s">{{ fmtDT(g.ThoiGian) }} · {{ who(g.NguoiGhi) }}<span v-if="g.GhiChu"> · {{ g.GhiChu }}</span></div></div>
           <button v-if="isAdmin()" class="ibtn" @click.stop="xoaGio(g)"><span class="ms">delete</span></button>
         </div>
       </div>
       <div v-else class="card empty mt"><span class="ms">speed</span>Chưa ghi số giờ lần nào</div>
-      <div class="small muted mt">AI = Gemini đọc, giữ nguyên · AI-sửa = người dùng sửa số AI đọc (nên xem lại ảnh) · Nhập tay = không qua AI.</div>
     </div>
 
     <!-- Tài liệu -->
@@ -1536,29 +1576,78 @@ const AccountView = {
 };
 
 /* =====================================================================
- *  GHI GIỜ HOẠT ĐỘNG – Lái xe: chọn xe rồi chụp
+ *  GIỜ HOẠT ĐỘNG – dashboard xe chưa cập nhật số giờ trong ngày
+ *  Kỹ thuật/Admin: theo dõi toàn đội xe. Lái xe: danh sách xe của mình để ghi.
+ *  Xe phải ghi = loại TB có đơn vị "giờ máy" (DM_LoaiTB.DonViDo) + đang Bình thường.
  * ===================================================================== */
-const HourNew = {
+const GioDash = {
   components: { Thumb },
-  data() { return { q: '' }; },
-  created() { S.title = 'Ghi giờ hoạt động'; },
+  data() { return { q: '', loc: gioStats().chua ? 'chua' : 'tat' }; },
+  created() { S.title = isLX() ? 'Ghi giờ hoạt động' : 'Giờ hoạt động hôm nay'; if (!isFresh()) reloadLists(); },
   computed: {
-    opts() { const q = norm(this.q); return S.equipment.filter(e => e.TrangThai !== 'Thanh lý' && (!q || norm(e.TenTB + ' ' + e.BienSo + ' ' + e.MaTB).includes(q))); }
+    st() { return gioStats(); },
+    homNay() { return new Date().toLocaleDateString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' }); },
+    ds() {
+      const q = norm(this.q);
+      return S.equipment
+        .filter(e => e.CoGio && e.TrangThai !== 'Thanh lý' && (!q || norm([e.TenTB, e.BienSo, e.MaTB, e.LoaiTB].join(' ')).includes(q)))
+        .map(e => ({ e, da: ghiHomNay(e), ngay: ngayChuaGhi(e) }));
+    },
+    dem() {
+      return { chua: this.ds.filter(x => x.e.PhaiGhiGio && !x.da).length, da: this.ds.filter(x => x.da).length,
+        khac: this.ds.filter(x => !x.e.PhaiGhiGio).length, tat: this.ds.length };
+    },
+    list() {
+      let l = this.ds;
+      if (this.loc === 'chua') l = l.filter(x => x.e.PhaiGhiGio && !x.da);
+      else if (this.loc === 'da') l = l.filter(x => x.da);
+      else if (this.loc === 'khac') l = l.filter(x => !x.e.PhaiGhiGio);
+      const n = x => x.ngay == null ? 99999 : x.ngay;
+      /* chưa ghi lâu nhất lên đầu */
+      return l.slice().sort((a, b) => (a.da - b.da) || (n(b) - n(a)) ||
+        String(a.e.BienSo || a.e.MaTB).localeCompare(String(b.e.BienSo || b.e.MaTB), 'vi', { numeric: true }));
+    }
   },
   methods: {
-    async pick(e) { const r = await openModal('HourForm', { ma: e.MaTB }); if (r) go('equipDetail', { ma: e.MaTB, tab: 'gio' }); }
+    async ghi(e) { await openModal('HourForm', { ma: e.MaTB }); },
+    lich(e) { go('equipDetail', { ma: e.MaTB, tab: 'gio' }); },
+    nguoi(e) { return (e.LaiXe || []).map(who).join(', '); },
+    tt(x) {
+      if (!x.e.PhaiGhiGio) return { c: 'c-grey', t: x.e.TrangThai + ' – không tính' };
+      if (x.da) return { c: 'c-ok', t: 'Đã ghi ' + String(x.e.NgayChiSo).slice(11, 16) };
+      if (x.ngay == null) return { c: 'c-bad', t: 'Chưa ghi lần nào' };
+      if (x.ngay >= 2) return { c: 'c-bad', t: x.ngay + ' ngày chưa ghi' };
+      return { c: 'c-warn', t: 'Chưa ghi hôm nay' };
+    }
   },
-  template: `<div style="max-width:720px">
-    <div class="toolbar"><div class="search"><span class="ms">search</span><input v-model="q" placeholder="Tìm xe, biển số…"></div></div>
+  template: `<div style="max-width:860px">
+    <div class="card pad gio-head">
+      <div class="row"><div class="grow"><div class="small muted" style="text-transform:capitalize">{{ homNay }}</div>
+        <div class="big">{{ st.da }}/{{ st.tong }} xe đã ghi giờ</div></div>
+        <span :class="['chip', st.chua ? 'c-bad' : 'c-ok']"><span class="ms">{{ st.chua ? 'warning' : 'check_circle' }}</span>{{ st.chua ? st.chua + ' xe chưa ghi' : 'Đủ' }}</span></div>
+      <div class="statusbar"><div :style="{width: st.pct + '%', background: 'var(--ok)'}"></div></div>
+      <div class="small muted">Tính các xe có đồng hồ giờ máy đang hoạt động bình thường. Xe đang sửa chữa / ngừng hoạt động không tính.</div>
+    </div>
+    <div class="toolbar mt"><div class="search"><span class="ms">search</span><input v-model="q" placeholder="Tìm xe, biển số…"></div></div>
+    <div class="chips">
+      <button :class="['fchip alert', {on: loc === 'chua'}]" @click="loc = 'chua'"><span class="ms" style="font-size:17px">warning</span>Chưa ghi <b>{{ dem.chua }}</b></button>
+      <button :class="['fchip', {on: loc === 'da'}]" @click="loc = 'da'">Đã ghi hôm nay <b>{{ dem.da }}</b></button>
+      <button v-if="dem.khac" :class="['fchip', {on: loc === 'khac'}]" @click="loc = 'khac'">Không tính <b>{{ dem.khac }}</b></button>
+      <button :class="['fchip', {on: loc === 'tat'}]" @click="loc = 'tat'">Tất cả <b>{{ dem.tat }}</b></button>
+    </div>
     <div class="card list">
-      <div v-for="e in opts" :key="e.MaTB" class="li" @click="pick(e)">
-        <Thumb :id="e.AnhID" cls="sm" :icon="eqIcon(e.LoaiTB)"></Thumb>
-        <div class="grow"><div class="t">{{ e.TenTB }}</div><div class="s"><span class="plate" v-if="e.BienSo">{{ e.BienSo }}</span>
-          {{ e.NgayChiSo ? ' Ghi ' + ago(e.NgayChiSo) : ' Chưa ghi giờ' }}</div></div>
-        <b v-if="hasH(e.ChiSo)" style="white-space:nowrap">{{ fmtH(e.ChiSo) }} h</b>
-        <span class="ms" style="color:var(--pri-2)">photo_camera</span>
+      <div v-for="x in list" :key="x.e.MaTB" class="li" @click="ghi(x.e)">
+        <Thumb :id="x.e.AnhID" cls="sm" :icon="eqIcon(x.e.LoaiTB)"></Thumb>
+        <div class="grow"><div class="t">{{ x.e.TenTB }}</div>
+          <div class="s"><span class="plate" v-if="x.e.BienSo">{{ x.e.BienSo }}</span>
+            <span v-if="hasH(x.e.ChiSo)"> {{ fmtH(x.e.ChiSo) }} h · {{ ago(x.e.NgayChiSo) }}</span>
+            <span v-if="!isLX() && nguoi(x.e)"> · {{ nguoi(x.e) }}</span></div>
+          <div :class="['m-days', tt(x).c]">{{ tt(x).t }}</div></div>
+        <span :class="['chip d-chip', tt(x).c]">{{ tt(x).t }}</span>
+        <button v-if="!isLX()" class="ibtn" title="Lịch sử" @click.stop="lich(x.e)"><span class="ms">history</span></button>
+        <span v-else class="ms" style="color:var(--pri-2)">edit_note</span>
       </div>
-      <div v-if="!opts.length" class="empty">Không có xe phù hợp</div>
+      <div v-if="!list.length" class="empty"><span class="ms">task_alt</span>{{ loc === 'chua' ? 'Tất cả xe đã ghi giờ hôm nay' : 'Không có xe phù hợp' }}</div>
     </div>
   </div>`
 };
@@ -1857,53 +1946,52 @@ const UserForm = {
   </ModalShell>`
 };
 
-/* Ghi giờ hoạt động: chụp đồng hồ -> Gemini đọc số -> xác nhận / sửa -> lưu */
+/* Ghi giờ hoạt động: lái xe NHẬP TAY số giờ (bàn phím số) + chụp 1 ảnh đồng hồ làm bằng chứng */
 const HourForm = {
   props: ['ma'],
   components: { ModalShell },
-  data() { return { step: 'chup', anh: '', kq: null, so: '', ghiChu: '', saving: false, err: '', acc: ACCEPT_IMG, giay: 0 }; },
-  unmounted() { clearInterval(this.dem); },
+  data() { return { anh: '', so: '', ghiChu: '', saving: false, xuLyAnh: false, acc: ACCEPT_IMG }; },
+  mounted() { nextTick(() => this.$refs.so && this.$refs.so.focus()); },
   computed: {
     e() { return S.equipment.find(x => x.MaTB === this.ma) || { TenTB: this.ma }; },
-    ai() { return this.kq && this.kq.ai; },
-    truoc() {
-      if (this.kq && this.kq.truoc) return this.kq.truoc;
-      const d = detailCache[this.ma]; return (d && d.gio && d.gio[0]) || null;
-    },
+    truoc() { return hasH(this.e.ChiSo) && this.e.NgayChiSo ? { SoGio: Number(this.e.ChiSo), ThoiGian: this.e.NgayChiSo } : null; },
     soNum() { return parseH(this.so); },
-    tang() { return this.truoc && this.soNum != null ? Math.round((this.soNum - Number(this.truoc.SoGio)) * 10) / 10 : null; },
-    sua() { return !!(this.ai && this.ai.soGio != null && this.soNum != null && Math.abs(this.soNum - this.ai.soGio) > 0.001); }
+    tang() { return this.truoc && this.soNum != null ? Math.round((this.soNum - this.truoc.SoGio) * 10) / 10 : null; },
+    /* Kiểm tra giống máy chủ: không nhỏ hơn lần trước, không tăng quá 24 h/ngày */
+    loi() {
+      if (this.tang == null) return '';
+      if (this.tang < -0.5) return 'Nhỏ hơn lần trước ' + fmtH(-this.tang) + ' h – kiểm tra lại số';
+      const m = String(this.truoc.ThoiGian).match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
+      const ngay = m ? Math.max((Date.now() - new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5])) / 86400000, 0) : 0;
+      const toiDa = Math.max(ngay, 1 / 24) * 24 + 0.5;
+      return this.tang > toiDa ? 'Tăng ' + fmtH(this.tang) + ' h – vượt mức có thể (tối đa ' + Math.round(toiDa) + ' h). Kiểm tra lại số' : '';
+    },
+    canAnh() { return !isAdmin(); },
+    ok() { return this.soNum != null && (this.anh || !this.canAnh) && !this.saving && !this.xuLyAnh; }
   },
   methods: {
+    nhap(ev) { this.so = locSo(ev.target.value); ev.target.value = this.so; },
     chup() { this.$refs.cam.click(); },
     async onFile(ev) {
       const file = ev.target.files && ev.target.files[0]; ev.target.value = '';
       if (!file) return;
-      this.err = ''; this.kq = null; this.so = '';
-      try {
-        /* 1280px đủ rõ số đồng hồ, ảnh nhẹ hơn ~40% so với 1600px -> gửi nhanh hơn trên 4G */
-        this.anh = await compressImage(file, 1280, 0.82);
-        this.step = 'doc'; this.giay = 0;
-        clearInterval(this.dem); this.dem = setInterval(() => { this.giay++; }, 1000);
-        try { this.kq = await call('docGioHD', { MaTB: this.ma, mime: 'image/jpeg', data: this.anh.split(',')[1] }, { silent: true }); }
-        finally { clearInterval(this.dem); }
-        thumbs[this.kq.AnhID] = this.anh;
-        if (this.ai && this.ai.soGio != null) this.so = String(this.ai.soGio).replace('.', ',');
-        this.step = 'xacnhan';
-        if (!this.so) nextTick(() => this.$refs.so && this.$refs.so.focus());
-      } catch (e) { this.err = e.message; this.step = 'chup'; }
+      this.xuLyAnh = true;
+      try { this.anh = await compressImage(file, 1280, 0.75); } catch (e) { fail(e); }
+      this.xuLyAnh = false;
     },
-    nhapTay() { this.kq = { AnhID: '', ai: null, truoc: null, canhBao: [] }; this.anh = ''; this.step = 'xacnhan'; },
-    dungGoiY() { this.so = String(this.kq.goiY).replace('.', ','); },
     async save(boQua) {
-      if (this.soNum == null) return toast('Nhập số giờ hợp lệ', true);
-      if (!boQua && this.sua && !this.ghiChu.trim() && !await ask({ title: 'Đã sửa số AI đọc',
-        msg: 'AI đọc ' + fmtH(this.ai.soGio) + ' h, bạn ghi ' + fmtH(this.soNum) + ' h. Chắc chắn số của bạn đúng?', okText: 'Đúng, lưu' })) return;
+      if (this.soNum == null) return toast('Nhập số giờ', true);
+      if (!this.anh && this.canAnh) return toast('Chụp ảnh đồng hồ trước khi lưu', true);
+      if (this.loi && !isAdmin()) return toast(this.loi, true);
       this.saving = true;
       try {
-        const r = await call('luuGioHD', { MaTB: this.ma, SoGio: this.soNum, AnhID: this.kq.AnhID,
-          SoGioAI: this.ai && this.ai.soGio != null ? this.ai.soGio : '', DoTinCay: this.ai ? this.ai.doTinCay : '',
-          GhiChu: this.ghiChu, BoQua: !!boQua });
+        const r = await call('luuGioHD', { MaTB: this.ma, SoGio: this.soNum, GhiChu: this.ghiChu, BoQua: !!boQua,
+          anh: this.anh ? { mime: 'image/jpeg', data: this.anh.split(',')[1] } : null });
+        if (r.rec.AnhID) thumbs[r.rec.AnhID] = this.anh;
+        /* cập nhật ngay trên máy để dashboard đổi trạng thái liền, không chờ tải lại */
+        const moi = Object.assign({ ChiSo: r.ChiSo, NgayChiSo: r.rec.ThoiGian }, r.rec.AnhID ? { AnhChiSo: r.rec.AnhID } : {});
+        const eq = S.equipment.find(x => x.MaTB === this.ma); if (eq) Object.assign(eq, moi);
+        const det = detailCache[this.ma]; if (det) { det.gio = r.lichSu; Object.assign(det.equipment, moi); }
         this.saving = false;
         toast('Đã ghi ' + fmtH(r.ChiSo) + ' h'); reloadLists(); closeModal(r);
         return;
@@ -1921,41 +2009,22 @@ const HourForm = {
   },
   template: `<ModalShell :title="'Ghi giờ · ' + (e.BienSo || e.TenTB)">
     <input ref="cam" type="file" :accept="acc" capture="environment" hidden @change="onFile">
-    <div v-if="truoc" class="small muted" style="margin-bottom:10px">Lần trước: <b style="color:var(--ink)">{{ fmtH(truoc.SoGio) }} h</b> · {{ fmtDT(truoc.ThoiGian) }} · {{ who(truoc.NguoiGhi) }}</div>
-
-    <template v-if="step === 'chup'">
-      <button type="button" class="hm-cam" @click="chup"><span class="ms">photo_camera</span>Chụp đồng hồ giờ
-        <span class="small muted" style="font-weight:500">Chụp gần, thẳng mặt đồng hồ, đủ sáng, không loá – chỉ cần rõ dãy số</span></button>
-      <div v-if="err" class="hm-note c-bad mt"><span class="ms">error</span><div>{{ err }}</div></div>
-      <button v-if="isAdmin()" type="button" class="btn ghost sm mt" @click="nhapTay">Nhập tay không cần ảnh (Admin)</button>
-    </template>
-
-    <template v-else-if="step === 'doc'">
-      <img :src="anh" class="hm-photo">
-      <div class="row mt" style="justify-content:center"><div class="spinner" style="width:22px;height:22px;border-width:2px"></div><b>Đang đọc số trên đồng hồ… {{ giay }}s</b></div>
-    </template>
-
-    <div v-else class="form">
-      <img v-if="anh" :src="anh" class="hm-photo">
-      <div v-if="kq.aiLoi" class="hm-note c-warn"><span class="ms">warning</span><div>Không đọc tự động được: {{ kq.aiLoi }}. Nhập số theo ảnh.</div></div>
-      <div v-else-if="ai && ai.soGio == null" class="hm-note c-warn"><span class="ms">warning</span><div>AI không thấy đồng hồ giờ{{ ai.ghiChu ? ': ' + ai.ghiChu : '' }}. Chụp lại hoặc nhập theo ảnh.</div></div>
-      <div v-else-if="ai" :class="['hm-note', ai.canKiemTra ? 'c-warn' : 'c-ok']"><span class="ms">{{ ai.canKiemTra ? 'warning' : 'check_circle' }}</span>
-        <div>AI đọc <b>{{ ai.chuoiSo }}</b> · tin cậy {{ Math.round(ai.doTinCay * 100) }}%<span v-if="ai.canKiemTra"> – <b>so kỹ với ảnh</b></span><span v-if="ai.ghiChu">. {{ ai.ghiChu }}</span><span v-if="kq.ms" class="muted"> · {{ (kq.ms.tong / 1000).toFixed(1).replace('.', ',') }} s</span></div></div>
-      <div class="fld"><label>Số giờ hoạt động (h) <span class="req">*</span></label>
-        <input ref="so" v-model="so" class="hm-input" inputmode="decimal" placeholder="0,0">
-        <div v-if="tang != null" class="hint" :style="tang < 0 ? 'color:var(--bad);font-weight:600' : ''">{{ tang >= 0 ? 'Tăng +' + fmtH(tang) + ' h so với lần trước' : 'NHỎ HƠN lần trước ' + fmtH(-tang) + ' h' }}</div></div>
-      <div v-for="c in (kq.canhBao || [])" :key="c" class="hm-note c-bad"><span class="ms">error</span><div>{{ c }}</div></div>
-      <button v-if="kq.goiY != null" type="button" class="btn sm" @click="dungGoiY">Có thể số cuối là phần thập phân → dùng {{ fmtH(kq.goiY) }} h</button>
-      <div class="fld"><label>Ghi chú</label><input v-model="ghiChu" :placeholder="sua ? 'Lý do sửa số AI đọc (khuyến nghị)' : ''"></div>
+    <div class="form">
+      <div class="hm-prev"><template v-if="truoc">Lần trước: <b style="color:var(--ink)">{{ fmtH(truoc.SoGio) }} h</b> · {{ fmtDT(truoc.ThoiGian) }} ({{ ago(truoc.ThoiGian) }})</template>
+        <template v-else>{{ e.TenTB }} chưa có lần ghi nào</template></div>
+      <div class="fld"><label>Số giờ trên đồng hồ (h) <span class="req">*</span></label>
+        <input ref="so" :value="so" @input="nhap" class="hm-input" type="text" inputmode="decimal" pattern="[0-9]*[,]?[0-9]?" autocomplete="off" enterkeyhint="done" placeholder="0">
+        <div v-if="loi" class="hint" style="color:var(--bad);font-weight:600">{{ loi }}</div>
+        <div v-else-if="tang != null" class="hint">+{{ fmtH(tang) }} h so với lần trước</div>
+        <div v-else class="hint">Chỉ nhập số. Số lẻ (trống màu đỏ / 1/10) ghi sau dấu phẩy, VD 1276,3</div></div>
+      <div class="fld"><label>Ảnh đồng hồ <span v-if="canAnh" class="req">*</span></label>
+        <div v-if="anh" class="hm-shot"><img :src="anh" class="hm-photo"><button type="button" class="btn sm" @click="chup"><span class="ms">photo_camera</span>Chụp lại</button></div>
+        <button v-else type="button" class="hm-cam" :disabled="xuLyAnh" @click="chup"><span class="ms">photo_camera</span>{{ xuLyAnh ? 'Đang xử lý ảnh…' : 'Chụp đồng hồ' }}
+          <span class="small muted" style="font-weight:500">Làm bằng chứng – mỗi xe chỉ lưu ảnh mới nhất</span></button></div>
+      <div class="fld"><label>Ghi chú</label><input v-model="ghiChu" placeholder="Không bắt buộc"></div>
     </div>
-
-    <template #foot>
-      <template v-if="step === 'xacnhan'">
-        <button class="btn" style="flex:0 0 auto" :disabled="saving" @click="chup"><span class="ms">photo_camera</span>Chụp lại</button>
-        <button class="btn pri" :disabled="saving || soNum == null" @click="save()">{{ saving ? 'Đang lưu…' : 'Lưu số giờ' }}</button>
-      </template>
-      <button v-else class="btn" @click="closeModal()">Đóng</button>
-    </template>
+    <template #foot><button class="btn" @click="closeModal()">Huỷ</button>
+      <button class="btn pri" :disabled="!ok" @click="save()">{{ saving ? 'Đang lưu…' : 'Lưu số giờ' }}</button></template>
   </ModalShell>`
 };
 
@@ -2011,7 +2080,7 @@ const ConfirmBox = {
  *  KHUNG ỨNG DỤNG
  * ===================================================================== */
 const VIEWS = { home: HomeView, equipList: EquipList, equipDetail: EquipDetail, repairList: RepairList,
-  repairDetail: RepairDetail, repairNew: RepairNew, users: UsersView, account: AccountView, hourNew: HourNew };
+  repairDetail: RepairDetail, repairNew: RepairNew, users: UsersView, account: AccountView, gioDash: GioDash, hourNew: GioDash };
 /* Admin sửa trực tiếp mọi trường của phiếu sửa chữa */
 const RepairAdminForm = {
   props: ['r'],
@@ -2077,19 +2146,20 @@ const Root = {
     nav() {
       if (isLX()) return [
         { v: 'equipList', icon: 'directions_bus', label: 'Xe của tôi' },
-        { v: 'hourNew', icon: 'speed', label: 'Ghi giờ' },
+        { v: 'gioDash', icon: 'speed', label: 'Ghi giờ', cnt: gioStats().chua },
         { v: 'repairNew', icon: 'report', label: 'Báo hỏng' },
         { v: 'repairList', icon: 'build', label: 'Phiếu', cnt: S.repairs.length },
         { v: 'account', icon: 'person', label: 'Tài khoản' }];
       return [
         { v: 'home', icon: 'space_dashboard', label: 'Tổng quan' },
         { v: 'equipList', icon: 'airport_shuttle', label: 'Thiết bị' },
+        { v: 'gioDash', icon: 'timer', label: 'Giờ HĐ', cnt: gioStats().chua },
         { v: 'repairList', icon: 'build', label: 'Sửa chữa', cnt: S.repairs.filter(r => r.TrangThai === 'Mới báo').length },
         { v: 'account', icon: 'person', label: 'Tài khoản' }];
     },
     sideNav() {
       if (isLX()) return this.nav.slice(0, 4);
-      const ds = this.nav.slice(0, 3).concat([{ v: 'hourNew', icon: 'speed', label: 'Ghi giờ' }]);
+      const ds = this.nav.slice(0, 4);
       return isAdmin() ? ds.concat([{ v: 'users', icon: 'group', label: 'Người dùng' }]) : ds;
     },
     activeRoot() {
@@ -2098,7 +2168,7 @@ const Root = {
     },
     title() {
       if (S.title) return S.title;
-      const all = this.nav.concat([{ v: 'users', label: 'Người dùng' }, { v: 'hourNew', label: 'Ghi giờ' }]);
+      const all = this.nav.concat([{ v: 'users', label: 'Người dùng' }]);
       const f = all.find(x => x.v === S.view.name);
       return f ? f.label : 'KTHT';
     }
@@ -2151,7 +2221,8 @@ const Root = {
 const app = createApp(Root);
 Object.assign(app.config.globalProperties, {
   S, go, back, toast, fmtD, fmtDT, ago, docCls, docText, stCls, rpCls, who, ids, eqIcon, initials, viewImages,
-  isAdmin, isTech, isLX, closeModal, logoutNow, refreshAll, STEPS, partLabel, ACCEPT_DOC, shortDoc, fmtH, hasH
+  isAdmin, isTech, isLX, closeModal, logoutNow, refreshAll, STEPS, partLabel, ACCEPT_DOC, shortDoc, fmtH, hasH,
+  ghiHomNay, ngayChuaGhi
 });
 app.config.errorHandler = (err) => { console.error(err); fail(err); };
 app.mount('#app');
