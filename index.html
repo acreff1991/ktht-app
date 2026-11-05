@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0..1,0&icon_names=add,add_a_photo,agriculture,airport_shuttle,ambulance,api,arrow_back,assignment_ind,badge,block,bolt,build,cancel,cell_tower,check,check_circle,chevron_left,chevron_right,cleaning_services,close,cloud_off,construction,conveyor_belt,delete,delete_forever,description,directions_bus,docs,donut_large,draft,edit,edit_note,electric_bolt,engineering,error,event_busy,files,fire_truck,flight_takeoff,folder_open,forklift,gpp_bad,grass,group,history,home,hourglass_empty,image,info,inventory_2,local_shipping,logout,mode_fan,pending_actions,person,person_add,photo_camera,picture_as_pdf,playlist_add,refresh,remove,report,schedule,search,search_off,send,space_dashboard,speed,stairs,sync,sync_alt,tab,task_alt,timer,tire_repair,title,toast,undo,upload,upload_file,verified,warning&display=block" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0..1,0&icon_names=add,add_a_photo,agriculture,airport_shuttle,ambulance,api,arrow_back,assignment_ind,badge,block,bolt,build,cancel,cell_tower,check,check_circle,checklist,chevron_left,chevron_right,cleaning_services,close,cloud_off,construction,conveyor_belt,delete,delete_forever,description,directions_bus,docs,donut_large,draft,edit,edit_note,electric_bolt,engineering,error,event_available,event_busy,files,fire_truck,flight_takeoff,folder_open,forklift,gpp_bad,grass,group,history,home,hourglass_empty,image,info,inventory_2,local_shipping,logout,mode_fan,pending_actions,person,person_add,photo_camera,picture_as_pdf,playlist_add,refresh,remove,report,schedule,search,search_off,send,space_dashboard,speed,stairs,sync,sync_alt,tab,task_alt,timer,tire_repair,title,toast,undo,upload,upload_file,verified,warning&display=block" rel="stylesheet">
 <style>
 :root {
   --pri: #0b4f8a; --pri-2: #1366b3; --pri-soft: #e6f0fa; --pri-ink: #ffffff;
@@ -711,6 +711,32 @@ function locSo(v) {
   if (i >= 0) s = s.slice(0, i + 1) + s.slice(i + 1).replace(/,/g, '').slice(0, 1);
   return s.replace(/^0+(?=\d)/, '');
 }
+/* ---------- Bảo dưỡng (lịch tính sẵn ở máy chủ: e.bd) ---------- */
+function bdCls(tt) { return ({ qua_han: 'c-bad', sap_den: 'c-warn', ok: 'c-ok', chua_moc: 'c-grey' })[tt] || 'c-grey'; }
+function bdVuot(b) { const v = ((b && b.ct) || []).filter(r => r.conGio != null && r.conGio < 0).map(r => -r.conGio); return v.length ? Math.max.apply(null, v) : 0; }
+function bdHan(b) {
+  if (!b || !b.ngay) return 'Chưa có mốc BD';
+  if (b.conNgay < 0) return 'Quá hạn ' + (-b.conNgay) + ' ngày';
+  if (bdVuot(b)) return 'Vượt ' + fmtH(bdVuot(b)) + ' h';
+  if (b.conNgay === 0) return 'Đến hạn hôm nay';
+  return 'Còn ' + b.conNgay + ' ngày';
+}
+/* Giải thích vì sao đợt này là cấp X (theo tháng hay theo giờ, có gộp sớm không) */
+function bdLyDo(b) {
+  if (!b || !b.ngay) return '';
+  const r = b.ct[b.cap - 1] || {};
+  const gop = b.hanCap && b.hanCap > b.ngay ? ' – gộp vào đợt này' : '';
+  if (b.lyDoCap === 'gio') return 'Cấp ' + b.cap + ' theo giờ: ' + (r.conGio <= 0 ? 'đã vượt ' + fmtH(-r.conGio) + ' h' : 'còn ' + fmtH(r.conGio) + ' h') +
+    (r.conGio > 0 && r.ngayGio ? ' (~' + fmtD(r.ngayGio) + ')' : '') + gop;
+  return 'Cấp ' + b.cap + ' theo tháng (' + r.thangTxt + ')' + (gop ? ', hạn ' + fmtD(b.hanCap) + gop : '');
+}
+function bdStats() {
+  const ds = S.equipment.filter(e => e.bd && e.bd.ngay);
+  return { qua: ds.filter(e => e.bd.tt === 'qua_han').length, sap: ds.filter(e => e.bd.tt === 'sap_den').length,
+    thang: ds.filter(e => e.bd.tt === 'ok' && e.bd.conNgay <= 30).length, tong: ds.length };
+}
+/* Phiếu sửa chữa loại Bảo dưỡng đang mở của xe (tránh lập trùng) */
+function phieuBDMo(ma) { return S.repairs.find(r => r.MaTB === ma && r.LoaiCV === 'Bảo dưỡng'); }
 function shortDoc(l) { return ({ 'Kiểm định': 'KĐ', 'Bảo hiểm': 'BH' })[l] || l; }
 function docState(days, warn) { return days == null ? 'missing' : days < 0 ? 'expired' : days <= (Number(warn) || 45) ? 'warning' : 'ok'; }
 function docCls(st) { return ({ expired: 'c-bad', warning: 'c-warn', ok: 'c-ok', missing: 'c-grey' })[st]; }
@@ -723,7 +749,8 @@ function docText(d, long) {
 }
 function stCls(s) { return ({ 'Bình thường': 'c-ok', 'Đang sửa chữa': 'c-warn', 'Ngừng hoạt động': 'c-bad', 'Thanh lý': 'c-grey' })[s] || 'c-grey'; }
 function rpCls(s) { return ({ 'Mới báo': 'c-bad', 'Đã tiếp nhận': 'c-info', 'Đang sửa': 'c-warn', 'Chờ vật tư': 'c-warn', 'Hoàn thành': 'c-ok', 'Đã nghiệm thu': 'c-pri', 'Huỷ': 'c-grey' })[s] || 'c-grey'; }
-function who(email) { return (S.boot && S.boot.names[String(email || '').toLowerCase()]) || email || ''; }
+const HE_THONG = { 'moc-QT05': 'Mốc QT05', 'bang-theo-doi': 'Bảng theo dõi giờ' };
+function who(email) { return HE_THONG[email] || (S.boot && S.boot.names[String(email || '').toLowerCase()]) || email || ''; }
 function initials(n) { const p = String(n || '?').trim().split(/\s+/); return (p.length > 1 ? p[p.length - 2][0] + p[p.length - 1][0] : p[0].slice(0, 2)).toUpperCase(); }
 function ids(s) { return String(s || '').split(',').map(x => x.trim()).filter(Boolean); }
 function eqIcon(loai) {
@@ -898,6 +925,7 @@ const HomeView = {
     },
     newRepairs() { return S.repairs.filter(r => r.TrangThai === 'Mới báo').length; },
     gio() { return gioStats(); },
+    bd() { return bdStats(); },
     hello() { const h = new Date().getHours(); return h < 11 ? 'Chào buổi sáng' : h < 14 ? 'Chào buổi trưa' : h < 18 ? 'Chào buổi chiều' : 'Chào buổi tối'; },
     colors() { return { 'Bình thường': '#2e7d32', 'Đang sửa chữa': '#ef8f00', 'Ngừng hoạt động': '#c62828', 'Thanh lý': '#9aa7b6' }; }
   },
@@ -934,6 +962,12 @@ const HomeView = {
       <div class="grow"><div style="font-weight:700">Giờ hoạt động hôm nay</div>
         <div class="statusbar"><div :style="{width: gio.pct + '%', background: 'var(--ok)'}"></div></div>
         <div class="small muted">{{ gio.da }}/{{ gio.tong }} xe đã ghi<span v-if="gio.chua"> · <b style="color:var(--bad)">{{ gio.chua }} xe chưa cập nhật</b></span><span v-else> · đủ</span></div></div>
+      <span class="ms muted">chevron_right</span>
+    </button>
+    <button v-if="bd.tong" :class="['card gio-banner', {bad: bd.qua}]" @click="go('bdDash', {}, {root: true})">
+      <span :class="['k-ic hm-now', bd.qua ? 'c-bad' : bd.sap ? 'c-warn' : 'c-ok']"><span class="ms">build</span></span>
+      <div class="grow"><div style="font-weight:700">Bảo dưỡng định kỳ</div>
+        <div class="small muted" style="margin-top:4px"><b v-if="bd.qua" style="color:var(--bad)">{{ bd.qua }} xe quá hạn · </b><b v-if="bd.sap" style="color:var(--warn)">{{ bd.sap }} xe đến hạn trong {{ S.boot.dm.nhacBD || 5 }} ngày · </b>{{ bd.thang }} xe trong 30 ngày tới</div></div>
       <span class="ms muted">chevron_right</span>
     </button>
 
@@ -1081,6 +1115,9 @@ const EquipDetail = {
     gio() { return (this.d && this.d.gio) || []; },
     eqL() { return S.equipment.find(x => x.MaTB === this.ma) || {}; },
     coGio() { return !!this.eqL.CoGio || this.gio.length > 0; },
+    bd() { return this.eqL.bd || null; },
+    bdLs() { return (this.d && this.d.bdLs) || []; },
+    phieuBD() { return phieuBDMo(this.ma); },
     partGroups() {
       const g = {}; (this.d.parts || []).forEach(p => { (g[p.Loai] = g[p.Loai] || []).push(p); });
       return g;
@@ -1142,6 +1179,11 @@ const EquipDetail = {
       Object.assign(this.d.equipment, { ChiSo: r.ChiSo, NgayChiSo: r.rec.ThoiGian }, r.rec.AnhID ? { AnhChiSo: r.rec.AnhID } : {});
       this.t = 'gio'; this.refresh();
     },
+    async ghiBD() { if (await openModal('BdForm', { ds: [this.ma] })) this.refresh(); },
+    async xoaBD(x) {
+      if (!await ask({ title: 'Xoá ghi nhận bảo dưỡng', msg: 'Xoá ghi nhận BD cấp ' + x.Cap + ' ngày ' + fmtD(x.Ngay) + '? Lịch nhắc sẽ tính lại. (Sao lưu trong ThungRac)', okText: 'Xoá', danger: true })) return;
+      try { await call('xoaBaoDuong', { ID: x.ID }); toast('Đã xoá'); this.refresh(); } catch (e) { fail(e); }
+    },
     async xoaGio(g) {
       if (!await ask({ title: 'Xoá lần ghi giờ', msg: 'Xoá lần ghi ' + fmtH(g.SoGio) + ' h lúc ' + fmtDT(g.ThoiGian) + '? (Sao lưu trong ThungRac)', okText: 'Xoá', danger: true })) return;
       try { await call('xoaGioHD', { ID: g.ID }); toast('Đã xoá'); this.refresh(); } catch (e) { fail(e); }
@@ -1177,6 +1219,7 @@ const EquipDetail = {
           <span :class="['chip', stCls(e.TrangThai)]">{{ e.TrangThai || 'Bình thường' }}</span>
           <span v-if="openRep" class="chip c-warn"><span class="ms">build</span>{{ openRep }} phiếu đang mở</span>
           <span v-if="hasH(e.ChiSo)" class="chip c-info" style="cursor:pointer" @click="t = 'gio'"><span class="ms">timer</span>{{ fmtH(e.ChiSo) }} h</span>
+          <span v-if="bd && (bd.tt === 'qua_han' || bd.tt === 'sap_den')" :class="['chip', bdCls(bd.tt)]" style="cursor:pointer" @click="t = 'bd'"><span class="ms">build</span>BD cấp {{ bd.cap }} · {{ bdHan(bd) }}</span>
           <span v-if="eqL.PhaiGhiGio && !ghiHomNay(eqL)" class="chip c-warn" style="cursor:pointer" @click="t = 'gio'"><span class="ms">schedule</span>Chưa ghi giờ hôm nay</span>
           <span class="small muted">{{ e.LoaiTB }}</span>
         </div>
@@ -1200,6 +1243,7 @@ const EquipDetail = {
       <button :class="{on: t === 'docs'}" @click="t = 'docs'">Giấy tờ<small>{{ d.docs.length }}</small></button>
       <button :class="{on: t === 'parts'}" @click="t = 'parts'">Linh kiện<small>{{ d.parts.length }}</small></button>
       <button :class="{on: t === 'rep'}" @click="t = 'rep'">Sửa chữa<small>{{ d.repairs.length }}</small></button>
+      <button v-if="bd || bdLs.length" :class="{on: t === 'bd'}" @click="t = 'bd'">Bảo dưỡng<small>{{ bdLs.length }}</small></button>
       <button v-if="coGio" :class="{on: t === 'gio'}" @click="t = 'gio'">Giờ HĐ<small>{{ gio.length }}</small></button>
       <button :class="{on: t === 'files'}" @click="t = 'files'">Tài liệu<small>{{ d.files.length }}</small></button>
     </div>
@@ -1255,6 +1299,49 @@ const EquipDetail = {
         <div class="meta"><span>{{ fmtDT(r.NgayBao) }}</span><span>{{ who(r.NguoiBao) }}</span></div>
       </button>
       <div v-if="!d.repairs.length" class="card empty"><span class="ms">history</span>Chưa có lịch sử sửa chữa</div>
+    </div>
+
+    <!-- Bảo dưỡng -->
+    <div v-if="t === 'bd'">
+      <div v-if="!bd" class="card pad row"><span class="ms muted">info</span><div class="grow small">Xe chưa gán chu kỳ bảo dưỡng.</div>
+        <button v-if="isTech()" class="btn sm" @click="edit">Gán chu kỳ</button></div>
+      <template v-else>
+        <div class="card pad">
+          <div class="row"><span :class="['hm-now', bdCls(bd.tt)]"><span class="ms">build</span></span>
+            <div class="grow"><div class="small muted">Đợt bảo dưỡng kế tiếp</div>
+              <div style="font-size:22px;font-weight:700;line-height:1.25">{{ bd.ngay ? 'Cấp ' + bd.cap + ' · ' + fmtD(bd.ngay) : '—' }}</div>
+              <div class="small"><b :style="{color: bd.tt === 'qua_han' ? 'var(--bad)' : bd.tt === 'sap_den' ? 'var(--warn)' : 'var(--ok)'}">{{ bdHan(bd) }}</b> · {{ bdLyDo(bd) }}</div></div></div>
+          <div class="small muted" style="margin-top:10px">Chu kỳ: {{ bd.tenCK }}<template v-if="bd.coGio"> · hiện {{ fmtH(bd.chiSo) }} h<span v-if="bd.tocDo != null">, chạy TB {{ fmtH(bd.tocDo) }} h/ngày</span></template><template v-else> · xe không theo dõi giờ – chỉ tính theo tháng</template></div>
+          <div class="actions" v-if="isTech()">
+            <button v-if="phieuBD" class="btn" @click="go('repairDetail', {id: phieuBD.ID})"><span class="ms">build</span>Phiếu {{ phieuBD.SoPhieu }} đang mở</button>
+            <button v-else-if="bd.ngay" class="btn pri" @click="go('repairNew', {ma: e.MaTB, cap: bd.cap})"><span class="ms">build</span>Lập phiếu BD cấp {{ bd.cap }}</button>
+            <button class="btn" @click="ghiBD"><span class="ms">event_available</span>Ghi nhận đã BD</button>
+          </div>
+        </div>
+        <div class="card mt" style="overflow:hidden">
+          <table class="ptable">
+            <tr><th>Cấp</th><th>Chu kỳ</th><th>Lần cuối</th><th>Đến hạn</th></tr>
+            <tr v-for="r in bd.ct" :key="r.cap" :style="r.cap === bd.cap && bd.ngay ? 'background:var(--pri-soft)' : ''">
+              <td><b>{{ r.cap }}</b></td>
+              <td>{{ r.thangTxt }}<span v-if="bd.coGio && r.gio"><br><span class="small muted">{{ fmtH(r.gio) }} h</span></span></td>
+              <td>{{ r.lanNgay ? fmtD(r.lanNgay) : '—' }}<div v-if="r.lanGio != null" class="small muted">{{ fmtH(r.lanGio) }} h</div></td>
+              <td>{{ r.denNgay ? fmtD(r.denNgay) : '—' }}
+                <div v-if="r.denGio != null" class="small" :style="r.conGio < 0 ? 'color:var(--bad);font-weight:600' : 'color:var(--muted)'">{{ fmtH(r.denGio) }} h · {{ r.conGio < 0 ? 'vượt ' + fmtH(-r.conGio) : 'còn ' + fmtH(r.conGio) }}</div></td>
+            </tr>
+          </table>
+        </div>
+        <div class="small muted mt">Mốc nào đến trước (tháng hoặc giờ) tính trước. Cấp cao sẽ đến hạn trước đợt BD tháng sau được gộp vào đợt gần nhất. Làm cấp cao = đã làm các cấp thấp hơn.</div>
+      </template>
+      <div class="sec-title"><span class="ms">history</span>Lịch sử bảo dưỡng</div>
+      <div v-if="bdLs.length" class="card list">
+        <div v-for="x in bdLs" :key="x.ID" class="li" :style="x.SuaChuaID ? '' : 'cursor:default'" @click="x.SuaChuaID && go('repairDetail', {id: x.SuaChuaID})">
+          <span class="chip c-pri">Cấp {{ x.Cap }}</span>
+          <div class="grow"><div class="t">{{ fmtD(x.Ngay) }}<span v-if="hasH(x.SoGio)" class="muted" style="font-weight:500"> · {{ fmtH(x.SoGio) }} h</span></div>
+            <div class="s">{{ x.SoPhieu ? 'Phiếu ' + x.SoPhieu + ' · ' : '' }}{{ who(x.NguoiGhi) }}{{ x.GhiChu ? ' · ' + x.GhiChu : '' }}</div></div>
+          <button v-if="isAdmin() && !x.SuaChuaID" class="ibtn" @click.stop="xoaBD(x)"><span class="ms">delete</span></button>
+        </div>
+      </div>
+      <div v-else class="card empty"><span class="ms">build</span>Chưa có lịch sử bảo dưỡng</div>
     </div>
 
     <!-- Giờ hoạt động -->
@@ -1335,7 +1422,7 @@ const RepairList = {
     </div>
     <div class="eq-grid" style="gap:10px">
       <button v-for="r in list" :key="r.ID" class="card rp" style="margin:0" @click="go('repairDetail', {id: r.ID})">
-        <div class="top"><span class="no">{{ r.SoPhieu }}</span><span v-if="r.DungXe && S.boot.dm.repairOpen.indexOf(r.TrangThai) >= 0" class="chip c-bad"><span class="ms">block</span>Dừng xe</span><span v-if="r.MaPhieuKho" :class="['chip', r.HoSoKho ? 'c-ok' : 'c-warn']"><span class="ms">inventory_2</span>{{ r.HoSoKho ? 'Đã HS' : 'Chờ HS' }}</span>
+        <div class="top"><span class="no">{{ r.SoPhieu }}</span><span v-if="r.DungXe && S.boot.dm.repairOpen.indexOf(r.TrangThai) >= 0" class="chip c-bad"><span class="ms">block</span>Dừng xe</span><span v-if="r.MaPhieuKho" :class="['chip', r.HoSoKho ? 'c-ok' : 'c-warn']"><span class="ms">inventory_2</span>{{ r.HoSoKho ? 'Đã HS' : 'Chờ HS' }}</span><span v-if="r.CapBD" class="chip c-pri"><span class="ms">build</span>BD cấp {{ r.CapBD }}</span>
           <span class="grow"></span><span :class="['chip', rpCls(r.TrangThai)]">{{ r.TrangThai }}</span></div>
         <div class="row" style="margin-top:8px"><Thumb :id="r.AnhTB" cls="sm" icon="build"></Thumb>
           <div class="grow"><div class="eqn" style="margin:0">{{ r.TenTB }}</div><div class="desc">{{ r.MoTa }}</div></div></div>
@@ -1437,6 +1524,7 @@ const RepairDetail = {
 
     <div class="sec-title"><span class="ms">report</span>Báo hỏng</div>
     <div class="card pad">
+      <div v-if="r.CapBD" class="small" style="margin-bottom:8px;color:var(--pri)"><b>Bảo dưỡng cấp {{ r.CapBD }}</b> – {{ open ? 'khi Hoàn thành sẽ tự ghi lịch sử bảo dưỡng' : 'đã ghi vào lịch sử bảo dưỡng của xe' }}</div>
       <div class="row wrap"><span class="chip c-grey">{{ r.LoaiCV }}</span><span v-if="r.DungXe" class="chip c-bad"><span class="ms">block</span>Xe phải dừng</span></div>
       <div style="margin:10px 0 4px;white-space:pre-wrap">{{ r.MoTa }}</div>
       <Gallery :ids="ids(r.AnhTruoc)"></Gallery>
@@ -1489,10 +1577,18 @@ const RepairDetail = {
 };
 
 const RepairNew = {
-  props: ['ma'],
+  props: ['ma', 'cap'],
   components: { ImgPicker, Toggle, Thumb },
-  data() { return { f: { MaTB: this.ma || '', LoaiCV: 'Hỏng đột xuất', MoTa: '', AnhTruoc: [], DungXe: false }, q: '', saving: false }; },
-  created() { S.title = 'Báo hỏng'; if (isLX() && !this.ma && S.equipment.length === 1) this.f.MaTB = S.equipment[0].MaTB; },
+  data() {
+    const cap = Number(this.cap) || '';
+    return { f: { MaTB: this.ma || '', LoaiCV: cap ? 'Bảo dưỡng' : 'Hỏng đột xuất', CapBD: cap,
+      MoTa: cap ? 'Bảo dưỡng cấp ' + cap + ' theo QT05/BMV-PKT-BT' : '', AnhTruoc: [], DungXe: false }, q: '', saving: false };
+  },
+  created() { S.title = this.cap ? 'Lập phiếu bảo dưỡng' : 'Báo hỏng'; if (isLX() && !this.ma && S.equipment.length === 1) this.f.MaTB = S.equipment[0].MaTB; },
+  watch: {
+    'f.LoaiCV'(v) { if (v !== 'Bảo dưỡng') this.f.CapBD = ''; else if (!this.f.CapBD && this.eq && this.eq.bd && this.eq.bd.cap) this.f.CapBD = this.eq.bd.cap; },
+    'f.CapBD'(v, cu) { if (v && (!this.f.MoTa || /^Bảo dưỡng cấp \d/.test(this.f.MoTa))) this.f.MoTa = 'Bảo dưỡng cấp ' + v + ' theo QT05/BMV-PKT-BT'; }
+  },
   computed: {
     eq() { return S.equipment.find(e => e.MaTB === this.f.MaTB); },
     opts() { const q = norm(this.q); return S.equipment.filter(e => e.TrangThai !== 'Thanh lý' && (!q || norm(e.TenTB + ' ' + e.BienSo + ' ' + e.MaTB).includes(q))).slice(0, 40); }
@@ -1503,8 +1599,10 @@ const RepairNew = {
       if (!this.f.MoTa.trim()) return toast('Nhập mô tả hư hỏng', true);
       this.saving = true;
       try {
+        if (this.f.LoaiCV === 'Bảo dưỡng' && phieuBDMo(this.f.MaTB) &&
+          !await ask({ title: 'Đã có phiếu bảo dưỡng', msg: 'Xe đang có phiếu ' + phieuBDMo(this.f.MaTB).SoPhieu + ' chưa đóng. Vẫn lập phiếu mới?', okText: 'Lập phiếu' })) { this.saving = false; return; }
         const r = await call('createRepair', { data: this.f });
-        toast('Đã gửi báo hỏng ' + r.SoPhieu);
+        toast((this.f.LoaiCV === 'Bảo dưỡng' ? 'Đã lập phiếu ' : 'Đã gửi báo hỏng ') + r.SoPhieu);
         reloadLists();
         go('repairDetail', { id: r.ID }, { replace: true });
       } catch (e) { fail(e); }
@@ -1530,13 +1628,17 @@ const RepairNew = {
       </div>
       <div class="fld" v-if="!isLX()"><label>Loại công việc</label>
         <select v-model="f.LoaiCV"><option v-for="t in S.boot.dm.repairTypes" :key="t">{{ t }}</option></select></div>
-      <div class="fld"><label>Mô tả hư hỏng <span class="req">*</span></label>
-        <textarea v-model="f.MoTa" placeholder="Hiện tượng, vị trí, thời điểm phát hiện…"></textarea></div>
+      <div class="fld" v-if="f.LoaiCV === 'Bảo dưỡng'"><label>Cấp bảo dưỡng</label>
+        <div class="chips" style="padding:0"><button v-for="c in [1, 2, 3, 4]" :key="c" type="button" :class="['fchip', {on: f.CapBD === c}]" @click="f.CapBD = f.CapBD === c ? '' : c">Cấp {{ c }}</button></div>
+        <div class="hint" v-if="eq && eq.bd && eq.bd.ngay">Đợt đến hạn: <b>cấp {{ eq.bd.cap }}</b> · {{ fmtD(eq.bd.ngay) }} ({{ bdHan(eq.bd) }})</div>
+        <div class="hint">Khi phiếu Hoàn thành, app tự ghi lịch sử bảo dưỡng cấp đã chọn và tính lại lịch nhắc.</div></div>
+      <div class="fld"><label>{{ f.LoaiCV === 'Bảo dưỡng' ? 'Nội dung công việc' : 'Mô tả hư hỏng' }} <span class="req">*</span></label>
+        <textarea v-model="f.MoTa" :placeholder="f.LoaiCV === 'Bảo dưỡng' ? 'Hạng mục bảo dưỡng theo phiếu công tác…' : 'Hiện tượng, vị trí, thời điểm phát hiện…'"></textarea></div>
       <div class="fld"><label>Hình ảnh</label>
         <ImgPicker v-model="f.AnhTruoc" :ma-t-b="f.MaTB" kind="SuaChua" :disabled="!f.MaTB"></ImgPicker>
         <div class="hint" v-if="!f.MaTB">Chọn thiết bị trước khi chụp ảnh</div></div>
       <Toggle v-model="f.DungXe" label="Xe phải dừng hoạt động" sub="Bật nếu hư hỏng ảnh hưởng an toàn, không được tiếp tục vận hành"></Toggle>
-      <button class="btn warn block" :disabled="saving" @click="save"><span class="ms">send</span>{{ saving ? 'Đang gửi…' : 'Gửi báo hỏng' }}</button>
+      <button :class="['btn block', f.LoaiCV === 'Bảo dưỡng' ? 'pri' : 'warn']" :disabled="saving" @click="save"><span class="ms">{{ f.LoaiCV === 'Bảo dưỡng' ? 'build' : 'send' }}</span>{{ saving ? 'Đang gửi…' : f.LoaiCV === 'Bảo dưỡng' ? 'Tạo phiếu bảo dưỡng' : 'Gửi báo hỏng' }}</button>
     </div>
   </div>`
 };
@@ -1677,6 +1779,90 @@ const GioDash = {
 };
 
 /* =====================================================================
+ *  BẢO DƯỠNG – dashboard nhắc bảo dưỡng theo tháng + số giờ (QT05)
+ * ===================================================================== */
+const BdDash = {
+  components: { Thumb },
+  data() { const st = bdStats(); return { q: '', loc: (st.qua || st.sap) ? 'can' : 'thang', chon: false, ds: [] }; },
+  created() { S.title = 'Bảo dưỡng'; if (!isFresh()) reloadLists(); },
+  computed: {
+    st() { return bdStats(); },
+    rows() {
+      const q = norm(this.q);
+      return S.equipment.filter(e => e.bd && e.bd.ngay && (!q || norm([e.TenTB, e.BienSo, e.MaTB, e.LoaiTB].join(' ')).includes(q)));
+    },
+    chuaGan() { return S.equipment.filter(e => e.TrangThai !== 'Thanh lý' && (!e.bd || !e.bd.ngay)); },
+    list() {
+      let l = this.rows;
+      if (this.loc === 'can') l = l.filter(e => e.bd.tt === 'qua_han' || e.bd.tt === 'sap_den');
+      else if (this.loc === 'thang') l = l.filter(e => e.bd.tt !== 'ok' || e.bd.conNgay <= 30);
+      return l.slice().sort((a, b) => String(a.bd.ngay).localeCompare(String(b.bd.ngay)) || b.bd.cap - a.bd.cap ||
+        String(a.BienSo || a.MaTB).localeCompare(String(b.BienSo || b.MaTB), 'vi', { numeric: true }));
+    },
+    /* Nhóm theo ngày đợt BD */
+    nhom() {
+      const g = [], idx = {};
+      this.list.forEach(e => { const k = e.bd.ngay; if (!(k in idx)) { idx[k] = g.length; g.push({ ngay: k, conNgay: e.bd.conNgay, items: [] }); } g[idx[k]].items.push(e); });
+      return g;
+    }
+  },
+  methods: {
+    mo(e) { if (this.chon) return this.toggle(e.MaTB); go('equipDetail', { ma: e.MaTB, tab: 'bd' }); },
+    toggle(ma) { const i = this.ds.indexOf(ma); if (i >= 0) this.ds.splice(i, 1); else this.ds.push(ma); },
+    chonHet() { this.ds = this.ds.length === this.list.length ? [] : this.list.map(e => e.MaTB); },
+    batChon() { this.chon = !this.chon; this.ds = []; },
+    async ghiNhan() {
+      if (!this.ds.length) return toast('Chọn xe trước', true);
+      if (await openModal('BdForm', { ds: this.ds.slice() })) { this.chon = false; this.ds = []; }
+    },
+    nhan(n) { return n < 0 ? 'quá ' + (-n) + ' ngày' : n === 0 ? 'hôm nay' : 'còn ' + n + ' ngày'; }
+  },
+  template: `<div style="max-width:900px">
+    <div class="kpis" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+      <button :class="['card kpi', {bad: st.qua}]" @click="loc = 'can'"><div class="k-top">Quá hạn<span class="k-ic c-bad"><span class="ms">error</span></span></div>
+        <div class="k-v">{{ st.qua }}</div><div class="k-s">Làm ngay</div></button>
+      <button :class="['card kpi', {warn: st.sap}]" @click="loc = 'can'"><div class="k-top">Đến hạn<span class="k-ic c-warn"><span class="ms">schedule</span></span></div>
+        <div class="k-v">{{ st.sap }}</div><div class="k-s">Trong {{ S.boot.dm.nhacBD || 5 }} ngày</div></button>
+      <button class="card kpi" @click="loc = 'thang'"><div class="k-top">30 ngày tới<span class="k-ic c-info"><span class="ms">event_available</span></span></div>
+        <div class="k-v">{{ st.thang }}</div><div class="k-s">Chuẩn bị vật tư</div></button>
+    </div>
+    <div v-if="chuaGan.length" class="card pad mt row"><span class="ms" style="color:var(--warn)">warning</span>
+      <div class="grow small">{{ chuaGan.length }} xe chưa có lịch BD (chưa gán chu kỳ hoặc chưa có mốc): {{ chuaGan.map(e => e.BienSo || e.MaTB).join(', ') }}</div></div>
+    <div class="toolbar mt"><div class="search"><span class="ms">search</span><input v-model="q" placeholder="Tìm xe, biển số…"></div>
+      <button v-if="isTech()" :class="['btn', {pri: chon}]" @click="batChon"><span class="ms">checklist</span>{{ chon ? 'Thôi chọn' : 'Chọn nhiều' }}</button></div>
+    <div class="chips">
+      <button :class="['fchip alert', {on: loc === 'can'}]" @click="loc = 'can'"><span class="ms" style="font-size:17px">warning</span>Cần làm <b>{{ st.qua + st.sap }}</b></button>
+      <button :class="['fchip', {on: loc === 'thang'}]" @click="loc = 'thang'">30 ngày tới <b>{{ st.qua + st.sap + st.thang }}</b></button>
+      <button :class="['fchip', {on: loc === 'tat'}]" @click="loc = 'tat'">Tất cả <b>{{ rows.length }}</b></button>
+    </div>
+    <div v-if="chon" class="card pad row mb" style="position:sticky;top:calc(var(--top) + var(--safe-t) + 6px);z-index:6">
+      <div class="grow"><b>Đã chọn {{ ds.length }} xe</b><div class="small muted">Ghi nhận đã bảo dưỡng cho nhiều xe (VD nhập bù đợt đã làm)</div></div>
+      <button class="btn sm" @click="chonHet">{{ ds.length === list.length ? 'Bỏ chọn' : 'Chọn tất cả' }}</button>
+      <button class="btn pri sm" :disabled="!ds.length" @click="ghiNhan"><span class="ms">event_available</span>Ghi nhận</button>
+    </div>
+    <div v-for="g in nhom" :key="g.ngay">
+      <div class="grp-h">{{ fmtD(g.ngay) }} <small :style="g.conNgay < 0 ? 'color:var(--bad)' : ''">{{ nhan(g.conNgay) }} · {{ g.items.length }} xe</small></div>
+      <div class="card list">
+        <div v-for="e in g.items" :key="e.MaTB" class="li" @click="mo(e)">
+          <input v-if="chon" type="checkbox" :checked="ds.indexOf(e.MaTB) >= 0" style="width:18px;height:18px;flex:none;accent-color:var(--pri)" @click.stop="toggle(e.MaTB)">
+          <Thumb :id="e.AnhID" cls="sm" :icon="eqIcon(e.LoaiTB)"></Thumb>
+          <div class="grow"><div class="t">{{ e.TenTB }}</div>
+            <div class="s"><span class="plate" v-if="e.BienSo">{{ e.BienSo }}</span> {{ bdLyDo(e.bd) }}</div>
+            <div :class="['m-days', bdCls(e.bd.tt)]">{{ bdHan(e.bd) }}</div></div>
+          <span :class="['chip', e.bd.cap >= 3 ? 'c-bad' : e.bd.cap === 2 ? 'c-warn' : 'c-pri']">Cấp {{ e.bd.cap }}</span>
+          <span :class="['chip d-chip', bdCls(e.bd.tt)]">{{ bdHan(e.bd) }}</span>
+          <template v-if="!chon && isTech()">
+            <span v-if="phieuBDMo(e.MaTB)" class="chip c-info d-chip" @click.stop="go('repairDetail', {id: phieuBDMo(e.MaTB).ID})">{{ phieuBDMo(e.MaTB).SoPhieu }}</span>
+            <button v-else class="ibtn" title="Lập phiếu bảo dưỡng" @click.stop="go('repairNew', {ma: e.MaTB, cap: e.bd.cap})"><span class="ms" style="color:var(--pri-2)">add</span></button>
+          </template>
+        </div>
+      </div>
+    </div>
+    <div v-if="!list.length" class="card empty"><span class="ms">task_alt</span>{{ loc === 'can' ? 'Không có xe quá hạn hoặc sắp đến hạn bảo dưỡng' : 'Không có xe phù hợp' }}</div>
+  </div>`
+};
+
+/* =====================================================================
  *  CÁC FORM (MODAL)
  * ===================================================================== */
 const ModalShell = {
@@ -1693,7 +1879,7 @@ const EquipForm = {
   data() {
     const d = Object.assign({ MaTB: '', TenTB: '', LoaiTB: '', NhanHieu: '', NuocSX: '', BienSo: '', NamSX: '', NamSD: '', Serial: '',
       SoMay: '', SoKhung: '', Dai: '', Rong: '', Cao: '', KhoiLuong: '', TaiTrongCongSuat: '', ThongTinKhac: '',
-      TrangThai: 'Bình thường', AnhID: '', GhiChu: '' }, this.data || {});
+      TrangThai: 'Bình thường', AnhID: '', GhiChu: '', MaCK: '' }, this.data || {});
     /* Cờ theo dõi giờ: lấy theo kết quả máy chủ đã tính (CoGio) để ô trống cũng hiện đúng */
     const eq = S.equipment.find(x => x.MaTB === d.MaTB);
     d.TheoDoiGio = this.isNew ? false : !!(eq && eq.CoGio);
@@ -1736,6 +1922,9 @@ const EquipForm = {
       <div class="fld full" v-if="!isNew"><label>Ảnh đại diện</label><ImgPicker v-model="anh" :ma-t-b="f.MaTB" kind="AnhXe" :max="1"></ImgPicker></div>
       <div class="fld full hint" v-else>Thêm ảnh đại diện sau khi lưu thiết bị.</div>
       <div class="fld full"><label>Ghi chú</label><input v-model="f.GhiChu"></div>
+      <div class="fld full"><label>Chu kỳ bảo dưỡng (QT05)</label>
+        <select v-model="f.MaCK"><option value="">— Chưa gán —</option>
+          <option v-for="c in (S.boot.dm.chuKyBD || [])" :key="c.MaCK" :value="c.MaCK">{{ c.MaCK }} – {{ c.TenMau }} ({{ [1, 2, 3, 4].map(i => c['Gio' + i]).join('/') }} h)</option></select></div>
       <div class="full"><Toggle v-model="f.TheoDoiGio" label="Theo dõi số giờ hoạt động hằng ngày" blue
         sub="Xe có đồng hồ giờ máy: lái xe phải ghi số giờ mỗi ngày, xe hiện trên dashboard Giờ HĐ"></Toggle></div>
     </div>
@@ -2057,6 +2246,51 @@ const HourForm = {
   </ModalShell>`
 };
 
+/* Ghi nhận đã bảo dưỡng – 1 xe hoặc nhiều xe (nhập bù) */
+const BdForm = {
+  props: ['ds'],
+  components: { ModalShell },
+  data() {
+    const e = this.ds.length === 1 ? S.equipment.find(x => x.MaTB === this.ds[0]) : null;
+    return { ngay: todayStr(), cap: (e && e.bd && e.bd.cap) || 1, soGio: '', ghiChu: '', saving: false };
+  },
+  computed: {
+    xe() { return this.ds.map(ma => S.equipment.find(x => x.MaTB === ma)).filter(Boolean); },
+    mot() { return this.xe.length === 1 ? this.xe[0] : null; }
+  },
+  methods: {
+    nhapGio(ev) { this.soGio = locSo(ev.target.value); ev.target.value = this.soGio; },
+    async save() {
+      if (!this.ngay) return toast('Chọn ngày bảo dưỡng', true);
+      this.saving = true;
+      try {
+        const p = { Ngay: this.ngay, Cap: this.cap, GhiChu: this.ghiChu };
+        if (this.mot) { p.MaTB = this.mot.MaTB; if (this.soGio) p.SoGio = parseH(this.soGio); } else p.DsMaTB = this.ds;
+        const r = await call('ghiBaoDuong', p);
+        toast('Đã ghi nhận BD cấp ' + this.cap + ' cho ' + r.n + ' xe' + (r.trung && r.trung.length ? ' (bỏ qua ' + r.trung.length + ' xe đã có ngày này)' : ''));
+        await reloadLists(); closeModal(true);
+      } catch (e) { fail(e); }
+      this.saving = false;
+    }
+  },
+  template: `<ModalShell :title="mot ? 'Ghi nhận bảo dưỡng · ' + (mot.BienSo || mot.TenTB) : 'Ghi nhận bảo dưỡng ' + xe.length + ' xe'">
+    <div class="form">
+      <div v-if="mot && mot.bd && mot.bd.ngay" class="hm-prev">Đợt đến hạn: <b style="color:var(--ink)">cấp {{ mot.bd.cap }} · {{ fmtD(mot.bd.ngay) }}</b> ({{ bdHan(mot.bd) }})</div>
+      <div v-if="!mot" class="hm-prev">{{ xe.map(e => e.BienSo || e.MaTB).join(', ') }}</div>
+      <div class="fld"><label>Cấp bảo dưỡng đã làm</label>
+        <div class="chips" style="padding:0"><button v-for="c in [1, 2, 3, 4]" :key="c" type="button" :class="['fchip', {on: cap === c}]" @click="cap = c">Cấp {{ c }}</button></div></div>
+      <div class="fld"><label>Ngày bảo dưỡng</label><input v-model="ngay" type="date" :max="todayStr()"></div>
+      <div class="fld" v-if="mot && mot.CoGio"><label>Số giờ lúc bảo dưỡng (h)</label>
+        <input :value="soGio" @input="nhapGio" type="text" inputmode="decimal" :placeholder="hasH(mot.ChiSo) ? 'Hiện ' + fmtH(mot.ChiSo) : ''">
+        <div class="hint">Để trống = lấy theo nhật ký số giờ ngày đó (ước tính nếu ngày đó không ghi)</div></div>
+      <div v-else-if="!mot" class="small muted">Số giờ từng xe lấy theo nhật ký số giờ ngày đã chọn (ước tính nếu ngày đó không ghi). Xe đã có ghi nhận đúng ngày này sẽ bỏ qua.</div>
+      <div class="fld"><label>Ghi chú</label><input v-model="ghiChu" placeholder="VD: số phiếu công tác B06.xx"></div>
+    </div>
+    <template #foot><button class="btn" @click="closeModal()">Huỷ</button>
+      <button class="btn pri" :disabled="saving" @click="save">{{ saving ? 'Đang lưu…' : 'Lưu' }}</button></template>
+  </ModalShell>`
+};
+
 /* ---------------- Xem ảnh ---------------- */
 const Viewer = {
   data() { return { src: '', loading: false, err: '' }; },
@@ -2109,7 +2343,7 @@ const ConfirmBox = {
  *  KHUNG ỨNG DỤNG
  * ===================================================================== */
 const VIEWS = { home: HomeView, equipList: EquipList, equipDetail: EquipDetail, repairList: RepairList,
-  repairDetail: RepairDetail, repairNew: RepairNew, users: UsersView, account: AccountView, gioDash: GioDash, hourNew: GioDash };
+  repairDetail: RepairDetail, repairNew: RepairNew, users: UsersView, account: AccountView, gioDash: GioDash, hourNew: GioDash, bdDash: BdDash };
 /* Admin sửa trực tiếp mọi trường của phiếu sửa chữa */
 const RepairAdminForm = {
   props: ['r'],
@@ -2117,7 +2351,7 @@ const RepairAdminForm = {
   data() {
     const r = this.r, f = {};
     ['SoPhieu', 'MaTB', 'LoaiCV', 'TrangThai', 'NguoiBao', 'NgayBao', 'MoTa', 'KTV', 'NgayTiepNhan',
-      'NoiDungKhacPhuc', 'NgayXong', 'NguoiNghiemThu', 'NgayNghiemThu', 'GhiChu'].forEach(k => { f[k] = r[k] == null ? '' : String(r[k]); });
+      'NoiDungKhacPhuc', 'NgayXong', 'NguoiNghiemThu', 'NgayNghiemThu', 'GhiChu', 'CapBD'].forEach(k => { f[k] = r[k] == null ? '' : String(r[k]); });
     f.DungXe = r.DungXe === true || r.DungXe === 'TRUE';
     return { f, saving: false };
   },
@@ -2156,7 +2390,9 @@ const RepairAdminForm = {
       <div class="fld"><label>Ngày xong</label><input v-model="f.NgayXong" type="datetime-local"></div>
       <div class="fld"><label>Người nghiệm thu (email)</label><input v-model="f.NguoiNghiemThu" list="dsNguoiDung"></div>
       <div class="fld"><label>Ngày nghiệm thu</label><input v-model="f.NgayNghiemThu" type="date"></div>
-      <div class="fld full"><label>Ghi chú</label><input v-model="f.GhiChu"></div>
+      <div class="fld"><label>Cấp bảo dưỡng (phiếu loại Bảo dưỡng)</label>
+        <select v-model="f.CapBD"><option value="">— Không —</option><option v-for="c in ['1', '2', '3', '4']" :key="c" :value="c">Cấp {{ c }}</option></select></div>
+      <div class="fld"><label>Ghi chú</label><input v-model="f.GhiChu"></div>
     </div>
     <Toggle v-model="f.DungXe" label="Xe phải dừng hoạt động" sub="Ảnh hưởng trạng thái xe khi phiếu còn mở"></Toggle>
     <div class="small muted mt">Vật tư xuất kho / số phiếu kho không sửa ở đây (sửa trong app Kho).</div>
@@ -2165,7 +2401,7 @@ const RepairAdminForm = {
   </ModalShell>`
 };
 
-const MODALS = { EquipForm, DocForm, PartForm, FileForm, RepairEdit, RepairAdminForm, UserForm, HourForm };
+const MODALS = { EquipForm, DocForm, PartForm, FileForm, RepairEdit, RepairAdminForm, UserForm, HourForm, BdForm };
 
 const Root = {
   components: Object.assign({ LoginView, Viewer, ConfirmBox }, MODALS),
@@ -2182,13 +2418,14 @@ const Root = {
       return [
         { v: 'home', icon: 'space_dashboard', label: 'Tổng quan' },
         { v: 'equipList', icon: 'airport_shuttle', label: 'Thiết bị' },
-        { v: 'gioDash', icon: 'timer', label: 'Giờ HĐ', cnt: gioStats().chua },
+        { v: 'bdDash', icon: 'construction', label: 'Bảo dưỡng', cnt: bdStats().qua + bdStats().sap },
         { v: 'repairList', icon: 'build', label: 'Sửa chữa', cnt: S.repairs.filter(r => r.TrangThai === 'Mới báo').length },
         { v: 'account', icon: 'person', label: 'Tài khoản' }];
     },
     sideNav() {
       if (isLX()) return this.nav.slice(0, 4);
-      const ds = this.nav.slice(0, 4);
+      /* Máy tính: đủ mục (thanh dưới điện thoại chỉ 5 mục – Giờ HĐ vào từ banner Tổng quan) */
+      const ds = this.nav.slice(0, 2).concat([{ v: 'gioDash', icon: 'timer', label: 'Giờ HĐ', cnt: gioStats().chua }], this.nav.slice(2, 4));
       return isAdmin() ? ds.concat([{ v: 'users', icon: 'group', label: 'Người dùng' }]) : ds;
     },
     activeRoot() {
@@ -2197,7 +2434,7 @@ const Root = {
     },
     title() {
       if (S.title) return S.title;
-      const all = this.nav.concat([{ v: 'users', label: 'Người dùng' }]);
+      const all = this.nav.concat([{ v: 'users', label: 'Người dùng' }, { v: 'gioDash', label: 'Giờ hoạt động' }]);
       const f = all.find(x => x.v === S.view.name);
       return f ? f.label : 'KTHT';
     }
@@ -2251,7 +2488,7 @@ const app = createApp(Root);
 Object.assign(app.config.globalProperties, {
   S, go, back, toast, fmtD, fmtDT, ago, docCls, docText, stCls, rpCls, who, ids, eqIcon, initials, viewImages,
   isAdmin, isTech, isLX, closeModal, logoutNow, refreshAll, STEPS, partLabel, ACCEPT_DOC, shortDoc, fmtH, hasH,
-  ghiHomNay, ngayChuaGhi
+  ghiHomNay, ngayChuaGhi, bdCls, bdHan, bdLyDo, phieuBDMo, todayStr
 });
 app.config.errorHandler = (err) => { console.error(err); fail(err); };
 app.mount('#app');
