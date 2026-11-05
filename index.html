@@ -1861,7 +1861,8 @@ const UserForm = {
 const HourForm = {
   props: ['ma'],
   components: { ModalShell },
-  data() { return { step: 'chup', anh: '', kq: null, so: '', ghiChu: '', saving: false, err: '', acc: ACCEPT_IMG }; },
+  data() { return { step: 'chup', anh: '', kq: null, so: '', ghiChu: '', saving: false, err: '', acc: ACCEPT_IMG, giay: 0 }; },
+  unmounted() { clearInterval(this.dem); },
   computed: {
     e() { return S.equipment.find(x => x.MaTB === this.ma) || { TenTB: this.ma }; },
     ai() { return this.kq && this.kq.ai; },
@@ -1880,9 +1881,12 @@ const HourForm = {
       if (!file) return;
       this.err = ''; this.kq = null; this.so = '';
       try {
-        this.anh = await compressImage(file, 1600, 0.85);
-        this.step = 'doc';
-        this.kq = await call('docGioHD', { MaTB: this.ma, mime: 'image/jpeg', data: this.anh.split(',')[1] }, { silent: true });
+        /* 1280px đủ rõ số đồng hồ, ảnh nhẹ hơn ~40% so với 1600px -> gửi nhanh hơn trên 4G */
+        this.anh = await compressImage(file, 1280, 0.82);
+        this.step = 'doc'; this.giay = 0;
+        clearInterval(this.dem); this.dem = setInterval(() => { this.giay++; }, 1000);
+        try { this.kq = await call('docGioHD', { MaTB: this.ma, mime: 'image/jpeg', data: this.anh.split(',')[1] }, { silent: true }); }
+        finally { clearInterval(this.dem); }
         thumbs[this.kq.AnhID] = this.anh;
         if (this.ai && this.ai.soGio != null) this.so = String(this.ai.soGio).replace('.', ',');
         this.step = 'xacnhan';
@@ -1928,7 +1932,7 @@ const HourForm = {
 
     <template v-else-if="step === 'doc'">
       <img :src="anh" class="hm-photo">
-      <div class="row mt" style="justify-content:center"><div class="spinner" style="width:22px;height:22px;border-width:2px"></div><b>Đang đọc số trên đồng hồ…</b></div>
+      <div class="row mt" style="justify-content:center"><div class="spinner" style="width:22px;height:22px;border-width:2px"></div><b>Đang đọc số trên đồng hồ… {{ giay }}s</b></div>
     </template>
 
     <div v-else class="form">
@@ -1936,7 +1940,7 @@ const HourForm = {
       <div v-if="kq.aiLoi" class="hm-note c-warn"><span class="ms">warning</span><div>Không đọc tự động được: {{ kq.aiLoi }}. Nhập số theo ảnh.</div></div>
       <div v-else-if="ai && ai.soGio == null" class="hm-note c-warn"><span class="ms">warning</span><div>AI không thấy đồng hồ giờ{{ ai.ghiChu ? ': ' + ai.ghiChu : '' }}. Chụp lại hoặc nhập theo ảnh.</div></div>
       <div v-else-if="ai" :class="['hm-note', ai.canKiemTra ? 'c-warn' : 'c-ok']"><span class="ms">{{ ai.canKiemTra ? 'warning' : 'check_circle' }}</span>
-        <div>AI đọc <b>{{ ai.chuoiSo }}</b> · tin cậy {{ Math.round(ai.doTinCay * 100) }}%<span v-if="ai.canKiemTra"> – <b>so kỹ với ảnh</b></span><span v-if="ai.ghiChu">. {{ ai.ghiChu }}</span></div></div>
+        <div>AI đọc <b>{{ ai.chuoiSo }}</b> · tin cậy {{ Math.round(ai.doTinCay * 100) }}%<span v-if="ai.canKiemTra"> – <b>so kỹ với ảnh</b></span><span v-if="ai.ghiChu">. {{ ai.ghiChu }}</span><span v-if="kq.ms" class="muted"> · {{ (kq.ms.tong / 1000).toFixed(1).replace('.', ',') }} s</span></div></div>
       <div class="fld"><label>Số giờ hoạt động (h) <span class="req">*</span></label>
         <input ref="so" v-model="so" class="hm-input" inputmode="decimal" placeholder="0,0">
         <div v-if="tang != null" class="hint" :style="tang < 0 ? 'color:var(--bad);font-weight:600' : ''">{{ tang >= 0 ? 'Tăng +' + fmtH(tang) + ' h so với lần trước' : 'NHỎ HƠN lần trước ' + fmtH(-tang) + ' h' }}</div></div>
