@@ -1070,6 +1070,7 @@ const EquipDetail = {
         ['Biển số', e.BienSo], ['Năm SX / Năm SD', [e.NamSX, e.NamSD].filter(Boolean).join(' / ')],
         ['Số máy', e.SoMay], ['Số khung', e.SoKhung], ['Serial', e.Serial], ['Kích thước (D × R × C)', kt],
         ['Khối lượng', e.KhoiLuong ? e.KhoiLuong + ' kg' : ''], ['Tải trọng / Công suất', e.TaiTrongCongSuat],
+        ['Theo dõi giờ hoạt động', this.eqL.CoGio ? 'Có – ghi hằng ngày' : 'Không'],
         ['Thông tin khác', e.ThongTinKhac, 1], ['Ghi chú', e.GhiChu, 1]
       ];
     }
@@ -1665,11 +1666,14 @@ const ModalShell = {
 
 const EquipForm = {
   props: ['isNew', 'data'],
-  components: { ModalShell, ImgPicker },
+  components: { ModalShell, ImgPicker, Toggle },
   data() {
     const d = Object.assign({ MaTB: '', TenTB: '', LoaiTB: '', NhanHieu: '', NuocSX: '', BienSo: '', NamSX: '', NamSD: '', Serial: '',
       SoMay: '', SoKhung: '', Dai: '', Rong: '', Cao: '', KhoiLuong: '', TaiTrongCongSuat: '', ThongTinKhac: '',
       TrangThai: 'Bình thường', AnhID: '', GhiChu: '' }, this.data || {});
+    /* Cờ theo dõi giờ: lấy theo kết quả máy chủ đã tính (CoGio) để ô trống cũng hiện đúng */
+    const eq = S.equipment.find(x => x.MaTB === d.MaTB);
+    d.TheoDoiGio = this.isNew ? false : !!(eq && eq.CoGio);
     return { f: d, anh: d.AnhID ? [d.AnhID] : [], saving: false };
   },
   methods: {
@@ -1709,6 +1713,8 @@ const EquipForm = {
       <div class="fld full" v-if="!isNew"><label>Ảnh đại diện</label><ImgPicker v-model="anh" :ma-t-b="f.MaTB" kind="AnhXe" :max="1"></ImgPicker></div>
       <div class="fld full hint" v-else>Thêm ảnh đại diện sau khi lưu thiết bị.</div>
       <div class="fld full"><label>Ghi chú</label><input v-model="f.GhiChu"></div>
+      <div class="full"><Toggle v-model="f.TheoDoiGio" label="Theo dõi số giờ hoạt động hằng ngày" blue
+        sub="Xe có đồng hồ giờ máy: lái xe phải ghi số giờ mỗi ngày, xe hiện trên dashboard Giờ HĐ"></Toggle></div>
     </div>
     <template #foot><button class="btn" @click="closeModal()">Huỷ</button><button class="btn pri" :disabled="saving" @click="save">{{ saving ? 'Đang lưu…' : 'Lưu' }}</button></template>
   </ModalShell>`
