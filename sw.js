@@ -1,9 +1,9 @@
 /* Service worker: mở app tức thì từ bản đã lưu, cập nhật ngầm phía sau.
  * Mỗi lần sửa index.html / config.js trên GitHub: tăng VERSION (VD 1.2.0 -> 1.2.1) để mọi máy nhận bản mới. */
-const VERSION = 'ktht-1.5.0';
+const VERSION = 'ktht-2.0.0';
 const FONTS = 'ktht-fonts';            // font giữ lâu dài, không xoá khi đổi phiên bản
 const SHELL = ['./', './index.html', './config.js', './manifest.webmanifest', './vendor/vue.global.prod.js',
-  './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png', './icons/favicon.png'];
+  './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png', './icons/apple-touch-icon.png', './icons/favicon.png'];
 
 self.addEventListener('install', e => {
   // cache:'reload' = luôn lấy bản mới nhất từ GitHub, không dùng bản trình duyệt nhớ tạm
