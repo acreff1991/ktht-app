@@ -2986,8 +2986,6 @@ const Root = {
         <button v-for="n in adminMenu" :key="n.v" :class="['item', {on: activeRoot === n.v}]" style="padding-left:10px" @click="navTo(n.v)">
           <span class="ms">{{ n.icon }}</span>{{ n.label }}</button>
       </template>
-      <div class="grp">Module khác</div>
-      <div v-for="m in S.boot.modules.filter(x => !x.active)" :key="m.id" class="mod off"><span class="ms">{{ m.icon }}</span>{{ m.name }}<span class="soon">Sắp có</span></div>
       <div class="spacer"></div>
       <div class="me" @click="navTo('account')"><div class="avatar">{{ initials(S.user.HoTen) }}</div>
         <div class="who"><b>{{ S.user.HoTen }}</b><small>{{ S.user.VaiTro }}</small></div>
