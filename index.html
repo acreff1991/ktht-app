@@ -3,20 +3,20 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-  <title>KTHT – Quản lý thiết bị</title>
+  <title>Vehicles – BMV</title>
   <meta name="description" content="Quản lý phương tiện, trang thiết bị kỹ thuật – Phòng KTHT, CHK Buôn Ma Thuột">
   <meta name="theme-color" content="#0b4f8a">
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="icon" type="image/png" href="icons/favicon.png">
-  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="icons/favicon.png?v=2">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=2">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="KTHT">
+  <meta name="apple-mobile-web-app-title" content="Vehicles BMV">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0..1,0&icon_names=add,add_a_photo,agriculture,airport_shuttle,ambulance,api,arrow_back,assignment_ind,badge,block,bolt,build,cancel,cell_tower,check,check_circle,checklist,chevron_left,chevron_right,cleaning_services,close,cloud_off,construction,conveyor_belt,delete,delete_forever,description,directions_bus,docs,donut_large,draft,edit,edit_note,electric_bolt,engineering,error,event_available,event_busy,files,fire_truck,flight_takeoff,folder_open,forklift,gpp_bad,grass,group,history,home,hourglass_empty,image,info,inventory_2,local_shipping,logout,mode_fan,pending_actions,person,person_add,photo_camera,picture_as_pdf,playlist_add,refresh,remove,report,schedule,search,search_off,send,space_dashboard,speed,stairs,sync,sync_alt,tab,task_alt,timer,tire_repair,title,toast,undo,upload,upload_file,verified,warning&display=block" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0..1,0&icon_names=add,add_a_photo,add_circle,admin_panel_settings,agriculture,airport_shuttle,ambulance,api,apps,arrow_back,assignment_ind,autorenew,badge,bar_chart,block,bolt,build,cancel,cell_tower,check,check_circle,checklist,chevron_left,chevron_right,cleaning_services,close,cloud_off,construction,content_copy,conveyor_belt,delete,delete_forever,description,directions_bus,do_not_disturb_on,docs,donut_large,draft,edit,edit_note,electric_bolt,engineering,error,event_available,event_busy,expand_less,expand_more,fact_check,files,fire_truck,flight_takeoff,folder_open,forklift,gpp_bad,grass,group,groups,history,home,hourglass_empty,image,info,insights,inventory_2,key,local_shipping,lock,lock_reset,login,logout,mail,manage_accounts,menu,mode_fan,monitoring,password,payments,pending_actions,person,person_add,photo_camera,picture_as_pdf,playlist_add,receipt_long,refresh,remove,report,schedule,search,search_off,send,shield_person,space_dashboard,speed,stairs,sync,sync_alt,tab,task_alt,timer,tire_repair,title,toast,undo,upload,upload_file,verified,visibility,visibility_off,warning&display=block" rel="stylesheet">
 <style>
 :root {
   --pri: #0b4f8a; --pri-2: #1366b3; --pri-soft: #e6f0fa; --pri-ink: #ffffff;
@@ -30,7 +30,7 @@
   --r: 14px; --r-sm: 10px;
   --shadow: 0 1px 2px rgba(16,32,56,.06), 0 4px 14px rgba(16,32,56,.06);
   --shadow-lg: 0 12px 40px rgba(16,32,56,.22);
-  --side: 256px; --top: 56px; --nav: 64px;
+  --side: 264px; --top: 56px;
   --safe-b: env(safe-area-inset-bottom, 0px);
   --safe-t: env(safe-area-inset-top, 0px);
 }
@@ -58,43 +58,47 @@ a { color: var(--pri-2); text-decoration: none; }
 .topbar h1 { font-size: 17px; font-weight: 600; margin: 0 4px; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .topbar .ibtn { color: #fff; }
 .brand-dot { width: 32px; height: 32px; border-radius: 9px; background: rgba(255,255,255,.16); display: grid; place-items: center; }
-.main { padding: 14px 12px calc(var(--nav) + 24px + var(--safe-b)); max-width: 1180px; margin: 0 auto; min-width: 0; }
-.bnav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; height: calc(var(--nav) + var(--safe-b)); padding-bottom: var(--safe-b);
-  background: var(--surface); border-top: 1px solid var(--line); display: flex; }
-.bnav button { flex: 1; border: 0; background: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
-  font-size: 11.5px; color: var(--muted); cursor: pointer; position: relative; }
-.bnav button .ms { font-size: 24px; padding: 2px 18px; border-radius: 16px; transition: background .15s; }
-.bnav button.on { color: var(--pri); font-weight: 600; }
-.bnav button.on .ms { background: var(--pri-soft); font-variation-settings: 'FILL' 1; }
-.bnav .dot { position: absolute; top: 6px; left: calc(50% + 8px); min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px;
-  background: var(--bad); color: #fff; font-size: 11px; font-weight: 700; display: grid; place-items: center; }
+.main { padding: 14px 12px calc(28px + var(--safe-b)); max-width: 1180px; margin: 0 auto; min-width: 0; }
 
+/* ---------- Menu bên: máy tính cố định – điện thoại trượt từ trái ---------- */
+.side { display: flex; flex-direction: column; position: fixed; top: 0; bottom: 0; left: 0; width: var(--side); z-index: 70;
+  background: #0a2e52; color: #c9d6e6; padding: calc(14px + var(--safe-t)) 12px calc(12px + var(--safe-b)); overflow-y: auto; overscroll-behavior: contain; }
+.side .logo { display: flex; align-items: center; gap: 10px; padding: 2px 4px 14px 6px; color: #fff; }
+.side .logo img { width: 42px; height: 42px; border-radius: 11px; background: #fff; object-fit: contain; padding: 3px; flex: none; }
+.side .logo b { display: block; font-size: 15.5px; }
+.side .logo small { display: block; font-size: 11.5px; color: #8fa6c2; }
+.side .grp { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: #7d93ae; padding: 14px 10px 6px; }
+.side .mod { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 10px; color: #e5edf7; font-weight: 600; font-size: 14px; }
+.side .mod.off { color: #6f86a1; font-weight: 500; }
+.side .mod .soon { margin-left: auto; font-size: 10px; white-space: nowrap; flex: none; background: rgba(255,255,255,.08); padding: 2px 6px; border-radius: 6px; }
+.side .item { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 44px; padding: 9px 10px 9px 20px; border: 0; background: none; color: inherit;
+  border-radius: 10px; cursor: pointer; text-align: left; font-size: 14.5px; }
+.side .item:hover { background: rgba(255,255,255,.06); }
+.side .item.on { background: rgba(120,180,255,.16); color: #fff; font-weight: 600; }
+.side .item.on .ms { font-variation-settings: 'FILL' 1; }
+.side .item.qa { color: #ffb4ab; }
+.side .item .cnt { margin-left: auto; font-size: 11.5px; background: var(--bad); color: #fff; border-radius: 9px; padding: 1px 7px; }
+.side .me { margin-top: auto; display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 12px; background: rgba(255,255,255,.05); cursor: pointer; }
+.side .me .who { flex: 1; min-width: 0; }
+.side .me .who b { display: block; color: #fff; font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.side .me .who small { color: #8fa6c2; font-size: 12px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.side .ibtn { color: #c9d6e6; }
+.side .spacer { flex: 1 0 12px; }
+.scrim { position: fixed; inset: 0; background: rgba(10,22,40,.45); z-index: 65; animation: fade .15s; }
+.hb { position: relative; }
+.hb .hb-dot { position: absolute; top: 8px; right: 8px; width: 9px; height: 9px; border-radius: 5px; background: #ff8a80; box-shadow: 0 0 0 2px var(--pri); }
+@media (max-width: 959.98px) {
+  .side { width: min(86vw, 310px); transform: translateX(-104%); visibility: hidden; box-shadow: 10px 0 34px rgba(0,0,0,.28);
+    transition: transform .24s cubic-bezier(.2,.8,.2,1), visibility 0s linear .24s; }
+  .side.open { transform: none; visibility: visible; transition: transform .24s cubic-bezier(.2,.8,.2,1); }
+  .side.drag { transition: none; visibility: visible; }
+}
 @media (min-width: 960px) {
-  .side { display: flex; flex-direction: column; position: fixed; top: 0; bottom: 0; left: 0; width: var(--side); z-index: 40;
-    background: #0a2e52; color: #c9d6e6; padding: 16px 12px; }
-  .side .logo { display: flex; align-items: center; gap: 10px; padding: 4px 8px 18px; color: #fff; }
-  .side .logo b { display: block; font-size: 15px; }
-  .side .logo small { display: block; font-size: 11.5px; color: #8fa6c2; }
-  .side .grp { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: #7d93ae; padding: 14px 10px 6px; }
-  .side .mod { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 10px; color: #e5edf7; font-weight: 600; font-size: 14px; }
-  .side .mod.off { color: #6f86a1; font-weight: 500; }
-  .side .mod .soon { margin-left: auto; font-size: 10px; white-space: nowrap; flex: none; background: rgba(255,255,255,.08); padding: 2px 6px; border-radius: 6px; }
-  .side .item { display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 10px 9px 20px; border: 0; background: none; color: inherit;
-    border-radius: 10px; cursor: pointer; text-align: left; font-size: 14px; }
-  .side .item:hover { background: rgba(255,255,255,.06); }
-  .side .item.on { background: rgba(120,180,255,.16); color: #fff; font-weight: 600; }
-  .side .item .cnt { margin-left: auto; font-size: 11.5px; background: var(--bad); color: #fff; border-radius: 9px; padding: 1px 7px; }
-  .side .me { margin-top: auto; display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 12px; background: rgba(255,255,255,.05); }
-  .side .me .who { flex: 1; min-width: 0; }
-  .side .me .who b { display: block; color: #fff; font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .side .me .who small { color: #8fa6c2; font-size: 12px; }
-  .side .ibtn { color: #c9d6e6; }
   .with-side { padding-left: var(--side); }
   .topbar { background: var(--bg); color: var(--ink); box-shadow: none; height: 64px; padding: 0 24px; }
   .topbar .ibtn { color: var(--ink-2); }
-  .topbar .brand-dot, .topbar .m-only { display: none; }
+  .topbar .brand-dot, .topbar .m-only, .side .m-only, .scrim { display: none; }
   .topbar h1 { font-size: 21px; font-weight: 700; }
-  .bnav { display: none; }
   .main { padding: 4px 24px 40px; }
 }
 
@@ -173,7 +177,7 @@ a { color: var(--pri-2); text-decoration: none; }
 @keyframes shimmer { to { background-position: -200% 0; } }
 
 /* FAB */
-.fab { position: fixed; right: 18px; bottom: calc(var(--nav) + 18px + var(--safe-b)); z-index: 25; height: 56px; min-width: 56px; padding: 0 18px;
+.fab { position: fixed; right: 18px; bottom: calc(18px + var(--safe-b)); z-index: 25; height: 56px; min-width: 56px; padding: 0 18px;
   border-radius: 18px; border: 0; background: var(--pri); color: #fff; display: inline-flex; align-items: center; gap: 8px;
   font-weight: 600; box-shadow: 0 6px 20px rgba(11,79,138,.4); cursor: pointer; }
 .fab.red { background: var(--bad); box-shadow: 0 6px 20px rgba(198,40,40,.35); }
@@ -305,7 +309,7 @@ a { color: var(--pri-2); text-decoration: none; }
 .viewer .cap { position: absolute; bottom: 18px; left: 0; right: 0; text-align: center; color: #cfd8e3; font-size: 13px; }
 
 /* Toast + loading */
-.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--nav) + 20px + var(--safe-b)); z-index: 90; background: #17212f; color: #fff;
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(20px + var(--safe-b)); z-index: 90; background: #17212f; color: #fff;
   padding: 11px 16px; border-radius: 12px; font-size: 14px; box-shadow: var(--shadow-lg); display: flex; gap: 8px; align-items: center; max-width: calc(100% - 32px); animation: up .2s; }
 .toast.err { background: var(--bad); }
 @media (min-width: 960px) { .toast { bottom: 28px; } }
@@ -356,6 +360,50 @@ a { color: var(--pri-2); text-decoration: none; }
 .gio-banner .statusbar, .gio-head .statusbar { margin: 8px 0 6px; }
 .gio-head .big { font-size: 22px; font-weight: 700; line-height: 1.2; }
 
+
+/* ---------- Đăng nhập: 2 cách ---------- */
+.seg { display: flex; background: var(--grey-soft); border-radius: 12px; padding: 4px; gap: 4px; margin-bottom: 16px; }
+.seg button { flex: 1; height: 38px; border: 0; border-radius: 9px; background: none; font-weight: 600; font-size: 13.5px; color: var(--ink-2);
+  display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; }
+.seg button .ms { font-size: 19px; }
+.seg button.on { background: #fff; color: var(--pri); box-shadow: var(--shadow); }
+.login .logo-img { width: 68px; height: 68px; border-radius: 18px; object-fit: contain; background: #fff; border: 1px solid var(--line); padding: 5px; margin-bottom: 12px; display: block; }
+.pw { position: relative; }
+.pw input { padding-right: 46px; }
+.pw .ibtn { position: absolute; right: 2px; top: 2px; }
+.cred { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-weight: 700; font-size: 16px; background: var(--grey-soft); border-radius: 10px; padding: 10px 12px; }
+
+/* ---------- Phân quyền ---------- */
+.perm-grp { border: 1px solid var(--line-2); border-radius: 12px; overflow: hidden; background: #fff; }
+.perm-grp + .perm-grp { margin-top: 10px; }
+.perm-h { display: flex; align-items: center; gap: 8px; padding: 9px 12px; background: #f8fafc; font-weight: 700; font-size: 13px; color: var(--ink-2); }
+.perm-row { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-top: 1px solid var(--line); font-size: 14px; cursor: pointer; }
+.perm-row input { width: 18px; height: 18px; flex: none; accent-color: var(--pri); }
+.perm-row .grow { line-height: 1.3; }
+.perm-row.dis { cursor: default; opacity: .6; }
+.tri { display: inline-flex; border: 1px solid var(--line-2); border-radius: 9px; overflow: hidden; flex: none; }
+.tri button { border: 0; background: #fff; height: 30px; padding: 0 9px; font-size: 12px; font-weight: 600; color: var(--muted); cursor: pointer; }
+.tri button + button { border-left: 1px solid var(--line-2); }
+.tri button.on.g { background: var(--grey-soft); color: var(--ink); }
+.tri button.on.a { background: var(--ok-soft); color: var(--ok); }
+.tri button.on.d { background: var(--bad-soft); color: var(--bad); }
+.eff { width: 22px; flex: none; text-align: center; }
+.matrix { overflow: auto; }
+.matrix table { border-collapse: collapse; font-size: 13px; min-width: 100%; }
+.matrix th, .matrix td { padding: 7px 10px; border-top: 1px solid var(--line); text-align: center; white-space: nowrap; }
+.matrix th:first-child, .matrix td:first-child { text-align: left; position: sticky; left: 0; background: #fff; white-space: normal; min-width: 190px; }
+.matrix thead th { background: #f8fafc; font-size: 12px; color: var(--ink-2); border-top: 0; }
+.matrix tr.h td { background: #f8fafc; font-weight: 700; font-size: 12px; color: var(--pri); text-transform: uppercase; letter-spacing: .04em; }
+.collapse-h { display: flex; align-items: center; gap: 8px; width: 100%; border: 0; background: none; padding: 0; font: inherit; cursor: pointer; text-align: left; }
+
+/* ---------- Báo cáo ---------- */
+.rep-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+@media (min-width: 700px) { .rep-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.rep { display: flex; gap: 12px; padding: 14px; align-items: flex-start; text-align: left; width: 100%; font: inherit; cursor: pointer; }
+.rep .k-ic { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; flex: none; }
+.rep .t { font-weight: 700; }
+.rep .d { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
 /* ---------- Tối ưu điện thoại ---------- */
 .li .s .plate { margin-right: 4px; }
 .m-days { display: none; }
@@ -383,8 +431,6 @@ a { color: var(--pri-2); text-decoration: none; }
 @media (max-width: 360px) {
   .kpis { gap: 8px; }
   .kpi .k-top { font-size: 11.5px; }
-  .bnav button { font-size: 10.5px; }
-  .bnav button .ms { padding: 2px 12px; }
 }
 </style>
 
@@ -431,7 +477,7 @@ function gs(fn, ...args) {
       let r;
       try { r = JSON.parse(txt); } catch (e) { throw new Error('Phản hồi máy chủ không hợp lệ (kiểm tra quyền truy cập "Bất kỳ ai" khi triển khai)'); }
       if (r.ok) return r.data;
-      const e = new Error(r.error); e.auth = r.auth; throw e;
+      const e = new Error(r.error); e.auth = r.auth; e.doiMK = r.doiMK; throw e;
     });
   }
   return new Promise((resolve, reject) => {
@@ -440,7 +486,7 @@ function gs(fn, ...args) {
         let r;
         try { r = JSON.parse(txt); } catch (e) { return reject(new Error('Phản hồi máy chủ không hợp lệ')); }
         if (r.ok) resolve(r.data);
-        else { const e = new Error(r.error); e.auth = r.auth; reject(e); }
+        else { const e = new Error(r.error); e.auth = r.auth; e.doiMK = r.doiMK; reject(e); }
       })
       .withFailureHandler(err => reject(new Error((err && err.message) || 'Mất kết nối, vui lòng thử lại')))
       [fn](...args);
@@ -453,14 +499,19 @@ const S = reactive({
   equipment: [], repairs: [], repairsAll: [], bootAt: 0, busy: 0, rev: 0, title: '',
   view: { name: 'home', p: {} }, stack: [],
   filter: { q: '', loai: '', flag: '' },
-  modal: null, viewer: null, confirm: null, toast: null, netErr: ''
+  modal: null, viewer: null, confirm: null, toast: null, netErr: '',
+  drawer: false, mustChange: !!LS.get('ktht_doimk')
 });
 
 async function call(action, payload, opt) {
   opt = opt || {};
   if (!opt.silent) S.busy++;
   try { return await gs('api', S.token, action, payload || {}); }
-  catch (e) { if (e.auth) { forceLogout(e.message); } throw e; }
+  catch (e) {
+    if (e.auth) forceLogout(e.message);
+    else if (e.doiMK) { S.mustChange = true; LS.set('ktht_doimk', '1'); }
+    throw e;
+  }
   finally { if (!opt.silent) S.busy--; }
 }
 
@@ -485,10 +536,13 @@ function closeModal(result) {
 }
 
 /* ---------------- Điều hướng ---------------- */
-const isLX = () => S.user && S.user.VaiTro === 'Lái xe';
-const isAdmin = () => S.user && S.user.VaiTro === 'Admin';
-const isTech = () => S.user && (S.user.VaiTro === 'Admin' || S.user.VaiTro === 'Kỹ thuật');
-function homeView() { return isLX() ? 'equipList' : 'home'; }
+/* Phân quyền: S.user.quyen = mã quyền máy chủ cấp (PhanQuyen.gs); admin = toàn quyền.
+ * Máy chủ luôn kiểm tra lại – ở đây chỉ ẩn / hiện nút. */
+const can = (...q) => !!S.user && (!!S.user.admin || q.some(x => (S.user.quyen || []).indexOf(x) >= 0));
+const isAdmin = () => !!S.user && !!S.user.admin;
+const isTech = () => can('suachua.xuly', 'thietbi.sua');
+const isLX = () => !!S.user && !can('thietbi.tatca');          /* chỉ xem xe được giao */
+function homeView() { return can('tongquan.xem') ? 'home' : 'equipList'; }
 
 function go(name, p, opt) {
   opt = opt || {};
@@ -496,6 +550,7 @@ function go(name, p, opt) {
   else if (!opt.replace) S.stack.push(S.view);
   S.view = { name, p: p || {} };
   S.title = '';
+  S.drawer = false;
   window.scrollTo(0, 0);
 }
 function back() {
@@ -533,7 +588,8 @@ async function reloadLists() {
 }
 function refreshAll() { loadBoot(true).catch(fail); }
 function forceLogout(msg) {
-  S.token = null; S.user = null; LS.set('ktht_token', null); LS.set(BOOT_KEY, null);
+  S.token = null; S.user = null; S.boot = null; S.mustChange = false; S.drawer = false;
+  LS.set('ktht_token', null); LS.set(BOOT_KEY, null); LS.set('ktht_doimk', null);
   if (msg) toast(msg, true);
 }
 async function logoutNow() {
@@ -841,10 +897,13 @@ function otpCho() { try { const o = JSON.parse(LS.get(OTP_KEY) || 'null'); retur
 const LoginView = {
   data() {
     const cho = otpCho();
-    return { email: (cho && cho.email) || LS.get('ktht_email') || '', code: '', step: cho ? 2 : 1, sending: false, err: '', note: '' };
+    const cach = cho ? 'otp' : (LS.get('ktht_login_cach') || 'otp');
+    return { cach, email: (cho && cho.email) || LS.get('ktht_email') || '', code: '', step: cho ? 2 : 1, sending: false, err: '', note: '',
+      ten: LS.get('ktht_login_ten') || '', mk: '', hien: false };
   },
-  mounted() { if (this.step === 2) this.focusCode(); },
+  mounted() { if (this.cach === 'otp' && this.step === 2) this.focusCode(); },
   methods: {
+    doiCach(c) { this.cach = c; this.err = ''; LS.set('ktht_login_cach', c); if (c === 'pw') nextTick(() => this.$refs.ten && this.$refs.ten.focus()); },
     focusCode() { nextTick(() => this.$refs.code && this.$refs.code.focus()); },
     toStep2(note) {
       this.step = 2; this.code = ''; this.note = note || '';
@@ -873,30 +932,92 @@ const LoginView = {
         await loadBoot();
       } catch (e) { this.err = e.message; if (/hết hạn|gửi lại mã/i.test(e.message)) LS.set(OTP_KEY, null); }
       this.sending = false;
+    },
+    async dangNhapMK() {
+      if (!this.ten.trim() || !this.mk) return;
+      this.err = ''; this.sending = true;
+      try {
+        const r = await gs('login_password', this.ten.trim(), this.mk);
+        S.token = r.token; LS.set('ktht_token', r.token); LS.set('ktht_login_ten', this.ten.trim().toLowerCase());
+        this.mk = '';
+        if (r.doiMatKhau) { S.mustChange = true; LS.set('ktht_doimk', '1'); }
+        else await loadBoot();
+      } catch (e) { this.err = e.message; }
+      this.sending = false;
     }
   },
   template: `<div class="login"><div class="box">
-    <div class="logo"><span class="ms fill">flight_takeoff</span></div>
-    <h2>Quản lý thiết bị kỹ thuật</h2>
-    <p>Phòng Kỹ thuật Hạ tầng – CHK Buôn Ma Thuột</p>
-    <form v-if="step === 1" @submit.prevent="send" class="form">
-      <div class="fld"><label>Email được cấp quyền</label>
-        <input v-model="email" type="email" inputmode="email" autocomplete="email" placeholder="ten@gmail.com" required></div>
-      <button class="btn pri block" :disabled="sending || !email">{{ sending ? 'Đang gửi mã…' : 'Gửi mã đăng nhập' }}</button>
-      <button type="button" class="btn ghost sm" style="justify-self:center" @click="coMa">Đã có mã trong email? Nhập mã</button>
-    </form>
-    <form v-else @submit.prevent="verify" class="form">
-      <div class="small muted">Mã 6 số đã gửi tới <b style="color:var(--ink)">{{ email }}</b>. Kiểm tra cả hộp thư Spam/Quảng cáo.</div>
-      <div v-if="note" class="chip c-info" style="height:auto;padding:8px 12px;white-space:normal;display:flex">{{ note }}</div>
-      <div class="fld"><input ref="code" :value="code" @input="nhapMa" class="otp" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••"></div>
-      <button class="btn pri block" :disabled="sending || code.length < 6">{{ sending ? 'Đang kiểm tra…' : 'Đăng nhập' }}</button>
-      <div class="row" style="justify-content:space-between">
-        <button type="button" class="btn ghost sm" @click="doiEmail">Đổi email</button>
-        <button type="button" class="btn ghost sm" :disabled="sending" @click="send">Gửi lại mã</button>
-      </div>
+    <img class="logo-img" src="icons/icon-192.png" alt="Vehicles – BMV">
+    <h2>Vehicles – BMV</h2>
+    <p>Quản lý phương tiện, TTB mặt đất – Phòng KTHT, CHK Buôn Ma Thuột</p>
+    <div class="seg">
+      <button type="button" :class="{on: cach === 'otp'}" @click="doiCach('otp')"><span class="ms">mail</span>Mã qua email</button>
+      <button type="button" :class="{on: cach === 'pw'}" @click="doiCach('pw')"><span class="ms">password</span>Mật khẩu</button>
+    </div>
+    <template v-if="cach === 'otp'">
+      <form v-if="step === 1" @submit.prevent="send" class="form">
+        <div class="fld"><label>Email được cấp quyền</label>
+          <input v-model="email" type="email" inputmode="email" autocomplete="email" placeholder="ten@gmail.com" required></div>
+        <button class="btn pri block" :disabled="sending || !email">{{ sending ? 'Đang gửi mã…' : 'Gửi mã đăng nhập' }}</button>
+        <button type="button" class="btn ghost sm" style="justify-self:center" @click="coMa">Đã có mã trong email? Nhập mã</button>
+      </form>
+      <form v-else @submit.prevent="verify" class="form">
+        <div class="small muted">Mã 6 số đã gửi tới <b style="color:var(--ink)">{{ email }}</b>. Kiểm tra cả hộp thư Spam/Quảng cáo.</div>
+        <div v-if="note" class="chip c-info" style="height:auto;padding:8px 12px;white-space:normal;display:flex">{{ note }}</div>
+        <div class="fld"><input ref="code" :value="code" @input="nhapMa" class="otp" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••"></div>
+        <button class="btn pri block" :disabled="sending || code.length < 6">{{ sending ? 'Đang kiểm tra…' : 'Đăng nhập' }}</button>
+        <div class="row" style="justify-content:space-between">
+          <button type="button" class="btn ghost sm" @click="doiEmail">Đổi email</button>
+          <button type="button" class="btn ghost sm" :disabled="sending" @click="send">Gửi lại mã</button>
+        </div>
+      </form>
+    </template>
+    <form v-else @submit.prevent="dangNhapMK" class="form">
+      <div class="fld"><label>Tên đăng nhập</label>
+        <input ref="ten" v-model="ten" type="text" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="VD: laixe01"></div>
+      <div class="fld"><label>Mật khẩu</label>
+        <div class="pw"><input v-model="mk" :type="hien ? 'text' : 'password'" autocomplete="current-password" placeholder="••••••">
+          <button type="button" class="ibtn" @click="hien = !hien" :title="hien ? 'Ẩn' : 'Hiện'"><span class="ms">{{ hien ? 'visibility_off' : 'visibility' }}</span></button></div></div>
+      <button class="btn pri block" :disabled="sending || !ten.trim() || !mk"><span class="ms">login</span>{{ sending ? 'Đang kiểm tra…' : 'Đăng nhập' }}</button>
+      <div class="small muted" style="text-align:center">Tài khoản do Admin tạo. Quên mật khẩu: báo Admin đặt lại.</div>
     </form>
     <div v-if="err" class="chip c-bad" style="height:auto;padding:8px 12px;margin-top:12px;white-space:normal;display:flex">{{ err }}</div>
     <div class="foot">Đăng nhập 1 lần, dùng {{ 30 }} ngày trên thiết bị này</div>
+  </div></div>`
+};
+
+/* Bắt đổi mật khẩu (Admin vừa tạo / đặt lại mật khẩu) – hiện trước khi vào app */
+const ChangePwView = {
+  data() { return { cu: '', moi: '', lai: '', hien: false, sending: false, err: '' }; },
+  methods: {
+    async save() {
+      this.err = '';
+      if (this.moi !== this.lai) { this.err = 'Mật khẩu nhập lại không khớp'; return; }
+      this.sending = true;
+      try {
+        const r = await gs('api', S.token, 'doiMatKhau', { cu: this.cu, moi: this.moi });
+        S.token = r.token; LS.set('ktht_token', r.token); LS.set('ktht_doimk', null); S.mustChange = false;
+        toast('Đã đổi mật khẩu');
+        await loadBoot();
+      } catch (e) { if (e.auth) forceLogout(e.message); else this.err = e.message; }
+      this.sending = false;
+    },
+    async thoat() { try { await gs('logout', S.token); } catch (e) {} forceLogout(); }
+  },
+  template: `<div class="login"><div class="box">
+    <img class="logo-img" src="icons/icon-192.png" alt="">
+    <h2>Đổi mật khẩu</h2>
+    <p>Mật khẩu do Admin cấp chỉ dùng lần đầu. Đặt mật khẩu riêng của bạn để tiếp tục.</p>
+    <form class="form" @submit.prevent="save">
+      <div class="fld"><label>Mật khẩu hiện tại (Admin cấp)</label><input v-model="cu" :type="hien ? 'text' : 'password'" autocomplete="current-password"></div>
+      <div class="fld"><label>Mật khẩu mới (tối thiểu 6 ký tự)</label>
+        <div class="pw"><input v-model="moi" :type="hien ? 'text' : 'password'" autocomplete="new-password">
+          <button type="button" class="ibtn" @click="hien = !hien"><span class="ms">{{ hien ? 'visibility_off' : 'visibility' }}</span></button></div></div>
+      <div class="fld"><label>Nhập lại mật khẩu mới</label><input v-model="lai" :type="hien ? 'text' : 'password'" autocomplete="new-password"></div>
+      <button class="btn pri block" :disabled="sending || !cu || moi.length < 6 || !lai"><span class="ms">key</span>{{ sending ? 'Đang lưu…' : 'Đổi mật khẩu và vào app' }}</button>
+      <button type="button" class="btn ghost sm" style="justify-self:center" @click="thoat">Đăng xuất</button>
+    </form>
+    <div v-if="err" class="chip c-bad" style="height:auto;padding:8px 12px;margin-top:12px;white-space:normal;display:flex">{{ err }}</div>
   </div></div>`
 };
 
@@ -957,14 +1078,14 @@ const HomeView = {
       </button>
     </div>
 
-    <button v-if="gio.tong" :class="['card gio-banner', {bad: gio.chua}]" @click="go('gioDash', {}, {root: true})">
+    <button v-if="gio.tong && can('gio.ghi', 'gio.theodoi')" :class="['card gio-banner', {bad: gio.chua}]" @click="go('gioDash', {}, {root: true})">
       <span :class="['k-ic hm-now', gio.chua ? 'c-bad' : 'c-ok']"><span class="ms">timer</span></span>
       <div class="grow"><div style="font-weight:700">Giờ hoạt động hôm nay</div>
         <div class="statusbar"><div :style="{width: gio.pct + '%', background: 'var(--ok)'}"></div></div>
         <div class="small muted">{{ gio.da }}/{{ gio.tong }} xe đã ghi<span v-if="gio.chua"> · <b style="color:var(--bad)">{{ gio.chua }} xe chưa cập nhật</b></span><span v-else> · đủ</span></div></div>
       <span class="ms muted">chevron_right</span>
     </button>
-    <button v-if="bd.tong" :class="['card gio-banner', {bad: bd.qua}]" @click="go('bdDash', {}, {root: true})">
+    <button v-if="bd.tong && can('bd.xem')" :class="['card gio-banner', {bad: bd.qua}]" @click="go('bdDash', {}, {root: true})">
       <span :class="['k-ic hm-now', bd.qua ? 'c-bad' : bd.sap ? 'c-warn' : 'c-ok']"><span class="ms">build</span></span>
       <div class="grow"><div style="font-weight:700">Bảo dưỡng định kỳ</div>
         <div class="small muted" style="margin-top:4px"><b v-if="bd.qua" style="color:var(--bad)">{{ bd.qua }} xe quá hạn · </b><b v-if="bd.sap" style="color:var(--warn)">{{ bd.sap }} xe đến hạn trong {{ S.boot.dm.nhacBD || 5 }} ngày · </b>{{ bd.thang }} xe trong 30 ngày tới</div></div>
@@ -1095,8 +1216,8 @@ const EquipList = {
       </div>
     </div>
     <div v-if="!list.length" class="card empty mt"><span class="ms">search_off</span>Không có thiết bị phù hợp</div>
-    <button v-if="isAdmin()" class="fab" @click="add"><span class="ms">add</span>Thêm thiết bị</button>
-    <button v-else-if="isLX()" class="fab red" @click="go('repairNew', {})"><span class="ms">report</span>Báo hỏng</button>
+    <button v-if="can('thietbi.them')" class="fab" @click="add"><span class="ms">add</span>Thêm thiết bị</button>
+    <button v-else-if="can('suachua.bao')" class="fab red" @click="go('repairNew', {})"><span class="ms">report</span>Báo hỏng</button>
   </div>`
 };
 
@@ -1189,7 +1310,7 @@ const EquipDetail = {
       try { await call('xoaGioHD', { ID: g.ID }); toast('Đã xoá'); this.refresh(); } catch (e) { fail(e); }
     },
     async editDoc(doc) { if (await openModal('DocForm', { ma: this.ma, data: doc })) this.refresh(); },
-    async editPart(p) { if (!isTech()) return; if (await openModal('PartForm', { ma: this.ma, data: p })) this.refresh(); },
+    async editPart(p) { if (!can('linhkien.sua')) return; if (await openModal('PartForm', { ma: this.ma, data: p })) this.refresh(); },
     async addFile() { if (await openModal('FileForm', { ma: this.ma })) this.refresh(); },
     async openFile(f) {
       if (isImg(f.MimeType)) return viewImages([f.FileID], 0);
@@ -1219,7 +1340,7 @@ const EquipDetail = {
           <span :class="['chip', stCls(e.TrangThai)]">{{ e.TrangThai || 'Bình thường' }}</span>
           <span v-if="openRep" class="chip c-warn"><span class="ms">build</span>{{ openRep }} phiếu đang mở</span>
           <span v-if="hasH(e.ChiSo)" class="chip c-info" style="cursor:pointer" @click="t = 'gio'"><span class="ms">timer</span>{{ fmtH(e.ChiSo) }} h</span>
-          <span v-if="bd && (bd.tt === 'qua_han' || bd.tt === 'sap_den')" :class="['chip', bdCls(bd.tt)]" style="cursor:pointer" @click="t = 'bd'"><span class="ms">build</span>BD cấp {{ bd.cap }} · {{ bdHan(bd) }}</span>
+          <span v-if="can('bd.xem') && bd && (bd.tt === 'qua_han' || bd.tt === 'sap_den')" :class="['chip', bdCls(bd.tt)]" style="cursor:pointer" @click="t = 'bd'"><span class="ms">build</span>BD cấp {{ bd.cap }} · {{ bdHan(bd) }}</span>
           <span v-if="eqL.PhaiGhiGio && !ghiHomNay(eqL)" class="chip c-warn" style="cursor:pointer" @click="t = 'gio'"><span class="ms">schedule</span>Chưa ghi giờ hôm nay</span>
           <span class="small muted">{{ e.LoaiTB }}</span>
         </div>
@@ -1231,9 +1352,9 @@ const EquipDetail = {
           </div>
         </div>
         <div class="actions">
-          <button class="btn warn" @click="go('repairNew', {ma: e.MaTB})"><span class="ms">report</span>Báo hỏng</button>
-          <button v-if="coGio" class="btn" @click="ghiGio"><span class="ms">speed</span>Ghi giờ</button>
-          <button v-if="isTech()" class="btn" @click="edit"><span class="ms">edit</span>Sửa thông tin</button>
+          <button v-if="can('suachua.bao')" class="btn warn" @click="go('repairNew', {ma: e.MaTB})"><span class="ms">report</span>Báo hỏng</button>
+          <button v-if="coGio && can('gio.ghi')" class="btn" @click="ghiGio"><span class="ms">speed</span>Ghi giờ</button>
+          <button v-if="can('thietbi.sua')" class="btn" @click="edit"><span class="ms">edit</span>Sửa thông tin</button>
         </div>
       </div>
     </div>
@@ -1243,7 +1364,7 @@ const EquipDetail = {
       <button :class="{on: t === 'docs'}" @click="t = 'docs'">Giấy tờ<small>{{ d.docs.length }}</small></button>
       <button :class="{on: t === 'parts'}" @click="t = 'parts'">Linh kiện<small>{{ d.parts.length }}</small></button>
       <button :class="{on: t === 'rep'}" @click="t = 'rep'">Sửa chữa<small>{{ d.repairs.length }}</small></button>
-      <button v-if="bd || bdLs.length" :class="{on: t === 'bd'}" @click="t = 'bd'">Bảo dưỡng<small>{{ bdLs.length }}</small></button>
+      <button v-if="can('bd.xem') && (bd || bdLs.length)" :class="{on: t === 'bd'}" @click="t = 'bd'">Bảo dưỡng<small>{{ bdLs.length }}</small></button>
       <button v-if="coGio" :class="{on: t === 'gio'}" @click="t = 'gio'">Giờ HĐ<small>{{ gio.length }}</small></button>
       <button :class="{on: t === 'files'}" @click="t = 'files'">Tài liệu<small>{{ d.files.length }}</small></button>
     </div>
@@ -1254,7 +1375,7 @@ const EquipDetail = {
         <div v-for="r in info" :key="r[0]" :class="{full: r[2]}" v-show="r[1] !== '' && r[1] != null"><label>{{ r[0] }}</label><span>{{ r[1] }}</span></div>
       </div>
       <div class="small muted mt">Cập nhật {{ fmtDT(e.NgayCapNhat) }} {{ e.NguoiCapNhat ? '· ' + who(e.NguoiCapNhat) : '' }}</div>
-      <button v-if="isAdmin()" class="btn danger sm mt" @click="del"><span class="ms">delete</span>Xoá thiết bị</button>
+      <button v-if="can('thietbi.xoa')" class="btn danger sm mt" @click="del"><span class="ms">delete</span>Xoá thiết bị</button>
     </div>
 
     <!-- Giấy tờ -->
@@ -1266,13 +1387,13 @@ const EquipDetail = {
             <div class="small muted">{{ doc.NgayCap ? 'Cấp ' + fmtD(doc.NgayCap) + ' · ' : '' }}Hết hạn <b style="color:var(--ink)">{{ fmtD(doc.NgayHetHan) }}</b></div>
           </div>
           <span :class="['chip', docCls(docInfo(doc).state)]">{{ docText(docInfo(doc), true) }}</span>
-          <button v-if="isTech()" class="ibtn" @click="editDoc(doc)"><span class="ms">edit</span></button>
+          <button v-if="can('giayto.sua')" class="ibtn" @click="editDoc(doc)"><span class="ms">edit</span></button>
         </div>
         <Gallery :ids="ids(doc.FileIDs)"></Gallery>
         <div v-if="doc.GhiChu" class="small muted" style="margin-top:6px">{{ doc.GhiChu }}</div>
       </div>
       <div v-if="!d.docs.length" class="card empty"><span class="ms">description</span>Chưa có giấy tờ</div>
-      <button v-if="isTech()" class="btn pri mt" @click="editDoc(null)"><span class="ms">add</span>Thêm giấy tờ</button>
+      <button v-if="can('giayto.sua')" class="btn pri mt" @click="editDoc(null)"><span class="ms">add</span>Thêm giấy tờ</button>
     </div>
 
     <!-- Linh kiện -->
@@ -1281,14 +1402,14 @@ const EquipDetail = {
         <div class="pad" style="padding-bottom:8px;font-weight:700">{{ loai }}</div>
         <table class="ptable">
           <tr><th>Vị trí</th><th>Quy cách</th><th>SL</th><th>Ngày thay</th></tr>
-          <tr v-for="p in list" :key="p.ID" :class="{click: isTech()}" @click="editPart(p)">
+          <tr v-for="p in list" :key="p.ID" :class="{click: can('linhkien.sua')}" @click="editPart(p)">
             <td>{{ p.ViTri || '—' }}</td><td><b>{{ p.QuyCach }}</b><div v-if="p.GhiChu" class="small muted">{{ p.GhiChu }}</div></td>
             <td>{{ p.SoLuong }}</td><td>{{ fmtD(p.NgayThay) || '—' }}</td>
           </tr>
         </table>
       </div>
       <div v-if="!d.parts.length" class="card empty"><span class="ms">tire_repair</span>Chưa có thông tin linh kiện</div>
-      <button v-if="isTech()" class="btn pri" @click="editPart({})"><span class="ms">add</span>Thêm linh kiện</button>
+      <button v-if="can('linhkien.sua')" class="btn pri" @click="editPart({})"><span class="ms">add</span>Thêm linh kiện</button>
     </div>
 
     <!-- Sửa chữa -->
@@ -1304,7 +1425,7 @@ const EquipDetail = {
     <!-- Bảo dưỡng -->
     <div v-if="t === 'bd'">
       <div v-if="!bd" class="card pad row"><span class="ms muted">info</span><div class="grow small">Xe chưa gán chu kỳ bảo dưỡng.</div>
-        <button v-if="isTech()" class="btn sm" @click="edit">Gán chu kỳ</button></div>
+        <button v-if="can('thietbi.sua')" class="btn sm" @click="edit">Gán chu kỳ</button></div>
       <template v-else>
         <div class="card pad">
           <div class="row"><span :class="['hm-now', bdCls(bd.tt)]"><span class="ms">build</span></span>
@@ -1312,7 +1433,7 @@ const EquipDetail = {
               <div style="font-size:22px;font-weight:700;line-height:1.25">{{ bd.ngay ? 'Cấp ' + bd.cap + ' · ' + fmtD(bd.ngay) : '—' }}</div>
               <div class="small"><b :style="{color: bd.tt === 'qua_han' ? 'var(--bad)' : bd.tt === 'sap_den' ? 'var(--warn)' : 'var(--ok)'}">{{ bdHan(bd) }}</b> · {{ bdLyDo(bd) }}</div></div></div>
           <div class="small muted" style="margin-top:10px">Chu kỳ: {{ bd.tenCK }}<template v-if="bd.coGio"> · hiện {{ fmtH(bd.chiSo) }} h<span v-if="bd.tocDo != null">, chạy TB {{ fmtH(bd.tocDo) }} h/ngày</span></template><template v-else> · xe không theo dõi giờ – chỉ tính theo tháng</template></div>
-          <div class="actions" v-if="isTech()">
+          <div class="actions" v-if="can('bd.ghi')">
             <button v-if="phieuBD" class="btn" @click="go('repairDetail', {id: phieuBD.ID})"><span class="ms">build</span>Phiếu {{ phieuBD.SoPhieu }} đang mở</button>
             <button v-else-if="bd.ngay" class="btn pri" @click="go('repairNew', {ma: e.MaTB, cap: bd.cap})"><span class="ms">build</span>Lập phiếu BD cấp {{ bd.cap }}</button>
             <button class="btn" @click="ghiBD"><span class="ms">event_available</span>Ghi nhận đã BD</button>
@@ -1338,7 +1459,7 @@ const EquipDetail = {
           <span class="chip c-pri">Cấp {{ x.Cap }}</span>
           <div class="grow"><div class="t">{{ fmtD(x.Ngay) }}<span v-if="hasH(x.SoGio)" class="muted" style="font-weight:500"> · {{ fmtH(x.SoGio) }} h</span></div>
             <div class="s">{{ x.SoPhieu ? 'Phiếu ' + x.SoPhieu + ' · ' : '' }}{{ who(x.NguoiGhi) }}{{ x.GhiChu ? ' · ' + x.GhiChu : '' }}</div></div>
-          <button v-if="isAdmin() && !x.SuaChuaID" class="ibtn" @click.stop="xoaBD(x)"><span class="ms">delete</span></button>
+          <button v-if="can('bd.xoa') && !x.SuaChuaID" class="ibtn" @click.stop="xoaBD(x)"><span class="ms">delete</span></button>
         </div>
       </div>
       <div v-else class="card empty"><span class="ms">build</span>Chưa có lịch sử bảo dưỡng</div>
@@ -1351,7 +1472,7 @@ const EquipDetail = {
         <div class="grow"><div class="small muted">Số giờ hoạt động hiện tại</div>
           <div style="font-size:26px;font-weight:700;line-height:1.2">{{ hasH(e.ChiSo) ? fmtH(e.ChiSo) + ' h' : '—' }}</div>
           <div v-if="e.NgayChiSo" class="small muted">Ghi lúc {{ fmtDT(e.NgayChiSo) }} ({{ ago(e.NgayChiSo) }})</div></div>
-        <button class="btn pri" @click="ghiGio"><span class="ms">edit_note</span>Ghi giờ</button>
+        <button v-if="can('gio.ghi')" class="btn pri" @click="ghiGio"><span class="ms">edit_note</span>Ghi giờ</button>
       </div>
       <div v-if="e.AnhChiSo" class="card pad mt">
         <div class="small muted">Ảnh đồng hồ mới nhất (mỗi xe chỉ lưu 1 ảnh)</div>
@@ -1363,7 +1484,7 @@ const EquipDetail = {
           <div class="grow"><div class="t">{{ fmtH(g.SoGio) }} h
               <span v-if="gio[i + 1]" class="small muted" style="font-weight:500">(+{{ fmtH(g.SoGio - gio[i + 1].SoGio) }})</span></div>
             <div class="s">{{ fmtDT(g.ThoiGian) }} · {{ who(g.NguoiGhi) }}<span v-if="g.GhiChu"> · {{ g.GhiChu }}</span></div></div>
-          <button v-if="isAdmin()" class="ibtn" @click.stop="xoaGio(g)"><span class="ms">delete</span></button>
+          <button v-if="can('gio.xoa')" class="ibtn" @click.stop="xoaGio(g)"><span class="ms">delete</span></button>
         </div>
       </div>
       <div v-else class="card empty mt"><span class="ms">speed</span>Chưa ghi số giờ lần nào</div>
@@ -1375,11 +1496,11 @@ const EquipDetail = {
         <div v-for="f in d.files" :key="f.ID" class="li" @click="openFile(f)">
           <span class="ms" style="color:var(--pri-2)">{{ /pdf/.test(f.MimeType) ? 'picture_as_pdf' : /image/.test(f.MimeType) ? 'image' : 'draft' }}</span>
           <div class="grow"><div class="t">{{ f.TenTaiLieu }}</div><div class="s">{{ fmtDT(f.NgayTao) }} · {{ who(f.NguoiTao) }}</div></div>
-          <button v-if="isTech()" class="ibtn" @click.stop="delFile(f)"><span class="ms">delete</span></button>
+          <button v-if="can('tailieu.sua')" class="ibtn" @click.stop="delFile(f)"><span class="ms">delete</span></button>
         </div>
       </div>
       <div v-else class="card empty"><span class="ms">folder_open</span>Chưa có tài liệu (hướng dẫn, catalogue, biên bản…)</div>
-      <button v-if="isTech()" class="btn pri mt" @click="addFile"><span class="ms">upload_file</span>Tải tài liệu lên</button>
+      <button v-if="can('tailieu.sua')" class="btn pri mt" @click="addFile"><span class="ms">upload_file</span>Tải tài liệu lên</button>
     </div>
   </div>`
 };
@@ -1431,7 +1552,7 @@ const RepairList = {
       </button>
     </div>
     <div v-if="!list.length" class="card empty"><span class="ms">task_alt</span>Không có phiếu</div>
-    <button class="fab red" @click="go('repairNew', {})"><span class="ms">report</span>Báo hỏng</button>
+    <button v-if="can('suachua.bao')" class="fab red" @click="go('repairNew', {})"><span class="ms">report</span>Báo hỏng</button>
   </div>`
 };
 
@@ -1564,14 +1685,14 @@ const RepairDetail = {
       </div>
     </template>
 
-    <div class="actions mt" v-if="isTech()">
-      <button v-if="r.TrangThai === 'Mới báo'" class="btn pri" @click="step('tiepnhan')"><span class="ms">assignment_ind</span>Tiếp nhận</button>
-      <button v-if="open" :class="['btn', r.TrangThai === 'Mới báo' ? '' : 'pri']" @click="process"><span class="ms">construction</span>Cập nhật xử lý</button>
-      <button v-if="r.TrangThai === 'Hoàn thành' && isAdmin()" class="btn pri" @click="accept"><span class="ms">verified</span>Nghiệm thu</button>
-      <button v-if="!open && isAdmin()" class="btn" @click="reopen"><span class="ms">undo</span>Mở lại</button>
-      <button v-if="open && isAdmin()" class="btn danger" @click="cancel"><span class="ms">cancel</span>Huỷ phiếu</button>
-      <button v-if="isAdmin()" class="btn" @click="adminEdit"><span class="ms">edit_note</span>Sửa toàn bộ</button>
-      <button v-if="isAdmin()" class="btn danger" @click="del"><span class="ms">delete_forever</span>Xoá phiếu</button>
+    <div class="actions mt">
+      <button v-if="r.TrangThai === 'Mới báo' && can('suachua.xuly')" class="btn pri" @click="step('tiepnhan')"><span class="ms">assignment_ind</span>Tiếp nhận</button>
+      <button v-if="open && can('suachua.xuly')" :class="['btn', r.TrangThai === 'Mới báo' ? '' : 'pri']" @click="process"><span class="ms">construction</span>Cập nhật xử lý</button>
+      <button v-if="r.TrangThai === 'Hoàn thành' && can('suachua.nghiemthu')" class="btn pri" @click="accept"><span class="ms">verified</span>Nghiệm thu</button>
+      <button v-if="!open && can('suachua.molai')" class="btn" @click="reopen"><span class="ms">undo</span>Mở lại</button>
+      <button v-if="open && can('suachua.molai')" class="btn danger" @click="cancel"><span class="ms">cancel</span>Huỷ phiếu</button>
+      <button v-if="can('suachua.suatoanbo')" class="btn" @click="adminEdit"><span class="ms">edit_note</span>Sửa toàn bộ</button>
+      <button v-if="can('suachua.xoa')" class="btn danger" @click="del"><span class="ms">delete_forever</span>Xoá phiếu</button>
     </div>
   </div>`
 };
@@ -1626,7 +1747,7 @@ const RepairNew = {
           </div>
         </template>
       </div>
-      <div class="fld" v-if="!isLX()"><label>Loại công việc</label>
+      <div class="fld" v-if="can('suachua.xuly', 'bd.ghi')"><label>Loại công việc</label>
         <select v-model="f.LoaiCV"><option v-for="t in S.boot.dm.repairTypes" :key="t">{{ t }}</option></select></div>
       <div class="fld" v-if="f.LoaiCV === 'Bảo dưỡng'"><label>Cấp bảo dưỡng</label>
         <div class="chips" style="padding:0"><button v-for="c in [1, 2, 3, 4]" :key="c" type="button" :class="['fchip', {on: f.CapBD === c}]" @click="f.CapBD = f.CapBD === c ? '' : c">Cấp {{ c }}</button></div>
@@ -1646,12 +1767,40 @@ const RepairNew = {
 /* =====================================================================
  *  NGƯỜI DÙNG + TÀI KHOẢN
  * ===================================================================== */
+/* ---------- Phân quyền: tiện ích dùng chung ---------- */
+/* Quyền thực tế từ danh sách nhóm + quyền riêng (giống PhanQuyen.gs máy chủ) */
+function quyenTu(nhomDs, meta, them, bo) {
+  const keys = [].concat(...(meta.catalog || []).map(g => g.ds.map(x => x[0])));
+  const set = {}; let all = false;
+  (nhomDs || []).forEach(m => { const g = meta.nhom.find(x => x.MaNhom === m); if (g) g.Quyen.forEach(q => { if (q === '*') all = true; else set[q] = 1; }); });
+  if (all) return { all: true, ds: keys };
+  (them || []).forEach(q => { set[q] = 1; });
+  (bo || []).forEach(q => { delete set[q]; });
+  return { all: false, ds: keys.filter(k => set[k]) };
+}
+function matKhauNgauNhien() {
+  const ch = 'abcdefghjkmnpqrstuvwxyz23456789';
+  const a = new Uint32Array(8);
+  try { crypto.getRandomValues(a); } catch (e) { for (let i = 0; i < 8; i++) a[i] = Math.floor(Math.random() * 1e9); }
+  return Array.from(a, x => ch[x % ch.length]).join('');
+}
+
 const UsersView = {
-  data() { return { list: null }; },
+  data() { return { list: null, meta: null, q: '', loc: '' }; },
   created() { S.title = 'Người dùng'; this.load(); },
+  computed: {
+    tenNhom() { const m = {}; ((this.meta && this.meta.nhom) || []).forEach(g => { m[g.MaNhom] = g.TenNhom; }); return m; },
+    ds() {
+      const q = norm(this.q);
+      return (this.list || []).filter(u => (!this.loc || (u.Nhom || []).indexOf(this.loc) >= 0) &&
+        (!q || norm([u.HoTen, u.Email, u.TenDangNhap].join(' ')).includes(q)));
+    }
+  },
   methods: {
-    async load() { try { this.list = await call('listUsers'); } catch (e) { fail(e); } },
-    async edit(u) { if (await openModal('UserForm', { data: u })) this.load(); },
+    async load() {
+      try { const r = await Promise.all([call('listUsers'), call('dsQuyen')]); this.list = r[0]; this.meta = r[1]; } catch (e) { fail(e); }
+    },
+    async edit(u) { if (await openModal('UserForm', { data: u, meta: this.meta })) this.load(); },
     async syncKho() {
       try {
         const r = await call('dongBoKho');
@@ -1661,43 +1810,186 @@ const UsersView = {
             (r.ghiEmail ? '. Đã điền ' + r.ghiEmail + ' email vào danh sách nhân viên app Kho.' : '') });
         this.load();
       } catch (e) { fail(e); }
-    },
-    roleCls(r) { return r === 'Admin' ? 'c-pri' : r === 'Kỹ thuật' ? 'c-info' : 'c-grey'; }
+    }
   },
-  template: `<div style="max-width:820px">
-    <div v-if="S.boot.dm.khoEnabled" class="card pad row mb">
+  template: `<div style="max-width:860px">
+    <div v-if="can('phanquyen.quanly')" class="card pad row mb" style="cursor:pointer" @click="go('perms')">
+      <span class="ms" style="color:var(--pri-2)">admin_panel_settings</span>
+      <div class="grow"><b>Nhóm quyền & phân quyền</b><div class="small muted">Tạo nhóm, chọn chức năng mỗi nhóm được làm. Quyền riêng từng người: mở người dùng → Quyền riêng.</div></div>
+      <span class="ms muted">chevron_right</span>
+    </div>
+    <div v-if="S.boot.dm.khoEnabled && can('nguoidung.quanly')" class="card pad row mb">
       <span class="ms" style="color:var(--pri-2)">sync_alt</span>
       <div class="grow small">Liên kết tài khoản với app Kho để xuất vật tư khi hoàn thành sửa chữa (khớp theo email, rồi theo họ tên).</div>
-      <button class="btn sm" @click="syncKho">Đồng bộ tài khoản kho</button>
+      <button class="btn sm" @click="syncKho">Đồng bộ</button>
+    </div>
+    <div class="toolbar"><div class="search"><span class="ms">search</span><input v-model="q" placeholder="Tìm tên, email, tên đăng nhập…"></div></div>
+    <div class="chips" v-if="meta">
+      <button :class="['fchip', {on: !loc}]" @click="loc = ''">Tất cả <b>{{ (list || []).length }}</b></button>
+      <button v-for="g in meta.nhom" :key="g.MaNhom" :class="['fchip', {on: loc === g.MaNhom}]" @click="loc = loc === g.MaNhom ? '' : g.MaNhom">{{ g.TenNhom }} <b>{{ g.soNguoi }}</b></button>
     </div>
     <div class="card list" v-if="list">
-      <div v-for="u in list" :key="u.ID" class="li" @click="edit(u)" :style="u.KichHoat === false ? 'opacity:.5' : ''">
+      <div v-for="u in ds" :key="u.ID" class="li" @click="edit(u)" :style="u.KichHoat === false ? 'opacity:.5' : ''">
         <div class="avatar">{{ initials(u.HoTen) }}</div>
-        <div class="grow"><div class="t">{{ u.HoTen || '(chưa có tên)' }}</div><div class="s">{{ u.Email }}</div></div>
-        <span v-if="u.VaiTro === 'Lái xe' && u.XeDuocGiao" class="small muted">{{ ids(u.XeDuocGiao).length }} xe</span>
-        <span v-if="u.MaNVKho" class="chip c-grey" title="Tài khoản app Kho"><span class="ms">inventory_2</span>{{ u.MaNVKho }}</span>
-        <span :class="['chip', roleCls(u.VaiTro)]">{{ u.VaiTro }}</span>
+        <div class="grow"><div class="t">{{ u.HoTen || '(chưa có tên)' }}<span v-if="u.KichHoat === false" class="chip c-grey" style="margin-left:6px">Đã khoá</span></div>
+          <div class="s">{{ [u.Email, u.TenDangNhap ? '@' + u.TenDangNhap : ''].filter(Boolean).join(' · ') }}</div></div>
+        <span v-if="u.DoiMatKhau" class="chip c-warn d-chip" title="Chờ đổi mật khẩu lần đầu"><span class="ms">key</span>Chờ đổi MK</span>
+        <span v-if="u.QuyenThem || u.QuyenBo" class="chip c-info d-chip" title="Có quyền riêng"><span class="ms">shield_person</span>Riêng</span>
+        <span v-if="u.MaNVKho" class="chip c-grey d-chip" title="Tài khoản app Kho"><span class="ms">inventory_2</span>{{ u.MaNVKho }}</span>
+        <span v-for="m in (u.Nhom || [])" :key="m" :class="['chip', m === 'ADMIN' ? 'c-pri' : 'c-grey']">{{ tenNhom[m] || m }}</span>
       </div>
+      <div v-if="!ds.length" class="empty"><span class="ms">search_off</span>Không có người dùng phù hợp</div>
     </div>
     <div v-else class="skel"></div>
-    <button class="fab" @click="edit(null)"><span class="ms">person_add</span>Thêm</button>
+    <button v-if="can('nguoidung.quanly')" class="fab" @click="edit(null)"><span class="ms">person_add</span>Thêm</button>
+  </div>`
+};
+
+/* Nhóm quyền: danh sách nhóm + ma trận quyền */
+const PermView = {
+  data() { return { meta: null }; },
+  created() { S.title = 'Phân quyền'; this.load(); },
+  computed: {
+    rows() {
+      if (!this.meta) return [];
+      const out = [];
+      this.meta.catalog.forEach(g => { out.push({ h: g.nhom }); g.ds.forEach(x => out.push({ k: x[0], t: x[1] })); });
+      return out;
+    }
+  },
+  methods: {
+    async load() { try { this.meta = await call('dsQuyen'); } catch (e) { fail(e); } },
+    co(g, k) { return g.Quyen.indexOf('*') >= 0 || g.Quyen.indexOf(k) >= 0; },
+    tong(g) { return g.Quyen.indexOf('*') >= 0 ? 'Toàn quyền' : g.Quyen.length + ' quyền'; },
+    async edit(g) { const r = await openModal('GroupForm', { g, meta: this.meta }); if (r) this.meta = r; }
+  },
+  template: `<div style="max-width:980px">
+    <div class="card pad small muted row"><span class="ms" style="color:var(--pri-2)">info</span>
+      <div class="grow">Mỗi người dùng thuộc 1 hoặc nhiều nhóm (cộng quyền các nhóm). Cấp thêm / chặn riêng từng người trong <b>Người dùng → mở người → Quyền riêng</b>. Nhóm Admin luôn toàn quyền.</div></div>
+    <div v-if="!meta" class="skel mt"></div>
+    <template v-else>
+      <div class="sec-title"><span class="ms">groups</span>Nhóm quyền</div>
+      <div class="eq-grid">
+        <button v-for="g in meta.nhom" :key="g.MaNhom" class="card rep" @click="edit(g)">
+          <span :class="['k-ic', g.MaNhom === 'ADMIN' ? 'c-pri' : 'c-info']"><span class="ms">{{ g.MaNhom === 'ADMIN' ? 'admin_panel_settings' : 'shield_person' }}</span></span>
+          <div class="grow"><div class="t">{{ g.TenNhom }} <span class="small muted" style="font-weight:500">· {{ g.MaNhom }}</span></div>
+            <div class="d">{{ g.MoTa || '—' }}</div>
+            <div class="row wrap" style="margin-top:8px;gap:6px"><span class="chip c-grey"><span class="ms">person</span>{{ g.soNguoi }} người</span>
+              <span class="chip c-ok">{{ tong(g) }}</span><span v-if="g.HeThong" class="chip c-grey">Mặc định</span></div></div>
+          <span class="ms muted">chevron_right</span>
+        </button>
+      </div>
+      <div class="sec-title"><span class="ms">checklist</span>Ma trận quyền</div>
+      <div class="card matrix">
+        <table>
+          <thead><tr><th>Chức năng</th><th v-for="g in meta.nhom" :key="g.MaNhom">{{ g.TenNhom }}</th></tr></thead>
+          <tbody>
+            <tr v-for="(r, i) in rows" :key="i" :class="{h: r.h}">
+              <td v-if="r.h" :colspan="meta.nhom.length + 1">{{ r.h }}</td>
+              <template v-else><td>{{ r.t }}</td>
+                <td v-for="g in meta.nhom" :key="g.MaNhom"><span v-if="co(g, r.k)" class="ms" style="color:var(--ok);font-size:19px">check_circle</span><span v-else class="muted">–</span></td></template>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </template>
+    <button v-if="meta" class="fab" @click="edit(null)"><span class="ms">add</span>Thêm nhóm</button>
   </div>`
 };
 
 const AccountView = {
+  data() { return { xemQuyen: false }; },
   created() { S.title = 'Tài khoản'; },
+  computed: {
+    nhomQuyen() {
+      const cat = S.boot.dm.quyen || [];
+      return cat.map(g => ({ nhom: g.nhom, ds: g.ds.filter(x => can(x[0])).map(x => x[1]) })).filter(g => g.ds.length);
+    }
+  },
+  methods: {
+    async doiMK() { await openModal('ChangePwForm', {}); }
+  },
   template: `<div style="max-width:620px">
     <div class="card pad row">
       <div class="avatar" style="width:52px;height:52px;font-size:18px">{{ initials(S.user.HoTen) }}</div>
-      <div class="grow"><div style="font-weight:700;font-size:17px">{{ S.user.HoTen }}</div><div class="small muted">{{ S.user.Email }}</div>
-        <span class="chip c-pri" style="margin-top:6px">{{ S.user.VaiTro }}</span></div>
+      <div class="grow"><div style="font-weight:700;font-size:17px">{{ S.user.HoTen }}</div>
+        <div class="small muted">{{ [S.user.coEmail ? S.user.Email : '', S.user.TenDangNhap ? '@' + S.user.TenDangNhap : ''].filter(Boolean).join(' · ') }}</div>
+        <span class="chip c-pri" style="margin-top:6px">{{ S.user.VaiTro || 'Người dùng' }}</span></div>
     </div>
     <div class="card list mt">
-      <div v-if="isAdmin()" class="li" @click="go('users')"><span class="ms" style="color:var(--pri-2)">group</span><div class="grow t">Quản lý người dùng</div><span class="ms muted">chevron_right</span></div>
+      <div v-if="S.user.TenDangNhap" class="li" @click="doiMK"><span class="ms" style="color:var(--pri-2)">key</span><div class="grow t">Đổi mật khẩu</div><span class="ms muted">chevron_right</span></div>
+      <div v-if="can('nguoidung.quanly', 'phanquyen.quanly')" class="li" @click="go('users')"><span class="ms" style="color:var(--pri-2)">manage_accounts</span><div class="grow t">Quản lý người dùng</div><span class="ms muted">chevron_right</span></div>
+      <div v-if="can('phanquyen.quanly')" class="li" @click="go('perms')"><span class="ms" style="color:var(--pri-2)">admin_panel_settings</span><div class="grow t">Phân quyền</div><span class="ms muted">chevron_right</span></div>
+      <div v-if="can('nhatky.xem')" class="li" @click="go('logs')"><span class="ms" style="color:var(--pri-2)">receipt_long</span><div class="grow t">Nhật ký hệ thống</div><span class="ms muted">chevron_right</span></div>
       <div class="li" @click="refreshAll(); toast('Đã tải lại dữ liệu')"><span class="ms" style="color:var(--pri-2)">sync</span><div class="grow t">Tải lại dữ liệu</div></div>
       <div class="li" @click="logoutNow"><span class="ms" style="color:var(--bad)">logout</span><div class="grow t" style="color:var(--bad)">Đăng xuất</div></div>
     </div>
+    <div class="card pad mt">
+      <button class="collapse-h" @click="xemQuyen = !xemQuyen"><span class="ms" style="color:var(--pri-2)">shield_person</span>
+        <b class="grow">Quyền của bạn</b><span class="small muted">{{ S.user.admin ? 'Toàn quyền' : (S.user.quyen || []).length + ' quyền' }}</span>
+        <span class="ms muted">{{ xemQuyen ? 'expand_less' : 'expand_more' }}</span></button>
+      <div v-if="xemQuyen" style="margin-top:10px">
+        <div v-for="g in nhomQuyen" :key="g.nhom" style="margin-top:8px"><div class="small" style="font-weight:700;color:var(--pri)">{{ g.nhom }}</div>
+          <div v-for="t in g.ds" :key="t" class="small" style="padding:2px 0"><span class="ms" style="font-size:15px;color:var(--ok)">check</span> {{ t }}</div></div>
+        <div v-if="!nhomQuyen.length" class="small muted">Chưa được cấp quyền chức năng nào ngoài xem.</div>
+      </div>
+    </div>
     <div class="small muted mt" style="text-align:center">{{ S.boot.app.name }} · {{ S.boot.app.org }}</div>
+  </div>`
+};
+
+/* =====================================================================
+ *  BÁO CÁO – khung menu. Thêm báo cáo: thêm 1 dòng vào REPORTS (ready:true, view: tên màn hình)
+ * ===================================================================== */
+const REPORTS = [
+  { id: 'chiphi', icon: 'payments', name: 'Chi phí sửa chữa theo xe', desc: 'Vật tư xuất kho, số lần sửa chữa theo xe / tháng / năm' },
+  { id: 'gio', icon: 'timer', name: 'Giờ hoạt động', desc: 'Tổng giờ chạy theo xe, theo tháng' },
+  { id: 'bd', icon: 'fact_check', name: 'Tuân thủ bảo dưỡng', desc: 'Đúng hạn / trễ hạn theo cấp BD (QT05)' },
+  { id: 'giayto', icon: 'event_busy', name: 'Giấy tờ phương tiện', desc: 'Kiểm định, bảo hiểm sắp / đã hết hạn' },
+  { id: 'hong', icon: 'monitoring', name: 'Hỏng hóc & sẵn sàng', desc: 'Số lần hỏng, thời gian dừng xe, tỉ lệ sẵn sàng' },
+  { id: 'thang', icon: 'description', name: 'Báo cáo tổng hợp tháng', desc: 'Tình trạng đội xe trình lãnh đạo' }
+];
+const ReportsView = {
+  created() { S.title = 'Báo cáo'; },
+  computed: { list() { return REPORTS; } },
+  methods: {
+    mo(r) { if (r.ready && r.view) go(r.view, r.p || {}); else toast('Báo cáo "' + r.name + '" chưa có – sẽ bổ sung theo kế hoạch'); }
+  },
+  template: `<div style="max-width:900px">
+    <div class="card pad row"><span class="ms" style="color:var(--pri-2)">bar_chart</span>
+      <div class="grow small muted">Danh mục báo cáo đang chờ lên kế hoạch. Các mục dưới đây là khung gợi ý – báo cáo nào làm xong sẽ mở được ngay tại đây.</div></div>
+    <div class="rep-grid mt">
+      <button v-for="r in list" :key="r.id" class="card rep" @click="mo(r)">
+        <span :class="['k-ic', r.ready ? 'c-pri' : 'c-grey']"><span class="ms">{{ r.icon }}</span></span>
+        <div class="grow"><div class="t">{{ r.name }}</div><div class="d">{{ r.desc }}</div></div>
+        <span v-if="!r.ready" class="chip c-grey">Sắp có</span><span v-else class="ms muted">chevron_right</span>
+      </button>
+    </div>
+  </div>`
+};
+
+/* Nhật ký hệ thống */
+const LogsView = {
+  data() { return { list: null, q: '', n: 200 }; },
+  created() { S.title = 'Nhật ký hệ thống'; this.load(); },
+  methods: {
+    async load() { try { this.list = await call('listLogs', { q: this.q, limit: this.n }); } catch (e) { fail(e); } },
+    more() { this.n += 300; this.load(); }
+  },
+  template: `<div style="max-width:900px">
+    <form class="toolbar" @submit.prevent="load"><div class="search"><span class="ms">search</span><input v-model="q" placeholder="Tìm người, thao tác, mã… (Enter)" enterkeyhint="search"></div>
+      <button class="btn">Tìm</button></form>
+    <div v-if="list" class="card list">
+      <div v-for="(x, i) in list" :key="i" class="li" style="cursor:default;align-items:flex-start">
+        <span class="ms" style="color:var(--pri-2);margin-top:2px">receipt_long</span>
+        <div class="grow"><div class="t" style="white-space:normal">{{ x.HanhDong }} <span class="small muted" style="font-weight:500">· {{ x.Bang }} {{ x.KhoaID }}</span></div>
+          <div class="s">{{ fmtDT(x.ThoiGian) }} · {{ who(x.Email) }}</div>
+          <div v-if="x.ChiTiet" class="small muted" style="word-break:break-word;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ x.ChiTiet }}</div></div>
+      </div>
+      <div v-if="!list.length" class="empty"><span class="ms">search_off</span>Không có dòng nào</div>
+    </div>
+    <div v-else class="skel"></div>
+    <button v-if="list && list.length >= n" class="btn block mt" @click="more">Xem thêm</button>
   </div>`
 };
 
@@ -1709,7 +2001,7 @@ const AccountView = {
 const GioDash = {
   components: { Thumb },
   data() { return { q: '', loc: gioStats().chua ? 'chua' : 'tat' }; },
-  created() { S.title = isLX() ? 'Ghi giờ hoạt động' : 'Giờ hoạt động hôm nay'; if (!isFresh()) reloadLists(); },
+  created() { S.title = can('gio.theodoi') ? 'Giờ hoạt động hôm nay' : 'Ghi giờ hoạt động'; if (!isFresh()) reloadLists(); },
   computed: {
     st() { return gioStats(); },
     homNay() { return new Date().toLocaleDateString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' }); },
@@ -1762,15 +2054,15 @@ const GioDash = {
       <button :class="['fchip', {on: loc === 'tat'}]" @click="loc = 'tat'">Tất cả <b>{{ dem.tat }}</b></button>
     </div>
     <div class="card list">
-      <div v-for="x in list" :key="x.e.MaTB" class="li" @click="ghi(x.e)">
+      <div v-for="x in list" :key="x.e.MaTB" class="li" @click="can('gio.ghi') ? ghi(x.e) : lich(x.e)">
         <Thumb :id="x.e.AnhID" cls="sm" :icon="eqIcon(x.e.LoaiTB)"></Thumb>
         <div class="grow"><div class="t">{{ x.e.TenTB }}</div>
           <div class="s"><span class="plate" v-if="x.e.BienSo">{{ x.e.BienSo }}</span>
             <span v-if="hasH(x.e.ChiSo)"> {{ fmtH(x.e.ChiSo) }} h · {{ ago(x.e.NgayChiSo) }}</span>
-            <span v-if="!isLX() && nguoi(x.e)"> · {{ nguoi(x.e) }}</span></div>
+            <span v-if="can('gio.theodoi') && nguoi(x.e)"> · {{ nguoi(x.e) }}</span></div>
           <div :class="['m-days', tt(x).c]">{{ tt(x).t }}</div></div>
         <span :class="['chip d-chip', tt(x).c]">{{ tt(x).t }}</span>
-        <button v-if="!isLX()" class="ibtn" title="Lịch sử" @click.stop="lich(x.e)"><span class="ms">history</span></button>
+        <button v-if="can('gio.theodoi')" class="ibtn" title="Lịch sử" @click.stop="lich(x.e)"><span class="ms">history</span></button>
         <span v-else class="ms" style="color:var(--pri-2)">edit_note</span>
       </div>
       <div v-if="!list.length" class="empty"><span class="ms">task_alt</span>{{ loc === 'chua' ? 'Tất cả xe đã ghi giờ hôm nay' : 'Không có xe phù hợp' }}</div>
@@ -1829,7 +2121,7 @@ const BdDash = {
     <div v-if="chuaGan.length" class="card pad mt row"><span class="ms" style="color:var(--warn)">warning</span>
       <div class="grow small">{{ chuaGan.length }} xe chưa có lịch BD (chưa gán chu kỳ hoặc chưa có mốc): {{ chuaGan.map(e => e.BienSo || e.MaTB).join(', ') }}</div></div>
     <div class="toolbar mt"><div class="search"><span class="ms">search</span><input v-model="q" placeholder="Tìm xe, biển số…"></div>
-      <button v-if="isTech()" :class="['btn', {pri: chon}]" @click="batChon"><span class="ms">checklist</span>{{ chon ? 'Thôi chọn' : 'Chọn nhiều' }}</button></div>
+      <button v-if="can('bd.ghi')" :class="['btn', {pri: chon}]" @click="batChon"><span class="ms">checklist</span>{{ chon ? 'Thôi chọn' : 'Chọn nhiều' }}</button></div>
     <div class="chips">
       <button :class="['fchip alert', {on: loc === 'can'}]" @click="loc = 'can'"><span class="ms" style="font-size:17px">warning</span>Cần làm <b>{{ st.qua + st.sap }}</b></button>
       <button :class="['fchip', {on: loc === 'thang'}]" @click="loc = 'thang'">30 ngày tới <b>{{ st.qua + st.sap + st.thang }}</b></button>
@@ -1851,7 +2143,7 @@ const BdDash = {
             <div :class="['m-days', bdCls(e.bd.tt)]">{{ bdHan(e.bd) }}</div></div>
           <span :class="['chip', e.bd.cap >= 3 ? 'c-bad' : e.bd.cap === 2 ? 'c-warn' : 'c-pri']">Cấp {{ e.bd.cap }}</span>
           <span :class="['chip d-chip', bdCls(e.bd.tt)]">{{ bdHan(e.bd) }}</span>
-          <template v-if="!chon && isTech()">
+          <template v-if="!chon && can('bd.ghi')">
             <span v-if="phieuBDMo(e.MaTB)" class="chip c-info d-chip" @click.stop="go('repairDetail', {id: phieuBDMo(e.MaTB).ID})">{{ phieuBDMo(e.MaTB).SoPhieu }}</span>
             <button v-else class="ibtn" title="Lập phiếu bảo dưỡng" @click.stop="go('repairNew', {ma: e.MaTB, cap: e.bd.cap})"><span class="ms" style="color:var(--pri-2)">add</span></button>
           </template>
@@ -2123,44 +2415,229 @@ const RepairEdit = {
 };
 
 const UserForm = {
-  props: ['data'],
+  props: ['data', 'meta'],
   components: { ModalShell, Toggle },
   data() {
-    const d = Object.assign({ ID: '', Email: '', HoTen: '', VaiTro: 'Lái xe', XeDuocGiao: '', KichHoat: true, GhiChu: '' }, this.data || {});
-    return { f: Object.assign({ MaNVKho: '' }, d, { KichHoat: d.KichHoat !== false, XeDuocGiao: ids(d.XeDuocGiao) }), q: '', saving: false, khoNV: null };
+    const d = Object.assign({ ID: '', Email: '', HoTen: '', TenDangNhap: '', XeDuocGiao: '', KichHoat: true, GhiChu: '', MaNVKho: '',
+      Nhom: [], QuyenThem: '', QuyenBo: '', CoMatKhau: false, DoiMatKhau: false }, this.data || {});
+    const macDinh = (this.meta && this.meta.nhom.find(g => g.MaNhom === 'LAIXE')) ? ['LAIXE'] : [];
+    return {
+      f: { ID: d.ID, Email: d.Email || '', HoTen: d.HoTen || '', TenDangNhap: d.TenDangNhap || '', KichHoat: d.KichHoat !== false,
+        GhiChu: d.GhiChu || '', MaNVKho: d.MaNVKho || '', XeDuocGiao: ids(d.XeDuocGiao),
+        NhomQuyen: (d.Nhom && d.Nhom.length) ? d.Nhom.slice() : (d.ID ? [] : macDinh),
+        QuyenThem: ids(d.QuyenThem), QuyenBo: ids(d.QuyenBo), MatKhauMoi: '', DoiMatKhau: d.ID ? !!d.DoiMatKhau : true },
+      coMK: !!d.CoMatKhau, datLai: !d.CoMatKhau, hien: true, q: '', saving: false, khoNV: null, moRieng: !!(d.QuyenThem || d.QuyenBo)
+    };
   },
   created() { if (S.boot.dm.khoEnabled) call('khoNhanVien', {}, { silent: true }).then(r => { this.khoNV = r; }).catch(() => { this.khoNV = []; }); },
-  computed: { eqs() { const q = norm(this.q); return S.equipment.filter(e => !q || norm(e.TenTB + ' ' + e.BienSo).includes(q)); } },
+  computed: {
+    sua() { return !!this.f.ID; },
+    pq() { return can('phanquyen.quanly'); },
+    eqs() { const q = norm(this.q); return S.equipment.filter(e => !q || norm(e.TenTB + ' ' + e.BienSo).includes(q)); },
+    nhomGoc() { return this.meta ? quyenTu(this.f.NhomQuyen, this.meta, [], []) : { all: false, ds: [] }; },
+    eff() { return this.meta ? quyenTu(this.f.NhomQuyen, this.meta, this.f.QuyenThem, this.f.QuyenBo) : { all: false, ds: [] }; },
+    coQ() { const e = this.eff; return k => e.all || e.ds.indexOf(k) >= 0; },
+    laMinh() { return this.f.ID && this.f.ID === S.user.ID; }
+  },
   methods: {
+    togNhom(m) { const i = this.f.NhomQuyen.indexOf(m); if (i >= 0) this.f.NhomQuyen.splice(i, 1); else this.f.NhomQuyen.push(m); },
+    /* Trạng thái quyền riêng: g = theo nhóm, a = cấp thêm, d = chặn */
+    tt(k) { return this.f.QuyenThem.indexOf(k) >= 0 ? 'a' : this.f.QuyenBo.indexOf(k) >= 0 ? 'd' : 'g'; },
+    datTT(k, v) {
+      this.f.QuyenThem = this.f.QuyenThem.filter(x => x !== k); this.f.QuyenBo = this.f.QuyenBo.filter(x => x !== k);
+      if (v === 'a' && !(this.nhomGoc.all || this.nhomGoc.ds.indexOf(k) >= 0)) this.f.QuyenThem.push(k);
+      if (v === 'd' && (this.nhomGoc.all || this.nhomGoc.ds.indexOf(k) >= 0)) this.f.QuyenBo.push(k);
+    },
+    taoMK() { this.f.MatKhauMoi = matKhauNgauNhien(); this.hien = true; },
+    async copyMK() { try { await navigator.clipboard.writeText(this.f.MatKhauMoi); toast('Đã chép mật khẩu'); } catch (e) { toast('Không chép được – ghi lại bằng tay', true); } },
     async save() {
+      if (!this.f.HoTen.trim()) return toast('Nhập họ tên', true);
+      if (!this.f.Email.trim() && !this.f.TenDangNhap.trim()) return toast('Nhập email hoặc tên đăng nhập', true);
+      if (!this.f.NhomQuyen.length) return toast('Chọn ít nhất 1 nhóm quyền', true);
+      if (this.f.TenDangNhap.trim() && !this.coMK && !this.f.MatKhauMoi) return toast('Đặt mật khẩu ban đầu cho tên đăng nhập', true);
       this.saving = true;
-      try { await call('saveUser', { data: this.f }); toast('Đã lưu người dùng'); closeModal(true); } catch (e) { fail(e); }
+      try {
+        const data = Object.assign({}, this.f, { MatKhauMoi: this.datLai ? this.f.MatKhauMoi : '' });
+        await call('saveUser', { data });
+        if (data.MatKhauMoi) {
+          await ask({ title: 'Thông tin đăng nhập', okText: 'Đã ghi lại', noCancel: true,
+            msg: 'Gửi cho ' + this.f.HoTen + ':\nTên đăng nhập: ' + this.f.TenDangNhap.trim().toLowerCase() + '\nMật khẩu: ' + data.MatKhauMoi +
+              (data.DoiMatKhau ? '\n(Lần đầu đăng nhập sẽ phải đổi mật khẩu.)' : '') });
+        } else toast('Đã lưu người dùng');
+        closeModal(true);
+      } catch (e) { fail(e); }
       this.saving = false;
     },
     async del() {
-      if (!await ask({ title: 'Xoá người dùng', msg: 'Xoá ' + this.f.Email + '? (Có thể chỉ cần tắt "Kích hoạt")', okText: 'Xoá', danger: true })) return;
+      if (!await ask({ title: 'Xoá người dùng', msg: 'Xoá ' + (this.f.HoTen || this.f.Email) + '? (Có thể chỉ cần tắt "Kích hoạt")', okText: 'Xoá', danger: true })) return;
       try { await call('deleteUser', { ID: this.f.ID }); closeModal(true); } catch (e) { fail(e); }
     }
   },
-  template: `<ModalShell :title="f.ID ? 'Sửa người dùng' : 'Thêm người dùng'">
-    <div class="form">
-      <div class="fld"><label>Email (Gmail) <span class="req">*</span></label><input v-model="f.Email" type="email"></div>
-      <div class="fld"><label>Họ tên</label><input v-model="f.HoTen"></div>
-      <div class="fld"><label>Vai trò</label>
-        <div class="chips" style="padding:0"><button v-for="r in S.boot.dm.roles" :key="r" type="button" :class="['fchip', {on: f.VaiTro === r}]" @click="f.VaiTro = r">{{ r }}</button></div></div>
-      <div class="fld" v-if="f.VaiTro === 'Lái xe'"><label>Xe được giao ({{ f.XeDuocGiao.length }}) – để trống = xem tất cả</label>
+  template: `<ModalShell :title="sua ? 'Sửa người dùng' : 'Thêm người dùng'" wide>
+    <div class="form two">
+      <div class="form-sec full">Thông tin</div>
+      <div class="fld"><label>Họ tên <span class="req">*</span></label><input v-model="f.HoTen"></div>
+      <div class="fld"><label>Email (đăng nhập bằng mã OTP)</label><input v-model="f.Email" type="email" placeholder="Để trống nếu chỉ dùng mật khẩu"></div>
+
+      <div class="form-sec full">Đăng nhập bằng mật khẩu</div>
+      <div class="fld"><label>Tên đăng nhập</label>
+        <input v-model="f.TenDangNhap" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="VD: laixe01">
+        <div class="hint">3–30 ký tự: chữ thường không dấu, số, dấu . _ –. Để trống = không dùng mật khẩu.</div></div>
+      <div class="fld" v-if="f.TenDangNhap.trim()">
+        <label>{{ coMK ? 'Mật khẩu' : 'Mật khẩu ban đầu' }} <span v-if="!coMK" class="req">*</span></label>
+        <div v-if="coMK && !datLai" class="row"><span class="chip c-ok"><span class="ms">lock</span>Đã có mật khẩu</span>
+          <button type="button" class="btn sm" @click="datLai = true; taoMK()"><span class="ms">lock_reset</span>Đặt lại</button></div>
+        <template v-else>
+          <div class="pw"><input v-model="f.MatKhauMoi" :type="hien ? 'text' : 'password'" autocomplete="new-password" placeholder="Tối thiểu 6 ký tự">
+            <button type="button" class="ibtn" @click="hien = !hien"><span class="ms">{{ hien ? 'visibility_off' : 'visibility' }}</span></button></div>
+          <div class="row" style="margin-top:6px;gap:6px">
+            <button type="button" class="btn sm" @click="taoMK"><span class="ms">autorenew</span>Tạo ngẫu nhiên</button>
+            <button v-if="f.MatKhauMoi" type="button" class="btn sm" @click="copyMK"><span class="ms">content_copy</span>Chép</button>
+            <button v-if="coMK" type="button" class="btn ghost sm" @click="datLai = false; f.MatKhauMoi = ''">Giữ mật khẩu cũ</button></div>
+        </template>
+      </div>
+      <div class="full" v-if="f.TenDangNhap.trim() && (datLai || coMK)"><Toggle v-model="f.DoiMatKhau" blue label="Bắt đổi mật khẩu ở lần đăng nhập tới"
+        sub="Nên bật khi Admin cấp / đặt lại mật khẩu – người dùng tự đặt mật khẩu riêng"></Toggle></div>
+
+      <div class="form-sec full">Nhóm quyền</div>
+      <div class="fld full">
+        <div class="chips" style="padding:0;flex-wrap:wrap">
+          <button v-for="g in (meta ? meta.nhom : [])" :key="g.MaNhom" type="button" :disabled="!pq" :class="['fchip', {on: f.NhomQuyen.indexOf(g.MaNhom) >= 0}]" @click="togNhom(g.MaNhom)">
+            <span v-if="f.NhomQuyen.indexOf(g.MaNhom) >= 0" class="ms" style="font-size:17px">check</span>{{ g.TenNhom }}</button>
+        </div>
+        <div class="hint" v-if="!pq">Bạn không có quyền đổi nhóm / phân quyền.</div>
+        <div class="hint" v-else-if="eff.all">Nhóm Admin: toàn quyền, không cần phân quyền riêng.</div>
+        <div class="hint" v-else>Chọn nhiều nhóm = cộng quyền các nhóm. Hiện có {{ eff.ds.length }} quyền.</div>
+      </div>
+      <div class="full" v-if="pq && meta && !eff.all">
+        <button type="button" class="collapse-h" @click="moRieng = !moRieng"><span class="ms" style="color:var(--pri-2)">shield_person</span>
+          <b class="grow">Quyền riêng người này</b><span class="small muted">{{ f.QuyenThem.length }} cấp thêm · {{ f.QuyenBo.length }} chặn</span>
+          <span class="ms muted">{{ moRieng ? 'expand_less' : 'expand_more' }}</span></button>
+        <div v-if="moRieng" style="margin-top:10px">
+          <div class="small muted" style="margin-bottom:8px">Theo nhóm = giữ như nhóm. Cấp thêm = được dùng dù nhóm không có. Chặn = không được dùng dù nhóm có.</div>
+          <div v-for="g in meta.catalog" :key="g.nhom" class="perm-grp">
+            <div class="perm-h">{{ g.nhom }}</div>
+            <div v-for="x in g.ds" :key="x[0]" class="perm-row" style="cursor:default">
+              <span class="eff ms" :style="{color: coQ(x[0]) ? 'var(--ok)' : 'var(--line-2)', fontSize: '19px'}">{{ coQ(x[0]) ? 'check_circle' : 'block' }}</span>
+              <span class="grow">{{ x[1] }}</span>
+              <span class="tri">
+                <button type="button" :class="['g', {on: tt(x[0]) === 'g'}]" @click="datTT(x[0], 'g')">Theo nhóm</button>
+                <button type="button" :class="['a', {on: tt(x[0]) === 'a'}]" :disabled="nhomGoc.ds.indexOf(x[0]) >= 0" @click="datTT(x[0], 'a')">Cấp</button>
+                <button type="button" :class="['d', {on: tt(x[0]) === 'd'}]" :disabled="nhomGoc.ds.indexOf(x[0]) < 0" @click="datTT(x[0], 'd')">Chặn</button>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fld full" v-if="!coQ('thietbi.tatca')"><label>Xe được giao ({{ f.XeDuocGiao.length }}) – để trống = xem tất cả</label>
         <input v-model="q" placeholder="Tìm xe…" style="margin-bottom:6px">
         <div class="checks"><label v-for="e in eqs" :key="e.MaTB"><input type="checkbox" :value="e.MaTB" v-model="f.XeDuocGiao">
           <span class="grow">{{ e.TenTB }}</span><span class="plate" v-if="e.BienSo">{{ e.BienSo }}</span></label></div></div>
-      <div class="fld" v-if="S.boot.dm.khoEnabled && f.VaiTro !== 'Lái xe'"><label>Tài khoản app Kho (dùng khi xuất vật tư)</label>
+      <div class="fld full" v-if="S.boot.dm.khoEnabled && coQ('suachua.xuatkho')"><label>Tài khoản app Kho (dùng khi xuất vật tư)</label>
         <select v-model="f.MaNVKho"><option value="">— Chưa liên kết —</option>
           <option v-for="n in (khoNV || [])" :key="n.maNV" :value="n.maNV">{{ n.maNV }} – {{ n.hoTen }} ({{ n.vaiTro }})</option></select>
         <div class="hint" v-if="!khoNV">Đang tải danh sách nhân viên kho…</div></div>
-      <Toggle v-model="f.KichHoat" label="Kích hoạt" sub="Tắt để khoá tài khoản" blue></Toggle>
-      <div class="fld"><label>Ghi chú</label><input v-model="f.GhiChu"></div>
+      <div class="full"><Toggle v-model="f.KichHoat" label="Kích hoạt" sub="Tắt để khoá tài khoản (đăng xuất ngay trên mọi máy)" blue></Toggle></div>
+      <div class="fld full"><label>Ghi chú</label><input v-model="f.GhiChu"></div>
     </div>
-    <template #foot><button v-if="f.ID && f.ID !== S.user.ID" class="btn danger" style="margin-right:auto;min-width:0" @click="del"><span class="ms">delete</span></button>
-      <button class="btn" @click="closeModal()">Huỷ</button><button class="btn pri" :disabled="saving" @click="save">Lưu</button></template>
+    <template #foot><button v-if="sua && !laMinh && can('nguoidung.quanly')" class="btn danger" style="margin-right:auto;min-width:0" @click="del"><span class="ms">delete</span></button>
+      <button class="btn" @click="closeModal()">Huỷ</button><button class="btn pri" :disabled="saving" @click="save">{{ saving ? 'Đang lưu…' : 'Lưu' }}</button></template>
+  </ModalShell>`
+};
+
+/* Thêm / sửa nhóm quyền */
+const GroupForm = {
+  props: ['g', 'meta'],
+  components: { ModalShell },
+  data() {
+    const g = this.g || {};
+    return { f: { MaNhom: g.MaNhom || '', TenNhom: g.TenNhom || '', MoTa: g.MoTa || '', ThuTu: g.ThuTu || '', Quyen: (g.Quyen || []).filter(q => q !== '*') },
+      saoChep: '', saving: false };
+  },
+  computed: {
+    moi() { return !this.g; },
+    admin() { return this.f.MaNhom === 'ADMIN'; },
+    xoaDuoc() { return this.g && !this.g.HeThong && !this.g.soNguoi; },
+    duocCap() { const cua = this.meta.cua || []; return k => this.meta.admin || cua.indexOf(k) >= 0 || this.f.Quyen.indexOf(k) >= 0; }
+  },
+  watch: {
+    saoChep(m) { const g = this.meta.nhom.find(x => x.MaNhom === m); if (g) this.f.Quyen = g.Quyen.indexOf('*') >= 0 ? [].concat(...this.meta.catalog.map(c => c.ds.map(x => x[0]))) : g.Quyen.slice(); }
+  },
+  methods: {
+    co(k) { return this.admin || this.f.Quyen.indexOf(k) >= 0; },
+    tog(k) { if (this.admin || !this.duocCap(k)) return; const i = this.f.Quyen.indexOf(k); if (i >= 0) this.f.Quyen.splice(i, 1); else this.f.Quyen.push(k); },
+    caNhom(c) { return c.ds.every(x => this.co(x[0])); },
+    togNhom(c) {
+      if (this.admin) return;
+      const het = this.caNhom(c);
+      c.ds.forEach(x => { const k = x[0], i = this.f.Quyen.indexOf(k); if (het && i >= 0) this.f.Quyen.splice(i, 1); if (!het && i < 0 && this.duocCap(k)) this.f.Quyen.push(k); });
+    },
+    async save() {
+      if (!this.f.TenNhom.trim()) return toast('Nhập tên nhóm', true);
+      this.saving = true;
+      try {
+        const r = await call('luuNhom', { isNew: this.moi, data: Object.assign({}, this.f, { MaNhom: this.f.MaNhom.trim().toUpperCase() }) });
+        toast('Đã lưu nhóm ' + this.f.TenNhom); closeModal(r);
+      } catch (e) { fail(e); }
+      this.saving = false;
+    },
+    async del() {
+      if (!await ask({ title: 'Xoá nhóm', msg: 'Xoá nhóm "' + this.f.TenNhom + '"?', okText: 'Xoá', danger: true })) return;
+      try { const r = await call('xoaNhom', { MaNhom: this.f.MaNhom }); toast('Đã xoá nhóm'); closeModal(r); } catch (e) { fail(e); }
+    }
+  },
+  template: `<ModalShell :title="moi ? 'Thêm nhóm quyền' : 'Nhóm: ' + f.TenNhom" wide>
+    <div class="form two">
+      <div class="fld"><label>Mã nhóm <span class="req">*</span></label><input v-model="f.MaNhom" :readonly="!moi" placeholder="VD: TOTRUONG" style="text-transform:uppercase"></div>
+      <div class="fld"><label>Tên nhóm <span class="req">*</span></label><input v-model="f.TenNhom" placeholder="VD: Tổ trưởng"></div>
+      <div class="fld"><label>Mô tả</label><input v-model="f.MoTa"></div>
+      <div class="fld"><label>Thứ tự hiển thị</label><input v-model="f.ThuTu" inputmode="numeric"></div>
+      <div class="fld full" v-if="moi"><label>Sao chép quyền từ nhóm</label>
+        <select v-model="saoChep"><option value="">— Không —</option><option v-for="g in meta.nhom" :key="g.MaNhom" :value="g.MaNhom">{{ g.TenNhom }}</option></select></div>
+    </div>
+    <div v-if="admin" class="chip c-pri mt" style="height:auto;padding:8px 12px;white-space:normal;display:flex">Nhóm Admin luôn toàn quyền – chỉ sửa được tên và mô tả.</div>
+    <div class="mt">
+      <div v-for="c in meta.catalog" :key="c.nhom" class="perm-grp">
+        <label class="perm-h" style="cursor:pointer"><input type="checkbox" :checked="caNhom(c)" :disabled="admin" @change="togNhom(c)" style="width:18px;height:18px;accent-color:var(--pri)">
+          <span class="grow">{{ c.nhom }}</span><span class="small muted" style="font-weight:500">{{ c.ds.filter(x => co(x[0])).length }}/{{ c.ds.length }}</span></label>
+        <label v-for="x in c.ds" :key="x[0]" :class="['perm-row', {dis: admin || !duocCap(x[0])}]">
+          <input type="checkbox" :checked="co(x[0])" :disabled="admin || !duocCap(x[0])" @change="tog(x[0])"><span class="grow">{{ x[1] }}</span></label>
+      </div>
+    </div>
+    <div v-if="g" class="small muted mt">{{ g.soNguoi }} người dùng thuộc nhóm này. Đổi quyền nhóm có hiệu lực ngay khi họ mở / tải lại app.</div>
+    <template #foot><button v-if="xoaDuoc" class="btn danger" style="margin-right:auto;min-width:0" @click="del"><span class="ms">delete</span></button>
+      <button class="btn" @click="closeModal()">Huỷ</button><button class="btn pri" :disabled="saving" @click="save">{{ saving ? 'Đang lưu…' : 'Lưu' }}</button></template>
+  </ModalShell>`
+};
+
+/* Tự đổi mật khẩu (Tài khoản) */
+const ChangePwForm = {
+  components: { ModalShell },
+  data() { return { cu: '', moi: '', lai: '', hien: false, saving: false }; },
+  methods: {
+    async save() {
+      if (this.moi !== this.lai) return toast('Mật khẩu nhập lại không khớp', true);
+      this.saving = true;
+      try {
+        const r = await call('doiMatKhau', { cu: this.cu, moi: this.moi });
+        S.token = r.token; LS.set('ktht_token', r.token);
+        toast('Đã đổi mật khẩu'); closeModal(true);
+      } catch (e) { fail(e); }
+      this.saving = false;
+    }
+  },
+  template: `<ModalShell title="Đổi mật khẩu">
+    <div class="form">
+      <div class="fld"><label>Mật khẩu hiện tại</label><input v-model="cu" :type="hien ? 'text' : 'password'" autocomplete="current-password"></div>
+      <div class="fld"><label>Mật khẩu mới (tối thiểu {{ S.boot.dm.pwMin || 6 }} ký tự)</label>
+        <div class="pw"><input v-model="moi" :type="hien ? 'text' : 'password'" autocomplete="new-password">
+          <button type="button" class="ibtn" @click="hien = !hien"><span class="ms">{{ hien ? 'visibility_off' : 'visibility' }}</span></button></div></div>
+      <div class="fld"><label>Nhập lại mật khẩu mới</label><input v-model="lai" :type="hien ? 'text' : 'password'" autocomplete="new-password"></div>
+      <div class="small muted">Các máy khác đang đăng nhập bằng mật khẩu cũ sẽ phải đăng nhập lại.</div>
+    </div>
+    <template #foot><button class="btn" @click="closeModal()">Huỷ</button>
+      <button class="btn pri" :disabled="saving || !cu || moi.length < (S.boot.dm.pwMin || 6) || !lai" @click="save">{{ saving ? 'Đang lưu…' : 'Đổi mật khẩu' }}</button></template>
   </ModalShell>`
 };
 
@@ -2184,7 +2661,7 @@ const HourForm = {
       const toiDa = Math.max(ngay, 1 / 24) * 24 + 0.5;
       return this.tang > toiDa ? 'Tăng ' + fmtH(this.tang) + ' h – vượt mức có thể (tối đa ' + Math.round(toiDa) + ' h). Kiểm tra lại số' : '';
     },
-    canAnh() { return !isAdmin(); },
+    canAnh() { return !can('gio.ghide'); },
     ok() { return this.soNum != null && (this.anh || !this.canAnh) && !this.saving && !this.xuLyAnh; }
   },
   methods: {
@@ -2200,7 +2677,7 @@ const HourForm = {
     async save(boQua) {
       if (this.soNum == null) return toast('Nhập số giờ', true);
       if (!this.anh && this.canAnh) return toast('Chụp ảnh đồng hồ trước khi lưu', true);
-      if (this.loi && !isAdmin()) return toast(this.loi, true);
+      if (this.loi && !can('gio.ghide')) return toast(this.loi, true);
       this.saving = true;
       try {
         const r = await call('luuGioHD', { MaTB: this.ma, SoGio: this.soNum, GhiChu: this.ghiChu, BoQua: !!boQua,
@@ -2215,7 +2692,7 @@ const HourForm = {
         return;
       } catch (e) {
         this.saving = false;
-        if (/^\[GHI_DE\]/.test(e.message) && isAdmin()) {
+        if (/^\[GHI_DE\]/.test(e.message) && can('gio.ghide')) {
           const v = await ask({ title: 'Số giờ bất thường', msg: e.message.replace('[GHI_DE] ', '') + '. Nhập lý do để ghi đè (VD: thay đồng hồ mới):',
             input: true, okText: 'Ghi đè', danger: true });
           if (v !== false && String(v).trim()) { this.ghiChu = [this.ghiChu.trim(), String(v).trim()].filter(Boolean).join(' – '); return this.save(true); }
@@ -2334,7 +2811,7 @@ const ConfirmBox = {
   },
   template: `<div class="overlay" style="z-index:85" @click.self="done(false)"><div class="sheet" style="max-width:440px">
     <div class="sheet-h"><h3>{{ c.title }}</h3></div>
-    <div class="sheet-b"><div>{{ c.msg }}</div><div v-if="c.input" class="fld mt"><textarea ref="inp" v-model="c.value" style="min-height:70px"></textarea></div></div>
+    <div class="sheet-b"><div style="white-space:pre-line">{{ c.msg }}</div><div v-if="c.input" class="fld mt"><textarea ref="inp" v-model="c.value" style="min-height:70px"></textarea></div></div>
     <div class="sheet-f"><button v-if="!c.noCancel" class="btn" @click="done(false)">Đóng</button>
       <button :class="['btn', c.danger ? 'warn' : 'pri']" @click="done(true)">{{ c.okText }}</button></div></div></div>`
 };
@@ -2343,7 +2820,8 @@ const ConfirmBox = {
  *  KHUNG ỨNG DỤNG
  * ===================================================================== */
 const VIEWS = { home: HomeView, equipList: EquipList, equipDetail: EquipDetail, repairList: RepairList,
-  repairDetail: RepairDetail, repairNew: RepairNew, users: UsersView, account: AccountView, gioDash: GioDash, hourNew: GioDash, bdDash: BdDash };
+  repairDetail: RepairDetail, repairNew: RepairNew, users: UsersView, account: AccountView, gioDash: GioDash, hourNew: GioDash, bdDash: BdDash,
+  reports: ReportsView, perms: PermView, logs: LogsView };
 /* Admin sửa trực tiếp mọi trường của phiếu sửa chữa */
 const RepairAdminForm = {
   props: ['r'],
@@ -2401,81 +2879,127 @@ const RepairAdminForm = {
   </ModalShell>`
 };
 
-const MODALS = { EquipForm, DocForm, PartForm, FileForm, RepairEdit, RepairAdminForm, UserForm, HourForm, BdForm };
+const MODALS = { EquipForm, DocForm, PartForm, FileForm, RepairEdit, RepairAdminForm, UserForm, HourForm, BdForm, GroupForm, ChangePwForm };
 
 const Root = {
-  components: Object.assign({ LoginView, Viewer, ConfirmBox }, MODALS),
+  components: Object.assign({ LoginView, ChangePwView, Viewer, ConfirmBox }, MODALS),
+  data() { return { drag: { on: false, off: 0 } }; },
   computed: {
     viewComp() { return VIEWS[S.view.name] || HomeView; },
     viewKey() { return S.view.name + JSON.stringify(S.view.p); },
-    nav() {
-      if (isLX()) return [
-        { v: 'equipList', icon: 'directions_bus', label: 'Xe của tôi' },
-        { v: 'gioDash', icon: 'speed', label: 'Ghi giờ', cnt: gioStats().chua },
-        { v: 'repairNew', icon: 'report', label: 'Báo hỏng' },
-        { v: 'repairList', icon: 'build', label: 'Phiếu', cnt: S.repairs.length },
-        { v: 'account', icon: 'person', label: 'Tài khoản' }];
-      return [
-        { v: 'home', icon: 'space_dashboard', label: 'Tổng quan' },
-        { v: 'equipList', icon: 'airport_shuttle', label: 'Thiết bị' },
-        { v: 'bdDash', icon: 'construction', label: 'Bảo dưỡng', cnt: bdStats().qua + bdStats().sap },
-        { v: 'repairList', icon: 'build', label: 'Sửa chữa', cnt: S.repairs.filter(r => r.TrangThai === 'Mới báo').length },
-        { v: 'account', icon: 'person', label: 'Tài khoản' }];
+    /* Menu chức năng – chỉ hiện mục người dùng có quyền */
+    menu() {
+      if (!S.user || !S.boot) return [];
+      const gio = gioStats(), bd = bdStats();
+      const tatCa = can('thietbi.tatca');
+      const m = [];
+      if (can('tongquan.xem')) m.push({ v: 'home', icon: 'space_dashboard', label: 'Tổng quan' });
+      m.push({ v: 'equipList', icon: tatCa ? 'airport_shuttle' : 'directions_bus', label: tatCa ? 'Thiết bị' : 'Xe của tôi' });
+      if (can('gio.ghi', 'gio.theodoi')) m.push({ v: 'gioDash', icon: 'timer', label: can('gio.theodoi') ? 'Giờ hoạt động' : 'Ghi giờ', cnt: gio.chua });
+      if (can('bd.xem')) m.push({ v: 'bdDash', icon: 'construction', label: 'Bảo dưỡng', cnt: bd.qua + bd.sap });
+      m.push({ v: 'repairList', icon: 'build', label: 'Sửa chữa',
+        cnt: can('suachua.xuly') ? S.repairs.filter(r => r.TrangThai === 'Mới báo').length : S.repairs.length });
+      if (can('suachua.bao')) m.push({ v: 'repairNew', icon: 'report', label: 'Báo hỏng', qa: true });
+      if (can('baocao.xem')) m.push({ v: 'reports', icon: 'bar_chart', label: 'Báo cáo' });
+      return m;
     },
-    sideNav() {
-      if (isLX()) return this.nav.slice(0, 4);
-      /* Máy tính: đủ mục (thanh dưới điện thoại chỉ 5 mục – Giờ HĐ vào từ banner Tổng quan) */
-      const ds = this.nav.slice(0, 2).concat([{ v: 'gioDash', icon: 'timer', label: 'Giờ HĐ', cnt: gioStats().chua }], this.nav.slice(2, 4));
-      return isAdmin() ? ds.concat([{ v: 'users', icon: 'group', label: 'Người dùng' }]) : ds;
+    adminMenu() {
+      const m = [];
+      if (can('nguoidung.quanly', 'phanquyen.quanly')) m.push({ v: 'users', icon: 'manage_accounts', label: 'Người dùng' });
+      if (can('phanquyen.quanly')) m.push({ v: 'perms', icon: 'admin_panel_settings', label: 'Phân quyền' });
+      if (can('nhatky.xem')) m.push({ v: 'logs', icon: 'receipt_long', label: 'Nhật ký hệ thống' });
+      return m;
     },
+    badge() { return this.menu.some(n => n.cnt); },
     activeRoot() {
       const n = S.stack.length ? S.stack[0].name : S.view.name;
-      return ({ equipDetail: 'equipList', repairDetail: 'repairList' })[n] || n;
+      return ({ equipDetail: 'equipList', repairDetail: 'repairList', hourNew: 'gioDash' })[n] || n;
     },
+    sideStyle() { return this.drag.on ? { transform: 'translateX(' + this.drag.off + 'px)' } : null; },
     title() {
       if (S.title) return S.title;
-      const all = this.nav.concat([{ v: 'users', label: 'Người dùng' }, { v: 'gioDash', label: 'Giờ hoạt động' }]);
+      const all = this.menu.concat(this.adminMenu, [{ v: 'account', label: 'Tài khoản' }, { v: 'gioDash', label: 'Giờ hoạt động' }]);
       const f = all.find(x => x.v === S.view.name);
-      return f ? f.label : 'KTHT';
+      return f ? f.label : 'Vehicles – BMV';
     }
   },
+  mounted() {
+    /* Vuốt từ mép trái để mở menu, vuốt sang trái để đóng (điện thoại) */
+    let x0 = 0, y0 = 0, mode = '';
+    const rong = () => Math.min(window.innerWidth * 0.86, 310);
+    const bo = () => window.innerWidth >= 960 || !S.user || S.modal || S.viewer || S.confirm;
+    document.addEventListener('touchstart', ev => {
+      mode = '';
+      if (bo() || ev.touches.length !== 1) return;
+      const t = ev.touches[0];
+      if (S.drawer) mode = 'dong'; else if (t.clientX < 24) mode = 'mo'; else return;
+      x0 = t.clientX; y0 = t.clientY;
+    }, { passive: true });
+    document.addEventListener('touchmove', ev => {
+      if (!mode) return;
+      const t = ev.touches[0], dx = t.clientX - x0, dy = t.clientY - y0;
+      if (!this.drag.on) {
+        if (Math.abs(dy) > 12 && Math.abs(dy) > Math.abs(dx)) { mode = ''; return; }
+        if (Math.abs(dx) < 10) return;
+        this.drag.on = true;
+      }
+      const w = rong();
+      this.drag.off = mode === 'mo' ? Math.min(0, -w + Math.max(0, dx)) : Math.min(0, dx);
+    }, { passive: true });
+    document.addEventListener('touchend', () => {
+      if (!mode) return;
+      if (this.drag.on) { S.drawer = this.drag.off > -rong() / 2; this.drag.on = false; }
+      mode = '';
+    }, { passive: true });
+    document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && S.drawer) S.drawer = false; });
+  },
+  watch: {
+    'S.drawer'(v) { document.body.style.overflow = v ? 'hidden' : ''; }
+  },
   methods: {
-    navTo(v) { if (v === 'equipList') { S.filter.flag = ''; } go(v, {}, { root: true }); },
+    navTo(v) { if (v === 'equipList') { S.filter.flag = ''; } S.drawer = false; go(v, {}, { root: true }); },
     retryStart() { S.ready = false; start(); }
   },
   template: `
   <div v-if="!S.ready" class="boot-splash"><div class="spinner"></div></div>
+  <ChangePwView v-else-if="S.token && S.mustChange"></ChangePwView>
   <div v-else-if="!S.user && S.netErr" class="login"><div class="box" style="text-align:center">
     <div class="logo" style="margin:0 auto 14px"><span class="ms">cloud_off</span></div>
     <h2>Chưa kết nối được</h2><p>{{ S.netErr }}. Kiểm tra mạng (4G/Wi-Fi) rồi thử lại.</p>
     <button class="btn pri block" @click="retryStart"><span class="ms">refresh</span>Thử lại</button></div></div>
   <LoginView v-else-if="!S.user"></LoginView>
   <div v-else class="shell with-side">
-    <aside class="side">
-      <div class="logo"><div class="brand-dot" style="width:40px;height:40px;background:#1366b3"><span class="ms fill">flight_takeoff</span></div>
-        <div><b>KTHT Thiết bị</b><small>CHK Buôn Ma Thuột</small></div></div>
+    <div v-if="S.drawer || drag.on" class="scrim" @click="S.drawer = false"></div>
+    <aside :class="['side', {open: S.drawer, drag: drag.on}]" :style="sideStyle">
+      <div class="logo"><img src="icons/icon-192.png" alt="">
+        <div class="grow"><b>Vehicles – BMV</b><small>Phòng KTHT – CHK Buôn Ma Thuột</small></div>
+        <button class="ibtn m-only" title="Đóng" @click="S.drawer = false"><span class="ms">close</span></button></div>
       <template v-for="m in S.boot.modules" :key="m.id">
-        <div :class="['mod', {off: !m.active}]"><span class="ms">{{ m.icon }}</span>{{ m.name }}<span v-if="!m.active" class="soon">Sắp có</span></div>
         <template v-if="m.active">
-          <button v-for="n in sideNav" :key="n.v" :class="['item', {on: activeRoot === n.v}]" @click="navTo(n.v)">
+          <div class="mod"><span class="ms">{{ m.icon }}</span>{{ m.name }}</div>
+          <button v-for="n in menu" :key="n.v" :class="['item', {on: activeRoot === n.v, qa: n.qa}]" @click="navTo(n.v)">
             <span class="ms">{{ n.icon }}</span>{{ n.label }}<span v-if="n.cnt" class="cnt">{{ n.cnt }}</span></button>
         </template>
       </template>
-      <div class="me"><div class="avatar">{{ initials(S.user.HoTen) }}</div>
+      <template v-if="adminMenu.length">
+        <div class="grp">Quản trị</div>
+        <button v-for="n in adminMenu" :key="n.v" :class="['item', {on: activeRoot === n.v}]" style="padding-left:10px" @click="navTo(n.v)">
+          <span class="ms">{{ n.icon }}</span>{{ n.label }}</button>
+      </template>
+      <div class="grp">Module khác</div>
+      <div v-for="m in S.boot.modules.filter(x => !x.active)" :key="m.id" class="mod off"><span class="ms">{{ m.icon }}</span>{{ m.name }}<span class="soon">Sắp có</span></div>
+      <div class="spacer"></div>
+      <div class="me" @click="navTo('account')"><div class="avatar">{{ initials(S.user.HoTen) }}</div>
         <div class="who"><b>{{ S.user.HoTen }}</b><small>{{ S.user.VaiTro }}</small></div>
-        <button class="ibtn" title="Đăng xuất" @click="logoutNow"><span class="ms">logout</span></button></div>
+        <button class="ibtn" title="Đăng xuất" @click.stop="logoutNow"><span class="ms">logout</span></button></div>
     </aside>
     <header class="topbar">
       <button v-if="S.stack.length" class="ibtn" @click="back"><span class="ms">arrow_back</span></button>
-      <div v-else class="brand-dot m-only"><span class="ms fill">flight_takeoff</span></div>
+      <button v-else class="ibtn hb m-only" title="Menu" @click="S.drawer = true"><span class="ms">menu</span><span v-if="badge" class="hb-dot"></span></button>
       <h1>{{ title }}</h1>
       <button class="ibtn" title="Tải lại" @click="refreshAll"><span class="ms">refresh</span></button>
     </header>
     <main class="main"><component :is="viewComp" :key="viewKey" v-bind="S.view.p"></component></main>
-    <nav class="bnav">
-      <button v-for="n in nav" :key="n.v" :class="{on: activeRoot === n.v}" @click="navTo(n.v)">
-        <span class="ms">{{ n.icon }}</span>{{ n.label }}<span v-if="n.cnt" class="dot">{{ n.cnt }}</span></button>
-    </nav>
   </div>
   <div v-if="S.busy" class="loadbar"></div>
   <component v-if="S.modal" :is="S.modal.type" v-bind="S.modal.props"></component>
@@ -2488,14 +3012,14 @@ const app = createApp(Root);
 Object.assign(app.config.globalProperties, {
   S, go, back, toast, fmtD, fmtDT, ago, docCls, docText, stCls, rpCls, who, ids, eqIcon, initials, viewImages,
   isAdmin, isTech, isLX, closeModal, logoutNow, refreshAll, STEPS, partLabel, ACCEPT_DOC, shortDoc, fmtH, hasH,
-  ghiHomNay, ngayChuaGhi, bdCls, bdHan, bdLyDo, phieuBDMo, todayStr
+  ghiHomNay, ngayChuaGhi, bdCls, bdHan, bdLyDo, phieuBDMo, todayStr, can
 });
 app.config.errorHandler = (err) => { console.error(err); fail(err); };
 app.mount('#app');
 
 async function start() {
   S.netErr = '';
-  if (S.token) {
+  if (S.token && !S.mustChange) {
     let cached = null;
     try { cached = JSON.parse(LS.get(BOOT_KEY) || 'null'); } catch (e) {}
     if (cached && cached.user) { applyBoot(cached, !!S.user); S.ready = true; }      /* hiện ngay dữ liệu đã lưu */
