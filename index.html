@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0..1,0&icon_names=add,add_a_photo,add_circle,admin_panel_settings,agriculture,airport_shuttle,ambulance,api,apps,arrow_back,assignment_ind,autorenew,badge,bar_chart,block,bolt,build,cancel,cell_tower,check,check_circle,checklist,chevron_left,chevron_right,cleaning_services,close,cloud_off,construction,content_copy,conveyor_belt,delete,delete_forever,description,directions_bus,do_not_disturb_on,docs,donut_large,draft,edit,edit_note,electric_bolt,engineering,error,event_available,event_busy,expand_less,expand_more,fact_check,files,fire_truck,flight_takeoff,folder_open,forklift,gpp_bad,grass,group,groups,history,home,hourglass_empty,image,info,insights,inventory_2,key,local_shipping,lock,lock_reset,login,logout,mail,manage_accounts,menu,mode_fan,monitoring,password,payments,pending_actions,person,person_add,photo_camera,picture_as_pdf,playlist_add,receipt_long,refresh,remove,report,schedule,search,search_off,send,shield_person,space_dashboard,speed,stairs,sync,sync_alt,tab,task_alt,timer,tire_repair,title,toast,undo,upload,upload_file,verified,visibility,visibility_off,warning&display=block" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0..1,0&icon_names=add,add_a_photo,add_circle,admin_panel_settings,agriculture,airport_shuttle,ambulance,api,apps,arrow_back,assignment_ind,autorenew,badge,bar_chart,block,bolt,build,cancel,cell_tower,check,check_circle,checklist,chevron_left,chevron_right,cleaning_services,close,cloud_off,construction,content_copy,conveyor_belt,delete,delete_forever,description,directions_bus,do_not_disturb_on,docs,donut_large,download,draft,edit,edit_note,electric_bolt,engineering,error,event_available,event_busy,expand_less,expand_more,fact_check,files,fire_truck,flight_takeoff,folder_open,forklift,gpp_bad,grass,group,groups,history,home,hourglass_empty,image,info,insights,inventory_2,key,local_shipping,lock,lock_reset,login,logout,mail,manage_accounts,menu,mode_fan,monitoring,password,payments,pending_actions,person,person_add,photo_camera,picture_as_pdf,playlist_add,print,receipt_long,refresh,remove,report,schedule,search,search_off,send,shield_person,space_dashboard,speed,stairs,sync,sync_alt,tab,task_alt,timer,tire_repair,title,toast,undo,upload,upload_file,verified,visibility,visibility_off,warning&display=block" rel="stylesheet">
 <style>
 :root {
   --pri: #0b4f8a; --pri-2: #1366b3; --pri-soft: #e6f0fa; --pri-ink: #ffffff;
@@ -403,6 +403,47 @@ a { color: var(--pri-2); text-decoration: none; }
 .rep .k-ic { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; flex: none; }
 .rep .t { font-weight: 700; }
 .rep .d { font-size: 13px; color: var(--muted); margin-top: 2px; }
+/* Thông số kỹ thuật */
+.rp-filter { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.rp-filter .fld { flex: 1 1 200px; min-width: 0; }
+.rp-filter .btn { flex: none; height: 44px; }
+.rt-wrap { overflow: auto; }
+.rt { width: 100%; border-collapse: collapse; font-size: 13px; }
+.rt th { text-align: left; font-size: 12px; color: var(--muted); font-weight: 600; padding: 8px 10px; background: #f8fafc; white-space: nowrap; }
+.rt td { padding: 8px 10px; border-top: 1px solid var(--line); vertical-align: top; }
+.rt .nw { white-space: nowrap; }
+.ts-tb { min-width: 1900px; }
+.ts-tb td.wr { min-width: 220px; max-width: 320px; }
+.ts-tb input, .ts-h input { width: 18px; height: 18px; accent-color: var(--pri); flex: none; }
+.ts-card { overflow: hidden; }
+.ts-card + .ts-card { margin-top: 12px; }
+.ts-h { display: flex; align-items: center; gap: 10px; padding: 10px 12px; flex-wrap: wrap; }
+.ts-h > .grow { min-width: 150px; }
+.ts-kv { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+.ts-kv > div { padding: 8px 14px; }
+@media (max-width: 640px) { .ts-kv > div { padding: 7px 12px; } .ts-kv span { font-size: 14px; } }
+@media (min-width: 900px) { .ts-kv { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; } }
+.ts-sub { padding: 10px 14px; border-top: 1px solid var(--line); overflow-x: auto; }
+.ts-sub .ptable td, .ts-sub .ptable th { padding: 6px 8px; }
+.print-only { display: none; }
+.rp-head { text-align: center; margin-bottom: 12px; }
+.rp-head h2 { font-size: 17px; margin: 6px 0 4px; }
+@media print {
+  @page { size: A4; margin: 10mm; }
+  html, body { background: #fff !important; font-size: 12px; }
+  .side, .topbar, .scrim, .loadbar, .toast, .fab, .no-print { display: none !important; }
+  .print-only { display: block !important; }
+  .with-side { padding-left: 0 !important; }
+  .main { padding: 0 !important; max-width: none !important; }
+  .rp-ts { max-width: none !important; }
+  .card { box-shadow: none !important; border-color: #c9d2dc !important; }
+  .ts-card { break-inside: avoid; }
+  .ts-kv { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+  .rt-wrap { overflow: visible !important; }
+  .ts-tb { min-width: 0; font-size: 8.5px; } .ts-tb th, .ts-tb td { padding: 3px 4px; white-space: normal !important; }
+  .rt tr { break-inside: avoid; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
 
 /* ---------- Tối ưu điện thoại ---------- */
 .li .s .plate { margin-right: 4px; }
@@ -1375,6 +1416,7 @@ const EquipDetail = {
         <div v-for="r in info" :key="r[0]" :class="{full: r[2]}" v-show="r[1] !== '' && r[1] != null"><label>{{ r[0] }}</label><span>{{ r[1] }}</span></div>
       </div>
       <div class="small muted mt">Cập nhật {{ fmtDT(e.NgayCapNhat) }} {{ e.NguoiCapNhat ? '· ' + who(e.NguoiCapNhat) : '' }}</div>
+      <button class="btn sm mt" @click="xuatThongSo([e.MaTB])"><span class="ms">download</span>Tải thông số (Excel)</button>
       <button v-if="can('thietbi.xoa')" class="btn danger sm mt" @click="del"><span class="ms">delete</span>Xoá thiết bị</button>
     </div>
 
@@ -1942,6 +1984,7 @@ const AccountView = {
  *  BÁO CÁO – khung menu. Thêm báo cáo: thêm 1 dòng vào REPORTS (ready:true, view: tên màn hình)
  * ===================================================================== */
 const REPORTS = [
+  { id: 'thongso', icon: 'description', name: 'Thông số kỹ thuật phương tiện', desc: 'Lý lịch kỹ thuật từng xe (thông số, giấy tờ, linh kiện) – tải Excel / In PDF', ready: true, view: 'repTS' },
   { id: 'chiphi', icon: 'payments', name: 'Chi phí sửa chữa theo xe', desc: 'Vật tư xuất kho, số lần sửa chữa theo xe / tháng / năm' },
   { id: 'gio', icon: 'timer', name: 'Giờ hoạt động', desc: 'Tổng giờ chạy theo xe, theo tháng' },
   { id: 'bd', icon: 'fact_check', name: 'Tuân thủ bảo dưỡng', desc: 'Đúng hạn / trễ hạn theo cấp BD (QT05)' },
@@ -1965,6 +2008,267 @@ const ReportsView = {
         <span v-if="!r.ready" class="chip c-grey">Sắp có</span><span v-else class="ms muted">chevron_right</span>
       </button>
     </div>
+  </div>`
+};
+
+/* =====================================================================
+ *  XUẤT EXCEL (.xlsx) – tự đóng gói, không cần thư viện ngoài
+ *  sheets: [{ name, cols: [độ rộng], rows: [[ô]] }] ; ô = giá trị hoặc { v, s }
+ *  s: 1 tiêu đề cột, 2 ô bảng, 3 tiêu đề lớn, 4 ô bảng in đậm (dòng tổng)
+ * ===================================================================== */
+const XLSX = (function () {
+  const enc = new TextEncoder();
+  const T = new Uint32Array(256);
+  for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; T[n] = c >>> 0; }
+  const crc32 = b => { let c = 0xFFFFFFFF; for (let i = 0; i < b.length; i++) c = T[(c ^ b[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; };
+  function zip(files) {
+    const loc = [], cen = []; let off = 0;
+    files.forEach(f => {
+      const nm = enc.encode(f.name), d = enc.encode(f.text), crc = crc32(d);
+      const h = new DataView(new ArrayBuffer(30));
+      h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(6, 0x0800, true); h.setUint16(12, 0x21, true);
+      h.setUint32(14, crc, true); h.setUint32(18, d.length, true); h.setUint32(22, d.length, true); h.setUint16(26, nm.length, true);
+      loc.push(new Uint8Array(h.buffer), nm, d);
+      const c = new DataView(new ArrayBuffer(46));
+      c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint16(8, 0x0800, true); c.setUint16(14, 0x21, true);
+      c.setUint32(16, crc, true); c.setUint32(20, d.length, true); c.setUint32(24, d.length, true); c.setUint16(28, nm.length, true); c.setUint32(42, off, true);
+      cen.push(new Uint8Array(c.buffer), nm);
+      off += 30 + nm.length + d.length;
+    });
+    const size = cen.reduce((s, a) => s + a.length, 0);
+    const e = new DataView(new ArrayBuffer(22));
+    e.setUint32(0, 0x06054b50, true); e.setUint16(8, files.length, true); e.setUint16(10, files.length, true); e.setUint32(12, size, true); e.setUint32(16, off, true);
+    return new Blob(loc.concat(cen, [new Uint8Array(e.buffer)]), { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  }
+  const esc = s => String(s).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const colName = i => { let s = ''; i++; while (i) { const m = (i - 1) % 26; s = String.fromCharCode(65 + m) + s; i = Math.floor((i - 1) / 26); } return s; };
+  const NS = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main';
+  const XH = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+  function sheetXml(sh) {
+    const cols = (sh.cols || []).map((w, i) => '<col min="' + (i + 1) + '" max="' + (i + 1) + '" width="' + w + '" customWidth="1"/>').join('');
+    const rows = sh.rows.map((r, ri) => '<row r="' + (ri + 1) + '">' + (r || []).map((c, ci) => {
+      const o = c && typeof c === 'object' ? c : { v: c };
+      const ref = colName(ci) + (ri + 1), st = o.s ? ' s="' + o.s + '"' : '';
+      if (o.v == null || o.v === '') return '<c r="' + ref + '"' + st + '/>';
+      if (typeof o.v === 'number' && isFinite(o.v)) return '<c r="' + ref + '"' + st + '><v>' + o.v + '</v></c>';
+      return '<c r="' + ref + '"' + st + ' t="inlineStr"><is><t xml:space="preserve">' + esc(o.v) + '</t></is></c>';
+    }).join('') + '</row>').join('');
+    return XH + '<worksheet xmlns="' + NS + '">' + (cols ? '<cols>' + cols + '</cols>' : '') + '<sheetData>' + rows + '</sheetData>' +
+      '<pageMargins left="0.4" right="0.4" top="0.5" bottom="0.5" header="0.3" footer="0.3"/><pageSetup paperSize="9" orientation="landscape"/></worksheet>';
+  }
+  const STYLES = XH + '<styleSheet xmlns="' + NS + '">' +
+    '<fonts count="3"><font><sz val="11"/><name val="Arial"/></font><font><b/><sz val="11"/><name val="Arial"/></font><font><b/><sz val="14"/><name val="Arial"/></font></fonts>' +
+    '<fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill>' +
+    '<fill><patternFill patternType="solid"><fgColor rgb="FFDCE8F5"/><bgColor indexed="64"/></patternFill></fill></fills>' +
+    '<borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border>' +
+    '<border><left style="thin"><color rgb="FFA9B6C6"/></left><right style="thin"><color rgb="FFA9B6C6"/></right><top style="thin"><color rgb="FFA9B6C6"/></top><bottom style="thin"><color rgb="FFA9B6C6"/></bottom><diagonal/></border></borders>' +
+    '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>' +
+    '<cellXfs count="5"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>' +
+    '<xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>' +
+    '<xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf>' +
+    '<xf numFmtId="0" fontId="2" fillId="0" borderId="0" xfId="0" applyFont="1"/>' +
+    '<xf numFmtId="0" fontId="1" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1"/></cellXfs>' +
+    '<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>';
+  function build(sheets) {
+    const ct = '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/>' +
+      '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>' +
+      '<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>' +
+      sheets.map((s, i) => '<Override PartName="/xl/worksheets/sheet' + (i + 1) + '.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>').join('');
+    const R = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships';
+    const files = [
+      { name: '[Content_Types].xml', text: XH + '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' + ct + '</Types>' },
+      { name: '_rels/.rels', text: XH + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="' + R + '/officeDocument" Target="xl/workbook.xml"/></Relationships>' },
+      { name: 'xl/workbook.xml', text: XH + '<workbook xmlns="' + NS + '" xmlns:r="' + R + '"><sheets>' +
+        sheets.map((s, i) => '<sheet name="' + esc(String(s.name).replace(/[\\\/?*\[\]:]/g, ' ').slice(0, 31)) + '" sheetId="' + (i + 1) + '" r:id="rId' + (i + 1) + '"/>').join('') + '</sheets></workbook>' },
+      { name: 'xl/_rels/workbook.xml.rels', text: XH + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+        sheets.map((s, i) => '<Relationship Id="rId' + (i + 1) + '" Type="' + R + '/worksheet" Target="worksheets/sheet' + (i + 1) + '.xml"/>').join('') +
+        '<Relationship Id="rId' + (sheets.length + 1) + '" Type="' + R + '/styles" Target="styles.xml"/></Relationships>' },
+      { name: 'xl/styles.xml', text: STYLES }
+    ].concat(sheets.map((s, i) => ({ name: 'xl/worksheets/sheet' + (i + 1) + '.xml', text: sheetXml(s) })));
+    return zip(files);
+  }
+  return { build };
+})();
+function taiFile(blob, name) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 2000);
+}
+
+/* =====================================================================
+ *  BÁO CÁO: THÔNG SỐ KỸ THUẬT PHƯƠNG TIỆN
+ *  Lấy từ dữ liệu app đã tải (danh sách xe + chi tiết từng xe) -> không gọi máy chủ.
+ *  Tải về: Excel (sheet "Tổng hợp" + mỗi xe 1 sheet lý lịch) · In / PDF.
+ *  Dùng chung với nút "Tải thông số" ở trang chi tiết xe: xuatThongSo([MaTB]).
+ * ===================================================================== */
+const TS_COLS = [
+  ['MaTB', 'Mã thiết bị'], ['TenTB', 'Tên phương tiện'], ['LoaiTB', 'Loại'], ['BienSo', 'Biển số'],
+  ['NhanHieu', 'Nhãn hiệu'], ['NuocSX', 'Nước sản xuất'], ['NamSX', 'Năm sản xuất'], ['NamSD', 'Năm sử dụng'],
+  ['Serial', 'Serial'], ['SoMay', 'Số máy'], ['SoKhung', 'Số khung'],
+  ['Dai', 'Dài (mm)'], ['Rong', 'Rộng (mm)'], ['Cao', 'Cao (mm)'], ['KhoiLuong', 'Khối lượng (kg)'],
+  ['TaiTrongCongSuat', 'Tải trọng / Công suất'], ['ThongTinKhac', 'Thông tin khác'],
+  ['TrangThai', 'Trạng thái'], ['ChiSo', 'Số giờ hoạt động (h)'], ['ChuKyBD', 'Chu kỳ bảo dưỡng'], ['GhiChu', 'Ghi chú']
+];
+/* Thông số kỹ thuật "cốt lõi" dùng để đánh giá dữ liệu đã nhập đủ chưa */
+const TS_CORE = ['NhanHieu', 'NuocSX', 'NamSX', 'NamSD', 'SoMay', 'SoKhung', 'Dai', 'Rong', 'Cao', 'KhoiLuong', 'TaiTrongCongSuat'];
+const coGT = v => v !== '' && v != null && String(v).trim() !== '';
+
+/** Gộp dữ liệu 1 xe: danh sách (trạng thái, giờ mới nhất) + chi tiết (đủ cột ThietBi, giấy tờ, linh kiện) */
+function tsXe(ma) {
+  const e = S.equipment.find(x => x.MaTB === ma) || {};
+  const d = detailCache[ma] || {};
+  const f = Object.assign({}, d.equipment || {}, e);
+  const ck = (S.boot.dm.chuKyBD || []).find(c => c.MaCK === f.MaCK);
+  f.ChuKyBD = f.MaCK ? f.MaCK + (ck ? ' – ' + ck.TenMau : '') : '';
+  f.ChiSo = hasH(e.ChiSo) ? Number(e.ChiSo) : '';
+  return { ma, e, f, docs: d.docs || [], parts: d.parts || [],
+    du: TS_CORE.filter(k => coGT(f[k])).length };
+}
+function tsGiaTri(f, k) {
+  const v = f[k];
+  if (!coGT(v)) return '';
+  const n = Number(v);
+  return typeof v === 'number' || (/^\d+([.,]\d+)?$/.test(String(v).trim()) && !isNaN(n) && ['MaTB', 'BienSo', 'Serial', 'SoMay', 'SoKhung'].indexOf(k) < 0) ? n : String(v).trim();
+}
+function tsHienThi(f, k) {
+  const v = tsGiaTri(f, k);
+  if (v === '') return '';
+  if (k === 'ChiSo') return fmtH(v) + ' h';
+  if (typeof v === 'number' && ['Dai', 'Rong', 'Cao', 'KhoiLuong'].indexOf(k) >= 0) return v.toLocaleString('vi-VN');
+  return String(v);
+}
+
+/** Tạo + tải file Excel thông số cho danh sách mã xe */
+function xuatThongSo(dsMa, phamVi) {
+  const xe = dsMa.map(tsXe);
+  if (!xe.length) return toast('Không có phương tiện để xuất', true);
+  const H = v => ({ v, s: 1 }), B = v => ({ v, s: 2 }), T = v => ({ v, s: 3 }), D = v => ({ v, s: 4 });
+  const dau = ['CẢNG HÀNG KHÔNG BUÔN MA THUỘT – PHÒNG KỸ THUẬT HẠ TẦNG'];
+  const ngay = 'Ngày xuất: ' + fmtD(todayStr());
+  const sheets = [];
+  const dsCot = TS_COLS.filter(c => c[0] !== 'GhiChu');
+  if (xe.length > 1) {
+    sheets.push({ name: 'Tổng hợp', cols: [6].concat(dsCot.map(c => ({ TenTB: 30, LoaiTB: 20, ThongTinKhac: 30, TaiTrongCongSuat: 22, ChuKyBD: 22 })[c[0]] || 13), [24]),
+      rows: [dau, [T('BẢNG THÔNG SỐ KỸ THUẬT PHƯƠNG TIỆN, TRANG THIẾT BỊ MẶT ĐẤT')], [(phamVi ? 'Phạm vi: ' + phamVi + ' · ' : '') + ngay + ' · ' + xe.length + ' phương tiện'], [],
+        [H('STT')].concat(dsCot.map(c => H(c[1])), [H('Ghi chú')])]
+        .concat(xe.map((x, i) => [B(i + 1)].concat(dsCot.map(c => B(tsGiaTri(x.f, c[0]))), [B(tsGiaTri(x.f, 'GhiChu'))]))) });
+  }
+  const daDung = {};
+  xe.forEach(x => {
+    let ten = String(x.ma + (x.f.BienSo ? ' ' + x.f.BienSo : '')).replace(/[\\\/?*\[\]:]/g, ' ').slice(0, 28);
+    while (daDung[ten]) ten = ten.slice(0, 26) + '_' + Object.keys(daDung).length;
+    daDung[ten] = 1;
+    const rows = [dau, [T('LÝ LỊCH KỸ THUẬT PHƯƠNG TIỆN')], [T(x.f.TenTB || x.ma)], [ngay], [], [H('Thông số'), H('Giá trị')]]
+      .concat(TS_COLS.map(c => [B(c[1]), B(tsGiaTri(x.f, c[0]))]));
+    rows.push([], [D('Giấy tờ')], [H('Loại giấy tờ'), H('Số giấy'), H('Ngày cấp'), H('Ngày hết hạn'), H('Ghi chú')]);
+    if (x.docs.length) x.docs.forEach(g => rows.push([B(g.LoaiGiayTo), B(g.SoGiay || ''), B(fmtD(g.NgayCap)), B(fmtD(g.NgayHetHan)), B(g.GhiChu || '')]));
+    else rows.push([B('Chưa có giấy tờ'), B(''), B(''), B(''), B('')]);
+    rows.push([], [D('Linh kiện / vật tư lắp trên xe')], [H('Loại'), H('Vị trí'), H('Quy cách'), H('Số lượng'), H('Ngày thay gần nhất')]);
+    if (x.parts.length) x.parts.forEach(p => rows.push([B(p.Loai), B(p.ViTri || ''), B(p.QuyCach || ''), B(tsGiaTri(p, 'SoLuong')), B(fmtD(p.NgayThay))]));
+    else rows.push([B('Chưa có thông tin linh kiện'), B(''), B(''), B(''), B('')]);
+    sheets.push({ name: ten, cols: [30, 34, 22, 16, 26], rows });
+  });
+  const ten = xe.length === 1 ? 'ThongSo_' + (x => (x.ma + (x.f.BienSo ? '_' + x.f.BienSo : '')))(xe[0]) : 'ThongSoKyThuat_' + xe.length + 'xe';
+  taiFile(XLSX.build(sheets), ten.replace(/[^\w.-]+/g, '_') + '_' + todayStr() + '.xlsx');
+  toast('Đã tải file Excel thông số ' + (xe.length === 1 ? (xe[0].f.TenTB || xe[0].ma) : xe.length + ' xe'));
+}
+
+const RepTS = {
+  components: { Thumb },
+  data() { return { q: '', loai: '', tatCa: false, kieu: 'xe', chon: [] }; },
+  created() { S.title = 'Thông số kỹ thuật'; if (!isFresh()) reloadLists(); },
+  computed: {
+    loaiList() { const a = []; S.equipment.forEach(e => { if (a.indexOf(e.LoaiTB) < 0) a.push(e.LoaiTB); }); return a; },
+    rows() {
+      const q = norm(this.q);
+      return S.equipment
+        .filter(e => (this.tatCa || e.TrangThai !== 'Thanh lý') && (!this.loai || e.LoaiTB === this.loai))
+        .map(e => tsXe(e.MaTB))
+        .filter(x => !q || norm([x.f.TenTB, x.f.BienSo, x.f.MaTB, x.f.NhanHieu, x.f.LoaiTB, x.f.SoMay, x.f.SoKhung, x.f.Serial, x.f.NuocSX].join(' ')).includes(q));
+    },
+    /* Xe được xuất: đã tick chọn -> chỉ các xe đó; chưa chọn -> toàn bộ danh sách đang lọc */
+    xuatDs() { return this.chon.length ? this.rows.filter(x => this.chon.indexOf(x.ma) >= 0) : this.rows; },
+    thieu() { return this.rows.filter(x => x.du < TS_CORE.length).length; },
+    phamVi() { return [this.loai || 'Tất cả loại', this.tatCa ? 'gồm xe thanh lý' : 'đang quản lý', this.q ? 'lọc "' + this.q + '"' : ''].filter(Boolean).join(' · '); }
+  },
+  watch: { rows() { const c = this.rows.map(x => x.ma); this.chon = this.chon.filter(m => c.indexOf(m) >= 0); } },
+  methods: {
+    cot(x) { return TS_COLS.filter(c => ['MaTB', 'TenTB', 'BienSo', 'TrangThai'].indexOf(c[0]) < 0).map(c => [c[1], tsHienThi(x.f, c[0]), c[0]]); },
+    hien(x, k) { return tsHienThi(x.f, k); },
+    toggle(ma) { const i = this.chon.indexOf(ma); if (i >= 0) this.chon.splice(i, 1); else this.chon.push(ma); },
+    chonHet() { this.chon = this.chon.length === this.rows.length ? [] : this.rows.map(x => x.ma); },
+    excel() { xuatThongSo(this.xuatDs.map(x => x.ma), this.chon.length ? 'Đã chọn ' + this.chon.length + ' xe' : this.phamVi); },
+    inBC() { window.print(); }
+  },
+  template: `<div class="rp-ts" style="max-width:1180px">
+    <div class="print-only rp-head">
+      <div class="small">CẢNG HÀNG KHÔNG BUÔN MA THUỘT – PHÒNG KỸ THUẬT HẠ TẦNG</div>
+      <h2>{{ kieu === 'bang' ? 'BẢNG THÔNG SỐ KỸ THUẬT PHƯƠNG TIỆN, TTB MẶT ĐẤT' : 'LÝ LỊCH KỸ THUẬT PHƯƠNG TIỆN, TTB MẶT ĐẤT' }}</h2>
+      <div class="small">{{ chon.length ? 'Đã chọn ' + chon.length + ' xe' : phamVi }} · Ngày in {{ fmtD(todayStr()) }}</div>
+    </div>
+
+    <div class="no-print">
+      <div class="toolbar"><div class="search"><span class="ms">search</span><input v-model="q" placeholder="Tìm tên xe, biển số, số máy, số khung…"></div></div>
+      <div class="rp-filter">
+        <div class="fld"><select v-model="loai"><option value="">Tất cả loại phương tiện</option><option v-for="l in loaiList" :key="l" :value="l">{{ l }}</option></select></div>
+        <button class="btn pri" @click="excel"><span class="ms">download</span>Tải Excel ({{ xuatDs.length }} xe)</button>
+        <button class="btn" @click="inBC"><span class="ms">print</span>In / PDF</button>
+      </div>
+      <div class="chips">
+        <button :class="['fchip', {on: kieu === 'xe'}]" @click="kieu = 'xe'"><span class="ms" style="font-size:17px">description</span>Từng xe</button>
+        <button :class="['fchip', {on: kieu === 'bang'}]" @click="kieu = 'bang'"><span class="ms" style="font-size:17px">apps</span>Bảng tổng hợp</button>
+        <span style="flex:none;width:1px;background:var(--line-2);margin:4px 2px"></span>
+        <button :class="['fchip', {on: tatCa}]" @click="tatCa = !tatCa">Gồm xe thanh lý</button>
+        <button class="fchip" @click="chonHet"><span class="ms" style="font-size:17px">checklist</span>{{ chon.length === rows.length && rows.length ? 'Bỏ chọn' : 'Chọn tất cả' }}</button>
+      </div>
+      <div class="card pad row mb small">
+        <span class="ms" style="color:var(--pri-2)">info</span>
+        <div class="grow">{{ rows.length }} phương tiện<span v-if="chon.length"> · <b>đã chọn {{ chon.length }}</b> (chỉ tải / in các xe đã chọn)</span><span v-else> · tick ô để chọn riêng xe cần tải</span>.
+          <span v-if="thieu" style="color:var(--warn)"> {{ thieu }} xe chưa nhập đủ thông số kỹ thuật.</span>
+          File Excel: sheet Tổng hợp + mỗi xe 1 sheet lý lịch (thông số, giấy tờ, linh kiện).</div>
+      </div>
+    </div>
+
+    <!-- Từng xe -->
+    <template v-if="kieu === 'xe'">
+      <div v-for="x in rows" :key="x.ma" :class="['card ts-card', {'no-print': chon.length && chon.indexOf(x.ma) < 0}]">
+        <div class="ts-h">
+          <input type="checkbox" class="no-print" :checked="chon.indexOf(x.ma) >= 0" @change="toggle(x.ma)">
+          <Thumb :id="x.e.AnhID" cls="sm" :icon="eqIcon(x.f.LoaiTB)"></Thumb>
+          <div class="grow" style="cursor:pointer" @click="go('equipDetail', {ma: x.ma})">
+            <div style="font-weight:700">{{ x.f.TenTB }}</div>
+            <div class="small muted"><span class="plate" v-if="x.f.BienSo">{{ x.f.BienSo }}</span> {{ x.ma }} · {{ x.f.LoaiTB }}</div></div>
+          <span :class="['chip', stCls(x.f.TrangThai)]">{{ x.f.TrangThai }}</span>
+          <span :class="['chip no-print', x.du === TS_CORE.length ? 'c-ok' : 'c-warn']" :title="'Đã nhập ' + x.du + '/' + TS_CORE.length + ' thông số kỹ thuật chính'">{{ x.du }}/{{ TS_CORE.length }}</span>
+          <button class="ibtn no-print" title="Tải Excel xe này" @click="xuatThongSo([x.ma])"><span class="ms">download</span></button>
+        </div>
+        <div class="kv ts-kv">
+          <div v-for="c in cot(x)" :key="c[0]" :class="{full: c[2] === 'ThongTinKhac' || c[2] === 'GhiChu'}" v-show="c[1] !== '' || TS_CORE.indexOf(c[2]) >= 0">
+            <label>{{ c[0] }}</label><span :class="{muted: c[1] === ''}">{{ c[1] === '' ? '—' : c[1] }}</span></div>
+        </div>
+        <div v-if="x.parts.length" class="ts-sub"><div class="small muted" style="font-weight:600;margin-bottom:4px">Linh kiện lắp trên xe</div>
+          <table class="ptable"><tr><th>Loại</th><th>Vị trí</th><th>Quy cách</th><th>SL</th><th>Ngày thay</th></tr>
+            <tr v-for="p in x.parts" :key="p.ID"><td>{{ p.Loai }}</td><td>{{ p.ViTri }}</td><td><b>{{ p.QuyCach }}</b></td><td>{{ p.SoLuong }}</td><td>{{ fmtD(p.NgayThay) }}</td></tr></table></div>
+        <div v-if="x.docs.length" class="ts-sub small"><span class="muted" style="font-weight:600">Giấy tờ: </span>
+          <span v-for="g in x.docs" :key="g.ID" style="margin-right:12px">{{ g.LoaiGiayTo }}{{ g.SoGiay ? ' số ' + g.SoGiay : '' }} – hết hạn <b>{{ fmtD(g.NgayHetHan) }}</b></span></div>
+      </div>
+    </template>
+
+    <!-- Bảng tổng hợp -->
+    <div v-else class="card rt-wrap"><table class="rt ts-tb">
+      <thead><tr><th class="no-print"></th><th>#</th><th v-for="c in TS_COLS" :key="c[0]">{{ c[1] }}</th></tr></thead>
+      <tbody>
+        <tr v-for="(x, i) in rows" :key="x.ma" :class="{'no-print': chon.length && chon.indexOf(x.ma) < 0}">
+          <td class="no-print"><input type="checkbox" :checked="chon.indexOf(x.ma) >= 0" @change="toggle(x.ma)"></td>
+          <td class="muted">{{ i + 1 }}</td>
+          <td v-for="c in TS_COLS" :key="c[0]" :class="['ThongTinKhac', 'GhiChu'].indexOf(c[0]) >= 0 ? 'wr' : 'nw'">
+            <b v-if="c[0] === 'TenTB'" style="cursor:pointer" @click="go('equipDetail', {ma: x.ma})">{{ hien(x, c[0]) }}</b>
+            <template v-else>{{ hien(x, c[0]) }}</template></td>
+        </tr>
+        <tr v-if="!rows.length"><td :colspan="TS_COLS.length + 2" class="empty">Không có phương tiện phù hợp</td></tr>
+      </tbody></table></div>
+    <div v-if="!rows.length && kieu === 'xe'" class="card empty"><span class="ms">search_off</span>Không có phương tiện phù hợp</div>
   </div>`
 };
 
@@ -2821,7 +3125,7 @@ const ConfirmBox = {
  * ===================================================================== */
 const VIEWS = { home: HomeView, equipList: EquipList, equipDetail: EquipDetail, repairList: RepairList,
   repairDetail: RepairDetail, repairNew: RepairNew, users: UsersView, account: AccountView, gioDash: GioDash, hourNew: GioDash, bdDash: BdDash,
-  reports: ReportsView, perms: PermView, logs: LogsView };
+  reports: ReportsView, repTS: RepTS, perms: PermView, logs: LogsView };
 /* Admin sửa trực tiếp mọi trường của phiếu sửa chữa */
 const RepairAdminForm = {
   props: ['r'],
@@ -2913,7 +3217,7 @@ const Root = {
     badge() { return this.menu.some(n => n.cnt); },
     activeRoot() {
       const n = S.stack.length ? S.stack[0].name : S.view.name;
-      return ({ equipDetail: 'equipList', repairDetail: 'repairList', hourNew: 'gioDash' })[n] || n;
+      return ({ equipDetail: 'equipList', repairDetail: 'repairList', hourNew: 'gioDash', repTS: 'reports' })[n] || n;
     },
     sideStyle() { return this.drag.on ? { transform: 'translateX(' + this.drag.off + 'px)' } : null; },
     title() {
@@ -3010,7 +3314,7 @@ const app = createApp(Root);
 Object.assign(app.config.globalProperties, {
   S, go, back, toast, fmtD, fmtDT, ago, docCls, docText, stCls, rpCls, who, ids, eqIcon, initials, viewImages,
   isAdmin, isTech, isLX, closeModal, logoutNow, refreshAll, STEPS, partLabel, ACCEPT_DOC, shortDoc, fmtH, hasH,
-  ghiHomNay, ngayChuaGhi, bdCls, bdHan, bdLyDo, phieuBDMo, todayStr, can
+  ghiHomNay, ngayChuaGhi, bdCls, bdHan, bdLyDo, phieuBDMo, todayStr, can, TS_COLS, TS_CORE, xuatThongSo
 });
 app.config.errorHandler = (err) => { console.error(err); fail(err); };
 app.mount('#app');
